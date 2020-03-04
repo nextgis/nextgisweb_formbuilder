@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
-from nextgisweb.component import Component
+from nextgisweb.component import Component, require
 from .model import Base
 
 
@@ -15,6 +15,7 @@ class FormBuilderComponent(Component):
     def configure(self):
         super(FormBuilderComponent, self).configure()
 
+    @require('resource')
     def setup_pyramid(self, config):
         super(FormBuilderComponent, self).setup_pyramid(config)
 
