@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals, print_function, absolute_import
+from __future__ import division, absolute_import, print_function, unicode_literals
 
 from nextgisweb.resource import Widget, Resource
 import nextgisweb.dynmenu as dm
@@ -19,11 +19,11 @@ def setup_pyramid(comp, config):
 
         def build(self, args):
             if isinstance(args.obj, FormbuilderForm):
-                yield dm.Label('formbuilder_form', _(u"Form"))
+                yield dm.Label('formbuilder_form', _("Form"))
 
                 if args.obj.ngfp_fileobj is not None:
                     yield dm.Link(
-                        'formbuilder_form/ngfp', _(u"Download as NGFP"),
+                        'formbuilder_form/ngfp', _("Download as NGFP"),
                         lambda args: args.request.route_url(
                             "formbuilder.formbuilder_form_ngfp", id=args.obj.id))
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals, print_function, absolute_import
+from __future__ import division, absolute_import, print_function, unicode_literals
 
-from shutil import copyfileobj
+from shutil import copyfile
 
 from nextgisweb import db
 from nextgisweb.models import declarative_base
@@ -15,7 +15,7 @@ from nextgisweb.resource import (
 from nextgisweb.feature_layer import IFeatureLayer
 from nextgisweb.file_storage import FileObj
 
-from .util import _
+from .util import _, COMP_ID
 
 Base = declarative_base()
 
@@ -42,16 +42,15 @@ class FormbuilderForm(Base, Resource):
         return self.parent.srs
 
 
-class _file_upload_attr(SerializedProperty):  # NOQA
+class _file_upload_attr(SerializedProperty):
 
     def setter(self, srlzr, value):
         srcfile, _ = env.file_upload.get_filename(value['id'])
-        fileobj = env.file_storage.fileobj(component='formbuilder')
+        fileobj = env.file_storage.fileobj(component=COMP_ID)
         srlzr.obj.ngfp_fileobj = fileobj
         dstfile = env.file_storage.filename(fileobj, makedirs=True)
 
-        with open(srcfile, 'r') as fs, open(dstfile, 'w') as fd:
-            copyfileobj(fs, fd)
+        copyfile(srcfile, dstfile)
 
 
 class FormbuilderFormSerializer(Serializer):
