@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import division, absolute_import, print_function, unicode_literals
-
 from nextgisweb.component import Component, require
 from .model import Base
 
@@ -23,8 +20,10 @@ class FormBuilderComponent(Component):
         api.setup_pyramid(self, config)
         view.setup_pyramid(self, config)
 
+
 def pkginfo():
     return dict(components=dict(formbuilder="nextgisweb_formbuilder"))
+
 
 def amd_packages():
     return ((

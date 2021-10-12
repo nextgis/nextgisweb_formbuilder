@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import io
 from setuptools import setup, find_packages
 
@@ -6,7 +5,7 @@ with io.open('VERSION', 'r') as fd:
     VERSION = fd.read().rstrip()
 
 requires = (
-    'nextgisweb>=3.8.0.dev7',
+    'nextgisweb>=4.0.0.dev5',
 )
 
 entry_points = {
@@ -32,6 +31,7 @@ setup(
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,
     zip_safe=False,
+    python_requires=">=3.8.*, <4",
     install_requires=requires,
     entry_points=entry_points,
 )
