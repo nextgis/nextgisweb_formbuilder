@@ -1,4 +1,4 @@
-from nextgisweb.component import Component, require
+from nextgisweb.env import Component, require
 from .model import Base
 
 

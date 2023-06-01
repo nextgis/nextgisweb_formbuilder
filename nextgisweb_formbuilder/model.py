@@ -1,7 +1,7 @@
 from shutil import copyfile
 
-from nextgisweb import db
-from nextgisweb.models import declarative_base
+from nextgisweb.lib import db
+from nextgisweb.env.model import declarative_base
 from nextgisweb.env import env
 from nextgisweb.resource import (
     Resource,
