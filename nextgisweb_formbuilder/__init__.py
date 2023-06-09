@@ -23,9 +23,3 @@ class FormBuilderComponent(Component):
 
 def pkginfo():
     return dict(components=dict(formbuilder="nextgisweb_formbuilder"))
-
-
-def amd_packages():
-    return ((
-        'ngw-formbuilder', 'nextgisweb_formbuilder:amd/ngw-formbuilder'
-    ),)

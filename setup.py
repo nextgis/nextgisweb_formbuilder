@@ -5,15 +5,12 @@ with io.open('VERSION', 'r') as fd:
     VERSION = fd.read().rstrip()
 
 requires = (
-    'nextgisweb>=4.4.0.dev8',
+    'nextgisweb>=4.4.0.dev9',
 )
 
 entry_points = {
     'nextgisweb.packages': [
         'nextgisweb_formbuilder = nextgisweb_formbuilder:pkginfo',
-    ],
-    'nextgisweb.amd_packages': [
-        'nextgisweb_formbuilder = nextgisweb_formbuilder:amd_packages',
     ],
 }
 
