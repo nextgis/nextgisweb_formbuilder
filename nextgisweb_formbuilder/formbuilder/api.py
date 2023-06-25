@@ -1,7 +1,8 @@
 from pyramid.response import FileResponse
 
 from nextgisweb.env import env
-from nextgisweb.resource import resource_factory, ResourceScope
+
+from nextgisweb.resource import ResourceScope, resource_factory
 
 from .model import FormbuilderForm
 

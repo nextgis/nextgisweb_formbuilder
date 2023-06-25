@@ -1,5 +1,6 @@
 import nextgisweb.lib.dynmenu as dm
-from nextgisweb.resource import Widget, Resource
+
+from nextgisweb.resource import Resource, Widget
 
 from .model import FormbuilderForm
 from .util import _
