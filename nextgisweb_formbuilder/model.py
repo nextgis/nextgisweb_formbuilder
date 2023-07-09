@@ -1,15 +1,11 @@
 from shutil import copyfile
 
-from nextgisweb.env import declarative_base, env
+from nextgisweb.env import COMP_ID, Base, _, env
 from nextgisweb.lib import db
 
 from nextgisweb.feature_layer import IFeatureLayer
 from nextgisweb.file_storage import FileObj
 from nextgisweb.resource import DataScope, Resource, ResourceScope, SerializedProperty, Serializer
-
-from .util import COMP_ID, _
-
-Base = declarative_base()
 
 
 class FormbuilderForm(Base, Resource):

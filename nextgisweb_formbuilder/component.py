@@ -1,11 +1,7 @@
 from nextgisweb.env import Component, require
 
-from .model import Base
-
 
 class FormBuilderComponent(Component):
-    identity = 'formbuilder'
-    metadata = Base.metadata
 
     def initialize(self):
         super(FormBuilderComponent, self).initialize()
