@@ -1,12 +1,16 @@
-#: amd/ngw-formbuilder/FormbuilderFormWidget.js:30 model.py:25 view.py:22
+#: model.py:13 nodepkg/editor-widget/EditorWidget.js:32 view.py:20
 msgid "Form"
 msgstr "Форма"
 
-#: view.py:26
+#: view.py:24
 msgid "Download as NGFP"
 msgstr "Скачать NGFP"
 
-#: amd/ngw-formbuilder/template/FormbuilderFormWidget.hbs:5
-msgid "NGFP file"
-msgstr "Файл NGFP"
+#: nodepkg/editor-widget/EditorWidget.js:9
+msgid "Select a dataset"
+msgstr "Выберите набор данных"
+
+#: nodepkg/editor-widget/EditorWidget.js:10
+msgid "Dataset should be in NGFP format."
+msgstr "Файл должен быть в формате NGFP."
 

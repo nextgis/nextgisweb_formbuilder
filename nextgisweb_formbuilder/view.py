@@ -9,7 +9,7 @@ from .model import FormbuilderForm
 class Widget(Widget):
     resource = FormbuilderForm
     operation = ('create', 'update')
-    amdmod = 'ngw-formbuilder/FormbuilderFormWidget'
+    amdmod = '@nextgisweb/formbuilder/editor-widget'
 
 
 def setup_pyramid(comp, config):
