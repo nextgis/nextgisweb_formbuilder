@@ -3,7 +3,7 @@ import { makeAutoObservable, toJS } from "mobx";
 export class EditorStore {
     identity = "formbuilder_form";
 
-    source = null;
+    file_upload = null;
     uploading = false;
 
     constructor({ composite, operation }) {
@@ -14,25 +14,22 @@ export class EditorStore {
 
     load(value) {}
 
-    dump({ lunkwill }) {
+    dump() {
         const result = {};
-        if (this.source) {
-            result.source = this.source;
+        if (this.file_upload) {
+            result.file_upload = this.file_upload;
         }
-
-        lunkwill.suggest(this.operation === "create" || !!this.source);
-
         return toJS(result);
     }
 
     get isValid() {
         return (
-            !this.uploading && (this.operation === "update" || !!this.source)
+            !this.uploading && (this.operation === "update" || !!this.file_upload)
         );
     }
 
     get suggestedDisplayName() {
-        const base = this.source?.name;
+        const base = this.file_upload?.name;
         return base ? base.replace(/\.ngfp$/i, "") : null;
     }
 }

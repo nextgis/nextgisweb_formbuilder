@@ -16,7 +16,7 @@ export const EditorWidget = observer(({ store }) => {
             <div>
                 <FileUploader
                     onChange={(value) => {
-                        store.source = value;
+                        store.file_upload = value;
                     }}
                     onUploading={(value) => {
                         store.uploading = value;
