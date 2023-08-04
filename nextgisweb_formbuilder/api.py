@@ -20,6 +20,6 @@ def formbuilder_form_ngfp(resource, request):
 
 def setup_pyramid(comp, config):
     config.add_route(
-        'formbuilder.formbuilder_form_ngfp', '/api/resource/{id}/ngfp',
+        'formbuilder.formbuilder_form_ngfp', '/api/resource/{id:uint}/ngfp',
         factory=resource_factory
     ).add_view(formbuilder_form_ngfp, context=FormbuilderForm, request_method='GET')
