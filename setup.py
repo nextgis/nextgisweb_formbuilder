@@ -1,26 +1,26 @@
 import io
 from setuptools import find_packages, setup
 
-with io.open('VERSION', 'r') as fd:
+with io.open("VERSION", "r") as fd:
     VERSION = fd.read().rstrip()
 
-requires = (
-    'nextgisweb>=4.5.0.dev15',
-)
+requires = [
+    "nextgisweb>=4.5.0.dev15",
+]
 
 entry_points = {
-    'nextgisweb.packages': [
-        'nextgisweb_formbuilder = nextgisweb:single_component',
+    "nextgisweb.packages": [
+        "nextgisweb_formbuilder = nextgisweb:single_component",
     ],
 }
 
 setup(
-    name='nextgisweb_formbuilder',
+    name="nextgisweb_formbuilder",
     version=VERSION,
-    description='Formbuilder integration for NextGIS Web',
-    author='NextGIS',
-    author_email='info@nextgis.com',
-    packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+    description="Formbuilder integration for NextGIS Web",
+    author="NextGIS",
+    author_email="info@nextgis.com",
+    packages=find_packages(exclude=["ez_setup", "examples", "tests"]),
     include_package_data=True,
     zip_safe=False,
     python_requires=">=3.8,<4",

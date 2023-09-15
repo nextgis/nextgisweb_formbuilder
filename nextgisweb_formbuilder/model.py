@@ -9,13 +9,13 @@ from nextgisweb.resource import DataScope, Resource, ResourceScope, SerializedPr
 
 
 class FormbuilderForm(Base, Resource):
-    identity = 'formbuilder_form'
+    identity = "formbuilder_form"
     cls_display_name = _("Form")
 
     __scope__ = DataScope
 
     ngfp_fileobj_id = db.Column(db.ForeignKey(FileObj.id), nullable=True)
-    ngfp_fileobj = db.relationship(FileObj, cascade='all')
+    ngfp_fileobj = db.relationship(FileObj, cascade="all")
 
     @classmethod
     def check_parent(cls, parent):
@@ -31,9 +31,8 @@ class FormbuilderForm(Base, Resource):
 
 
 class _file_upload_attr(SerializedProperty):
-
     def setter(self, srlzr, value):
-        srcfile, _ = env.file_upload.get_filename(value['id'])
+        srcfile, _ = env.file_upload.get_filename(value["id"])
         fileobj = env.file_storage.fileobj(component=COMP_ID)
         srlzr.obj.ngfp_fileobj = fileobj
         dstfile = env.file_storage.filename(fileobj, makedirs=True)

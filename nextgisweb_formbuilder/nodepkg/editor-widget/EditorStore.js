@@ -24,7 +24,8 @@ export class EditorStore {
 
     get isValid() {
         return (
-            !this.uploading && (this.operation === "update" || !!this.file_upload)
+            !this.uploading &&
+            (this.operation === "update" || !!this.file_upload)
         );
     }
 
