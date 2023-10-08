@@ -1,13 +1,13 @@
 import { observer } from "mobx-react-lite";
 
 import { FileUploader } from "@nextgisweb/file-upload/file-uploader";
-import i18n from "@nextgisweb/pyramid/i18n";
+import { gettext } from "@nextgisweb/pyramid/i18n";
 
 import "./EditorWidget.less";
 
 const uploaderMessages = {
-    uploadText: i18n.gettext("Select a dataset"),
-    helpText: i18n.gettext("Dataset should be in NGFP format."),
+    uploadText: gettext("Select a dataset"),
+    helpText: gettext("Dataset should be in NGFP format."),
 };
 
 export const EditorWidget = observer(({ store }) => {
@@ -29,6 +29,6 @@ export const EditorWidget = observer(({ store }) => {
     );
 });
 
-EditorWidget.title = i18n.gettext("Form");
+EditorWidget.title = gettext("Form");
 EditorWidget.activateOn = { create: true };
 EditorWidget.order = -50;

@@ -12,7 +12,7 @@ export class EditorStore {
         this.composite = composite;
     }
 
-    load(value) {}
+    load() {}
 
     dump() {
         const result = {};
