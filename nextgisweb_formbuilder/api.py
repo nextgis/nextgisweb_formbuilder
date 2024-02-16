@@ -1,7 +1,5 @@
 from pyramid.response import FileResponse
 
-from nextgisweb.env import env
-
 from nextgisweb.resource import ResourceScope, resource_factory
 
 from .model import FormbuilderForm
@@ -10,9 +8,7 @@ from .model import FormbuilderForm
 def formbuilder_form_ngfp(resource, request):
     request.resource_permission(ResourceScope.read)
 
-    fn = env.file_storage.filename(resource.ngfp_fileobj)
-
-    response = FileResponse(fn, request=request)
+    response = FileResponse(resource.ngfp_fileobj.filename(), request=request)
     response.content_disposition = "attachment; filename=%d.ngfp" % resource.id
 
     return response

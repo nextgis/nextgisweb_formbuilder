@@ -1,10 +1,9 @@
-from shutil import copyfile
-
-from nextgisweb.env import COMP_ID, Base, _, env
+from nextgisweb.env import Base, _
 from nextgisweb.lib import db
 
 from nextgisweb.feature_layer import IFeatureLayer
 from nextgisweb.file_storage import FileObj
+from nextgisweb.file_upload import FileUpload
 from nextgisweb.resource import DataScope, Resource, ResourceScope, SerializedProperty, Serializer
 
 
@@ -32,12 +31,8 @@ class FormbuilderForm(Base, Resource):
 
 class _file_upload_attr(SerializedProperty):
     def setter(self, srlzr, value):
-        srcfile, _ = env.file_upload.get_filename(value["id"])
-        fileobj = env.file_storage.fileobj(component=COMP_ID)
-        srlzr.obj.ngfp_fileobj = fileobj
-        dstfile = env.file_storage.filename(fileobj, makedirs=True)
-
-        copyfile(srcfile, dstfile)
+        fupload = FileUpload(id=value["id"])
+        srlzr.obj.ngfp_fileobj = fupload.to_fileobj()
 
 
 class FormbuilderFormSerializer(Serializer):
