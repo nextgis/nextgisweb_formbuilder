@@ -1,4 +1,4 @@
-from nextgisweb.env import Base, _
+from nextgisweb.env import Base, gettext
 from nextgisweb.lib import db
 
 from nextgisweb.feature_layer import IFeatureLayer
@@ -9,7 +9,7 @@ from nextgisweb.resource import DataScope, Resource, ResourceScope, SerializedPr
 
 class FormbuilderForm(Base, Resource):
     identity = "formbuilder_form"
-    cls_display_name = _("Form")
+    cls_display_name = gettext("Form")
 
     __scope__ = DataScope
 
