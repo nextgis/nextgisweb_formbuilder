@@ -5,11 +5,13 @@ from nextgisweb.feature_layer import IFeatureLayer
 from nextgisweb.file_storage import FileObj
 from nextgisweb.file_upload import FileUpload
 from nextgisweb.resource import DataScope, Resource, ResourceScope, SerializedProperty, Serializer
+from nextgisweb.resource.category import FieldDataCollectionCategory
 
 
 class FormbuilderForm(Base, Resource):
     identity = "formbuilder_form"
     cls_display_name = gettext("Form")
+    cls_category = FieldDataCollectionCategory
 
     __scope__ = DataScope
 
