@@ -1,10 +1,12 @@
+import sqlalchemy as sa
+import sqlalchemy.orm as orm
+
 from nextgisweb.env import Base, gettext
-from nextgisweb.lib import db
 
 from nextgisweb.feature_layer import IFeatureLayer
 from nextgisweb.file_storage import FileObj
-from nextgisweb.file_upload import FileUpload
-from nextgisweb.resource import DataScope, Resource, ResourceScope, SerializedProperty, Serializer
+from nextgisweb.file_upload import FileUploadRef
+from nextgisweb.resource import DataScope, Resource, ResourceScope, SAttribute, Serializer
 from nextgisweb.resource.category import FieldDataCollectionCategory
 
 
@@ -15,8 +17,9 @@ class FormbuilderForm(Base, Resource):
 
     __scope__ = DataScope
 
-    ngfp_fileobj_id = db.Column(db.ForeignKey(FileObj.id), nullable=True)
-    ngfp_fileobj = db.relationship(FileObj, cascade="all")
+    ngfp_fileobj_id = sa.Column(sa.ForeignKey(FileObj.id), nullable=True)
+
+    ngfp_fileobj = orm.relationship(FileObj, cascade="all")
 
     @classmethod
     def check_parent(cls, parent):
@@ -31,14 +34,10 @@ class FormbuilderForm(Base, Resource):
         return self.parent.srs
 
 
-class _file_upload_attr(SerializedProperty):
-    def setter(self, srlzr, value):
-        fupload = FileUpload(id=value["id"])
-        srlzr.obj.ngfp_fileobj = fupload.to_fileobj()
+class FileUploadAttr(SAttribute, apitype=True):
+    def set(self, srlzr: Serializer, value: FileUploadRef, *, create: bool):
+        srlzr.obj.ngfp_fileobj = value().to_fileobj()
 
 
-class FormbuilderFormSerializer(Serializer):
-    identity = FormbuilderForm.identity
-    resclass = FormbuilderForm
-
-    file_upload = _file_upload_attr(read=None, write=ResourceScope.update)
+class FormbuilderFormSerializer(Serializer, resource=FormbuilderForm):
+    file_upload = FileUploadAttr(read=None, write=ResourceScope.update)
