@@ -34,7 +34,7 @@ class FormbuilderForm(Base, Resource):
         return self.parent.srs
 
 
-class FileUploadAttr(SAttribute, apitype=True):
+class FileUploadAttr(SAttribute):
     def set(self, srlzr: Serializer, value: FileUploadRef, *, create: bool):
         srlzr.obj.ngfp_fileobj = value().to_fileobj()
 
