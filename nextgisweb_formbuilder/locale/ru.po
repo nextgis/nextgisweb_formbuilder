@@ -1,10 +1,14 @@
-#: model.py:13 nodepkg/editor-widget/EditorWidget.js:32 view.py:20
+#: model.py:32 nodepkg/editor-widget/EditorWidget.js:32 view.py:19
 msgid "Form"
 msgstr "Форма"
 
-#: view.py:24
-msgid "Download as NGFP"
-msgstr "Скачать NGFP"
+#: model.py:55
+msgid "Invalid NGFP file."
+msgstr "Некорректный файл NGFP"
+
+#: model.py:56
+msgid "NGFP file size exceeds {} bytes."
+msgstr "Размер файла NGFP превышает {} байт."
 
 #: nodepkg/editor-widget/EditorWidget.js:9
 msgid "Select a dataset"
@@ -14,3 +18,6 @@ msgstr "Выберите набор данных"
 msgid "Dataset should be in NGFP format."
 msgstr "Файл должен быть в формате NGFP."
 
+#: view.py:24
+msgid "Download as NGFP"
+msgstr "Скачать NGFP"
