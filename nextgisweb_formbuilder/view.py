@@ -1,15 +1,16 @@
 import nextgisweb.lib.dynmenu as dm
 from nextgisweb.env import gettext
 
+from nextgisweb.jsrealm import jsentry
 from nextgisweb.resource import Resource, Widget
 
 from .model import FormbuilderForm
 
 
-class Widget(Widget):
+class FormbuilderFormWidget(Widget):
     resource = FormbuilderForm
     operation = ("create", "update")
-    amdmod = "@nextgisweb/formbuilder/editor-widget"
+    amdmod = jsentry("@nextgisweb/formbuilder/form-widget")
 
 
 def setup_pyramid(comp, config):
