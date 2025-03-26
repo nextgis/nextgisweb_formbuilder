@@ -91,3 +91,51 @@ def test_ngfp(
         ),
         status=201 if valid else 422,
     )
+
+
+def test_struct(vector_layer, ngw_webtest_app):
+    value = {
+        "geometry_type": "POINT",
+        "fields": [
+            {"keyname": "f1", "datatype": "STRING", "display_name": "dnf1"},
+            {"keyname": "f2", "datatype": "INTEGER", "display_name": "dnf2"},
+        ],
+        "items": [
+            {"type": "label", "label": "Field 1"},
+            {"type": "textbox", "field": "f1", "remember": False},
+            {
+                "type": "tabs",
+                "tabs": [
+                    {
+                        "title": "Tab 1",
+                        "active": False,
+                        "items": [
+                            {"type": "checkbox", "field": "f2", "label": "F1", "remember": False},
+                        ],
+                    },
+                    {
+                        "title": "Tab 2",
+                        "active": True,
+                        "items": [
+                            {"type": "checkbox", "field": "f2", "label": "F2", "remember": False},
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+
+    resp = ngw_webtest_app.post_json(
+        "/api/resource/",
+        dict(
+            resource=dict(
+                cls="formbuilder_form",
+                parent=dict(id=vector_layer),
+                display_name="struct",
+            ),
+            formbuilder_form=dict(value=value),
+        ),
+        status=201,
+    )
+
+    ngw_webtest_app.get(f"/api/resource/{resp.json['id']}/ngfp", status=200)

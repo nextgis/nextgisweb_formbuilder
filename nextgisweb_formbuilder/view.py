@@ -19,13 +19,12 @@ def setup_pyramid(comp, config):
             if isinstance(args.obj, FormbuilderForm):
                 yield dm.Label("formbuilder_form", gettext("Form"))
 
-                if args.obj.ngfp_fileobj is not None:
-                    yield dm.Link(
-                        "formbuilder_form/ngfp",
-                        gettext("Download as NGFP"),
-                        lambda args: args.request.route_url(
-                            "formbuilder.formbuilder_form_ngfp", id=args.obj.id
-                        ),
-                    )
+                yield dm.Link(
+                    "formbuilder_form/ngfp",
+                    gettext("Download as NGFP"),
+                    lambda args: args.request.route_url(
+                        "formbuilder.formbuilder_form_ngfp", id=args.obj.id
+                    ),
+                )
 
     Resource.__dynmenu__.add(LayerMenuExt())
