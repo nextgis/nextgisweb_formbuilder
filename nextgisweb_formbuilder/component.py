@@ -1,4 +1,5 @@
 from nextgisweb.env import Component, require
+from nextgisweb.lib.config import Option
 
 
 class FormBuilderComponent(Component):
@@ -15,3 +16,13 @@ class FormBuilderComponent(Component):
         super(FormBuilderComponent, self).setup_pyramid(config)
         api.setup_pyramid(self, config)
         view.setup_pyramid(self, config)
+
+    def client_settings(self, request):
+        return dict(designer=self.options["designer"])
+
+    # fmt: off
+    option_annotations = (
+        Option("designer", bool, default=False, doc=(
+            "Enable experimental form designer UI")),
+    )
+    # fmt:on
