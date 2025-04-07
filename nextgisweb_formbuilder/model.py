@@ -4,7 +4,7 @@ from zipfile import BadZipFile, ZipFile
 
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
-from msgspec import UNSET, Struct
+from msgspec import UNSET, Struct, UnsetType
 from msgspec import DecodeError as MsgspecDecodeErrror
 from msgspec import ValidationError as MsgspecValidationError
 from msgspec.json import decode as msgspec_json_decode
@@ -13,11 +13,12 @@ from typing_extensions import Annotated
 from nextgisweb.env import Base, gettext, gettextf
 from nextgisweb.lib.saext import Msgspec
 
-from nextgisweb.core.exception import ValidationError
+from nextgisweb.core.exception import InsufficientPermissions, ValidationError
 from nextgisweb.feature_layer import (
     FeatureLayerFieldDatatype,
     FeaureLayerGeometryType,
     IFeatureLayer,
+    IFieldEditableFeatureLayer,
 )
 from nextgisweb.file_storage import FileObj
 from nextgisweb.file_upload import FileUploadRef
@@ -229,9 +230,30 @@ class FileUploadAttr(SAttribute):
         srlzr.obj.value = None
 
 
+class UpdateFieldsAttr(SAttribute):
+    def set(self, srlzr: Serializer, value: Union[bool, UnsetType], *, create: bool):
+        if value is True:
+            parent = srlzr.obj.parent
+            if not IFieldEditableFeatureLayer.providedBy(parent):
+                raise ValidationError
+            if not parent.has_permission(ResourceScope.update, srlzr.user):
+                raise InsufficientPermissions
+            for form_field in srlzr.obj.value.fields:
+                try:
+                    parent.field_by_keyname(form_field.keyname)
+                except KeyError:
+                    continue
+
+                field = parent.field_create(form_field.datatype)
+                field.keyname = form_field.keyname
+                field.display_name = form_field.display_name
+                parent.fields.append(field)
+
+
 class FormbuilderFormSerializer(Serializer, resource=FormbuilderForm):
     value = ValueAttr(read=ResourceScope.read, write=ResourceScope.update)
-    file_upload = FileUploadAttr(read=None, write=ResourceScope.update)
+    file_upload = FileUploadAttr(write=ResourceScope.update)
+    update_feature_layer_fields = UpdateFieldsAttr(write=ResourceScope.update)
 
     def deserialize(self):
         if self.data.value is not UNSET and self.data.file_upload is not UNSET:

@@ -93,6 +93,11 @@ def test_ngfp(
     )
 
 
+def get_fields(ngw_webtest_app, flayer_id):
+    resp = ngw_webtest_app.get(f"/api/resource/{flayer_id}", status=200)
+    return resp.json["feature_layer"]["fields"]
+
+
 def test_struct(vector_layer, ngw_webtest_app):
     value = {
         "geometry_type": "POINT",
@@ -139,3 +144,34 @@ def test_struct(vector_layer, ngw_webtest_app):
     )
 
     ngw_webtest_app.get(f"/api/resource/{resp.json['id']}/ngfp", status=200)
+
+    fields = get_fields(ngw_webtest_app, vector_layer)
+    assert len(fields) == 0
+
+
+def test_fields_update(vector_layer, ngw_webtest_app):
+    form_fields = [
+        {"keyname": "f1", "datatype": "STRING", "display_name": "dnf1"},
+        {"keyname": "f2", "datatype": "INTEGER", "display_name": "dnf2"},
+    ]
+    value = {
+        "geometry_type": "POINT",
+        "fields": form_fields,
+        "items": [],
+    }
+
+    ngw_webtest_app.post_json(
+        "/api/resource/",
+        dict(
+            resource=dict(
+                cls="formbuilder_form",
+                parent=dict(id=vector_layer),
+                display_name="fields",
+            ),
+            formbuilder_form=dict(
+                value=value,
+                update_feature_layer_fields=True,
+            ),
+        ),
+        status=201,
+    )
