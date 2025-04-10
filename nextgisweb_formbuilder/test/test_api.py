@@ -175,3 +175,9 @@ def test_fields_update(vector_layer, ngw_webtest_app):
         ),
         status=201,
     )
+
+    fields = get_fields(ngw_webtest_app, vector_layer)
+    assert len(fields) == len(form_fields)
+    for f1, f2 in zip(fields, form_fields):
+        for k in ("keyname", "datatype", "display_name"):
+            assert f1[k] == f2[k]

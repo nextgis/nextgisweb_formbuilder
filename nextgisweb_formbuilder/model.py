@@ -242,12 +242,10 @@ class UpdateFieldsAttr(SAttribute):
                 try:
                     parent.field_by_keyname(form_field.keyname)
                 except KeyError:
-                    continue
-
-                field = parent.field_create(form_field.datatype)
-                field.keyname = form_field.keyname
-                field.display_name = form_field.display_name
-                parent.fields.append(field)
+                    field = parent.field_create(form_field.datatype)
+                    field.keyname = form_field.keyname
+                    field.display_name = form_field.display_name
+                    parent.fields.append(field)
 
 
 class FormbuilderFormSerializer(Serializer, resource=FormbuilderForm):
