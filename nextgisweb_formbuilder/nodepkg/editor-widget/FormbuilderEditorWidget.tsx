@@ -2,17 +2,21 @@ import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 
-import type { FormbuilderField } from "@nextgisweb/formbuilder/type/api";
 import { useThemeVariables } from "@nextgisweb/gui/hook";
+import { route } from "@nextgisweb/pyramid/api/route";
 import { gettext } from "@nextgisweb/pyramid/i18n";
 
 import { FormbuilderEditorStore } from "./FormbuilderEditorStore";
-import type { FormbuilderValue } from "./FormbuilderEditorStore";
+import type {
+    FormbuilderEditorField,
+    FormbuilderValue,
+} from "./FormbuilderEditorStore";
 import { ElementsPanel } from "./components/ElementsPanel";
 import { FieldsPanel } from "./components/FieldsPanel";
 import { Mockup, getInputElement } from "./components/Mockup";
 import { SelectedInputProperties } from "./components/SelectedInputProperties";
 import { isNonFieldElement } from "./elements_data";
+import { getNewFieldKeyname } from "./util/newFieldKeyname";
 import { convertToUIData } from "./util/serializeData";
 
 import DoneIcon from "@nextgisweb/icon/material/check";
@@ -25,10 +29,12 @@ export const FormbuilderEditorWidget = observer(
     ({
         value,
         store: storeProp,
+        parent,
         onChange,
     }: {
         value?: any;
         store?: FormbuilderEditorStore;
+        parent?: number | null | undefined;
         onChange?: (val: FormbuilderValue) => void;
     }) => {
         const [store] = useState(
@@ -44,6 +50,61 @@ export const FormbuilderEditorWidget = observer(
             grabbedInput,
             setDragPos,
         } = store;
+
+        useEffect(() => {
+            if (parent && typeof parent === "number") {
+                const getParentInfo = async (resourceId: number) => {
+                    const resourceInfo = await route(
+                        "resource.item",
+                        resourceId
+                    ).get({
+                        cache: true,
+                    });
+
+                    if (resourceInfo.vector_layer?.geometry_type) {
+                        store.setGeometryType(
+                            resourceInfo.vector_layer?.geometry_type
+                        );
+                    }
+
+                    const resourceMoreInfo = await route(
+                        "resource.permission",
+                        resourceId
+                    ).get({
+                        cache: true,
+                    });
+
+                    store.setCanUpdateFields(resourceMoreInfo.resource.update);
+
+                    const parentFieldsNormalized = (
+                        resourceInfo.feature_layer?.fields || []
+                    ).map(
+                        ({
+                            keyname,
+                            display_name,
+                            datatype,
+                        }): FormbuilderEditorField => ({
+                            keyname,
+                            display_name,
+                            datatype,
+                            isParents: true,
+                        })
+                    );
+
+                    const filteredFormFields = store.fields.filter((field) => {
+                        return !parentFieldsNormalized.find(
+                            (item) => item.keyname === field.keyname
+                        );
+                    });
+
+                    store.setFields([
+                        ...parentFieldsNormalized,
+                        ...filteredFormFields,
+                    ]);
+                };
+                getParentInfo(parent);
+            }
+        }, [parent, store]);
 
         useEffect(() => {
             if (value) {
@@ -150,13 +211,17 @@ export const FormbuilderEditorWidget = observer(
                                     !isMoving &&
                                     !isNonFieldElement(droppingInputWithField)
                                 ) {
-                                    const newFieldItem: FormbuilderField = {
-                                        display_name: `Field ${
-                                            fields.length + 1
-                                        }`,
-                                        keyname: `field_${fields.length + 1}`,
-                                        datatype: "STRING",
-                                    };
+                                    const newKeyname = getNewFieldKeyname(
+                                        store.fields
+                                    );
+
+                                    const newFieldItem: FormbuilderEditorField =
+                                        {
+                                            display_name: newKeyname,
+                                            keyname: newKeyname,
+                                            datatype: "STRING",
+                                            editable: true,
+                                        };
 
                                     store.setFields([...fields, newFieldItem]);
                                 }
@@ -202,9 +267,7 @@ export const FormbuilderEditorWidget = observer(
                 </div>
 
                 <div className={"settings_fbwidget"}>
-                    <div className={"data_fbwidget"}>
-                        <FieldsPanel store={store} />
-                    </div>
+                    <FieldsPanel store={store} />
 
                     <div className={"props_fbwidget"}>
                         <SelectedInputProperties store={store} />

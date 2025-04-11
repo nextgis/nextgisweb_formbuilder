@@ -1,0 +1,34 @@
+.ngw-formbuilder-editor-widget-fields-panel {
+    display: flex;
+    flex-direction: column;
+
+    > .fields {
+        flex-grow: 1;
+
+        > .field-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 4px;
+            border-bottom: 1px solid #eee;
+            padding: 2px 4px;
+
+            > .status {
+                min-width: 14px;
+                padding-inline-start: 4px;
+            }
+
+            > .display-name {
+                flex-grow: 1;
+            }
+
+            > .datatype {
+                min-width: 110px;
+            }
+
+            > .action {
+                min-width: 24px;
+            }
+        }
+    }
+}

@@ -1,5 +1,6 @@
 import { action, observable } from "mobx";
 
+import type { FeaureLayerGeometryType } from "@nextgisweb/feature-layer/type/api";
 import type { FormbuilderField } from "@nextgisweb/formbuilder/type/api";
 
 import type {
@@ -11,9 +12,16 @@ import type {
 } from "./type";
 import { updateElementById } from "./util/updateElementById";
 
+export interface FormbuilderEditorField extends FormbuilderField {
+    editable?: boolean;
+    isParents?: boolean;
+}
+
 export interface FormbuilderValue {
-    fields: FormbuilderField[];
+    fields: FormbuilderEditorField[];
     tree: FormBuilderUIData;
+    updateFeatureLayerFields: boolean;
+    geometryType: FeaureLayerGeometryType;
 }
 
 export class FormbuilderEditorStore {
@@ -23,8 +31,11 @@ export class FormbuilderEditorStore {
         listId: 0,
         list: [{ value: { type: "dropPlace" }, data: null }],
     };
-    @observable.ref accessor geometry_type: string = "POINT";
-    @observable.shallow accessor fields: FormbuilderField[] = [];
+    @observable.ref accessor geometryType: FeaureLayerGeometryType = "POINT";
+    @observable.shallow accessor fields: FormbuilderEditorField[] = [];
+    @observable.ref accessor canUpdateFields: boolean = false;
+    @observable.ref accessor updateFeatureLayerFields: boolean = false;
+
     @observable.shallow accessor grabbedInput: GrabbedInputComposite | null =
         null;
     @observable.ref accessor grabbedIndex: number | null = null;
@@ -60,7 +71,12 @@ export class FormbuilderEditorStore {
     @action.bound
     setInputsTree = (inputs: FormBuilderUIData) => {
         this.inputsTree = inputs;
-        this.onChange?.({ tree: inputs, fields: this.fields });
+        this.onChange?.({
+            tree: inputs,
+            fields: this.fields,
+            updateFeatureLayerFields: this.updateFeatureLayerFields,
+            geometryType: this.geometryType,
+        });
     };
 
     @action.bound
@@ -95,13 +111,39 @@ export class FormbuilderEditorStore {
     }
 
     @action.bound
-    setFields(fields: FormbuilderField[]) {
+    setFields(fields: FormbuilderEditorField[]) {
         this.fields = fields;
-        this.onChange?.({ fields, tree: this.inputsTree });
+        this.onChange?.({
+            fields,
+            tree: this.inputsTree,
+            updateFeatureLayerFields: this.updateFeatureLayerFields,
+            geometryType: this.geometryType,
+        });
     }
 
     @action.bound
-    updateField(keyname: string, newData: Partial<FormbuilderField>) {
+    setCanUpdateFields(value: boolean) {
+        this.canUpdateFields = value;
+    }
+
+    @action.bound
+    setUpdateFeatureLayerFields(value: boolean) {
+        this.updateFeatureLayerFields = value;
+        this.onChange?.({
+            tree: this.inputsTree,
+            fields: this.fields,
+            updateFeatureLayerFields: value,
+            geometryType: this.geometryType,
+        });
+    }
+
+    @action.bound
+    setGeometryType(value: FeaureLayerGeometryType) {
+        this.geometryType = value;
+    }
+
+    @action.bound
+    updateField(keyname: string, newData: Partial<FormbuilderEditorField>) {
         const updatedFields = this.fields.map((field) => {
             if (field.keyname === keyname) {
                 return { ...field, ...newData };
@@ -112,39 +154,12 @@ export class FormbuilderEditorStore {
 
         this.fields = updatedFields;
 
-        this.onChange?.({ fields: updatedFields, tree: this.inputsTree });
-    }
-
-    isFieldOccupied(keyname: string) {
-        const isFieldOccupiedInner = (tree: any, keyname: string): boolean => {
-            if (tree.data && tree.data.field && tree.data.field === keyname) {
-                return true;
-            }
-
-            if (tree.list && Array.isArray(tree.list)) {
-                for (const item of tree.list) {
-                    if (isFieldOccupiedInner(item, keyname)) {
-                        return true;
-                    }
-                }
-            }
-
-            if (
-                tree.value &&
-                tree.value.tabs &&
-                Array.isArray(tree.value.tabs)
-            ) {
-                for (const tab of tree.value.tabs) {
-                    if (tab.items && isFieldOccupiedInner(tab.items, keyname)) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        };
-
-        return isFieldOccupiedInner(this.inputsTree, keyname);
+        this.onChange?.({
+            fields: updatedFields,
+            tree: this.inputsTree,
+            updateFeatureLayerFields: this.updateFeatureLayerFields,
+            geometryType: this.geometryType,
+        });
     }
 
     getElementById(id: number) {

@@ -2,14 +2,14 @@ import { observer } from "mobx-react-lite";
 
 import type { FormbuilderField } from "@nextgisweb/formbuilder/type/api";
 import { Button } from "@nextgisweb/gui/antd";
+import { AddIcon, RemoveIcon } from "@nextgisweb/gui/icon";
 
 import type { FormbuilderEditorStore } from "../FormbuilderEditorStore";
 import { isNonFieldElement } from "../elements_data";
 import type { GrabbedInputComposite, UIListItem, UITab } from "../type";
+import { getNewFieldKeyname } from "../util/newFieldKeyname";
 
 import { Mockup } from "./Mockup";
-
-import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 
 const updateActiveTab = (input: UIListItem): UIListItem => {
     const { value } = input;
@@ -239,13 +239,13 @@ export const TabsFormComponent = observer(
                                     !store.isMoving &&
                                     !isNonFieldElement(droppedInput)
                                 ) {
+                                    const newKeyname = getNewFieldKeyname(
+                                        store.fields
+                                    );
+
                                     const newFieldItem: FormbuilderField = {
-                                        display_name: `Field ${
-                                            store.fields.length + 1
-                                        }`,
-                                        keyname: `field_${
-                                            store.fields.length + 1
-                                        }`,
+                                        display_name: newKeyname,
+                                        keyname: newKeyname,
                                         datatype: "STRING",
                                     };
 
@@ -303,13 +303,9 @@ export const TabsFormComponent = observer(
                             >
                                 <span>{tab.title}</span>
                                 <Button
-                                    shape="circle"
                                     type="text"
                                     icon={
-                                        <CloseOutlined
-                                            className="tab_close-button_fbwidget"
-                                            // style={{ fontSize: 16 }}
-                                        />
+                                        <RemoveIcon className="tab_close-button_fbwidget" />
                                     }
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -342,9 +338,8 @@ export const TabsFormComponent = observer(
                             marginLeft: "4px",
                             cursor: "pointer",
                         }}
-                        shape="circle"
                         type="text"
-                        icon={<PlusOutlined />}
+                        icon={<AddIcon />}
                         onClick={(e) => {
                             e.stopPropagation();
                             addTab();

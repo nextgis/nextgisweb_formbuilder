@@ -10,7 +10,10 @@ import type { EditorWidget } from "@nextgisweb/resource/type";
 
 import clientSettings from "../client-settings";
 import FormbuilderEditorWidget from "../editor-widget/FormbuilderEditorWidget";
-import { serializeData } from "../editor-widget/util/serializeData";
+import {
+    isFieldOccupied,
+    serializeData,
+} from "../editor-widget/util/serializeData";
 
 import type { FormStore, Mode } from "./FormStore";
 
@@ -66,12 +69,19 @@ export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
                 return (
                     <FormbuilderEditorWidget
                         value={store.initEditorData}
+                        parent={store.composite.parent}
                         onChange={(val) => {
                             runInAction(() => {
+                                const usedFields = val.fields.filter((field) =>
+                                    isFieldOccupied(field.keyname, val.tree)
+                                );
+
                                 store.editorData = {
-                                    geometry_type: "POINT", // need to take it from somewhere else
-                                    fields: val.fields,
+                                    geometryType: val.geometryType,
+                                    fields: usedFields,
                                     items: serializeData(val.tree),
+                                    updateFeatureLayerFields:
+                                        val.updateFeatureLayerFields,
                                 };
                             });
                         }}

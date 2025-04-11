@@ -1,13 +1,13 @@
-#: model.py:166 nodepkg/editor-widget/FormbuilderEditorWidget.tsx:239
-#: nodepkg/form-widget/FormWidget.tsx:100 view.py:20
+#: model.py:167 nodepkg/editor-widget/FormbuilderEditorWidget.tsx:295
+#: nodepkg/form-widget/FormWidget.tsx:108 view.py:20
 msgid "Form"
 msgstr "Форма"
 
-#: model.py:192
+#: model.py:193
 msgid "Invalid NGFP file."
 msgstr "Некорректный файл NGFP"
 
-#: model.py:193
+#: model.py:194
 msgid "NGFP file size exceeds {} bytes."
 msgstr "Размер файла NGFP превышает {} байт."
 
@@ -15,62 +15,65 @@ msgstr "Размер файла NGFP превышает {} байт."
 msgid "Elements"
 msgstr "Элементы"
 
-#: nodepkg/editor-widget/components/FieldsPanel.tsx:22
-msgid "Add field"
-msgstr "Добавить поле"
+#: nodepkg/editor-widget/components/FieldsPanel.tsx:37
+msgid "Add"
+msgstr "Добавить"
 
-#: nodepkg/editor-widget/components/FieldsPanel.tsx:23
+#: nodepkg/editor-widget/components/FieldsPanel.tsx:38
 msgid "Fields"
 msgstr "Поля"
 
-#: nodepkg/editor-widget/components/SelectedInputProperties.tsx:18
+#: nodepkg/editor-widget/components/FieldsPanel.tsx:39
+msgid "Add absent fields to layer"
+msgstr "Добавить недостающие поля в слой"
+
+#: nodepkg/editor-widget/components/SelectedInputProperties.tsx:19
 msgid "Properties"
 msgstr "Свойства"
+
+#: nodepkg/editor-widget/components/TabsCustomModifier.tsx:70
+#: nodepkg/editor-widget/elements_data.ts:91
+#: nodepkg/editor-widget/elements_data.ts:106
+msgid "Tab {}"
+msgstr "Вкладка {}"
 
 #: nodepkg/editor-widget/elements_data.ts:11
 msgid "Text"
 msgstr "Текст"
 
 #: nodepkg/editor-widget/elements_data.ts:16
-#: nodepkg/editor-widget/elements_data.ts:113
+#: nodepkg/editor-widget/elements_data.ts:87
 msgid "Tabs"
 msgstr "Вкладки"
 
-#: nodepkg/editor-widget/elements_data.ts:20
-#: nodepkg/editor-widget/elements_data.ts:32
-#: nodepkg/editor-widget/elements_data.ts:117
-#: nodepkg/editor-widget/elements_data.ts:132
-msgid "Tab {}"
-msgstr "Вкладка {}"
-
-#: nodepkg/editor-widget/elements_data.ts:50
+#: nodepkg/editor-widget/elements_data.ts:24
 msgid "Text box"
 msgstr "Текстовое поле"
 
-#: nodepkg/editor-widget/elements_data.ts:59
+#: nodepkg/editor-widget/elements_data.ts:33
 msgid "Check box"
 msgstr "Флажок"
 
-#: nodepkg/editor-widget/elements_data.ts:70
+#: nodepkg/editor-widget/elements_data.ts:44
 msgid "Label"
 msgstr "Надпись"
 
-#: nodepkg/form-widget/FormWidget.tsx:23
+#: nodepkg/form-widget/FormWidget.tsx:26
 msgid "Select a form file"
 msgstr "Выберите файл формы"
 
-#: nodepkg/form-widget/FormWidget.tsx:24
+#: nodepkg/form-widget/FormWidget.tsx:27
 msgid "It should be in NGFP format."
 msgstr "Он должен быть в формате NGFP."
 
-#: nodepkg/form-widget/FormWidget.tsx:34
+#: nodepkg/form-widget/FormWidget.tsx:37
 msgid "Upload form"
 msgstr "Загрузить форму"
 
-#: nodepkg/form-widget/FormWidget.tsx:40
+#: nodepkg/form-widget/FormWidget.tsx:43
 msgid "Design form"
 msgstr "Редактировать форму"
 
-#: view.py:25
+#: view.py:24
 msgid "Download as NGFP"
 msgstr "Скачать NGFP"

@@ -1,20 +1,24 @@
 import { Button } from "antd";
 import { observer } from "mobx-react-lite";
 
-import type { FormbuilderField } from "@nextgisweb/formbuilder/type/api";
+import { RemoveIcon } from "@nextgisweb/gui/icon";
 
-import type { FormbuilderEditorStore } from "../FormbuilderEditorStore";
+import type {
+    FormbuilderEditorField,
+    FormbuilderEditorStore,
+} from "../FormbuilderEditorStore";
 import { elements, isNonFieldElement } from "../elements_data";
 import type {
     FormBuilderUIData,
     GrabbedInputComposite,
     UIListItem,
 } from "../type";
+import { getNewFieldKeyname } from "../util/newFieldKeyname";
 
 import { DropPlace } from "./DropPlace";
 import { getInputComponent } from "./InputElements";
 
-import { CloseOutlined, HolderOutlined } from "@ant-design/icons";
+import { HolderOutlined } from "@ant-design/icons";
 
 interface MockupProps {
     inputsWithId: FormBuilderUIData | null;
@@ -31,10 +35,13 @@ const resetGrabState = (store: FormbuilderEditorStore) => {
 };
 
 const addNewField = (store: FormbuilderEditorStore) => {
-    const newFieldItem: FormbuilderField = {
-        display_name: `Field ${store.fields.length + 1}`,
-        keyname: `field_${store.fields.length + 1}`,
+    const newKeyname = getNewFieldKeyname(store.fields);
+
+    const newFieldItem: FormbuilderEditorField = {
+        display_name: newKeyname,
+        keyname: newKeyname,
         datatype: "STRING",
+        editable: true,
     };
     store.setFields([...store.fields, newFieldItem]);
 };
@@ -300,20 +307,7 @@ export const getInputElement = ({
                     i={index}
                 />
             </div>
-            <Button
-                style={{ margin: "2px" }}
-                shape="circle"
-                type="text"
-                icon={
-                    <CloseOutlined
-                        style={{
-                            fontSize: 14,
-                            paddingBottom: "2px",
-                        }}
-                    />
-                }
-                onClick={handleDelete}
-            />
+            <Button type="text" icon={<RemoveIcon />} onClick={handleDelete} />
         </div>
     );
 };

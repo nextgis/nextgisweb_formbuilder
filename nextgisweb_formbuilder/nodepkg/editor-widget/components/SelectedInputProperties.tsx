@@ -12,6 +12,7 @@ import { gettext } from "@nextgisweb/pyramid/i18n";
 
 import type { FormbuilderEditorStore } from "../FormbuilderEditorStore";
 import { inputsSchema } from "../elements_data";
+import { isFieldOccupied } from "../util/serializeData";
 
 import { TabsCustomModifier } from "./TabsCustomModifier";
 
@@ -33,7 +34,7 @@ export const SelectedInputProperties = observer(
             if (keyname === store.selectedInput?.data?.field) {
                 return false;
             } else {
-                return store.isFieldOccupied(keyname as string);
+                return isFieldOccupied(keyname as string, store.inputsTree);
             }
         };
 

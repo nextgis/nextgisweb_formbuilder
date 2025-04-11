@@ -113,3 +113,34 @@ export function convertToUIData(
         list: processItems(items),
     };
 }
+
+export function isFieldOccupied(
+    keyname: string,
+    inputsTree: FormBuilderUIData
+) {
+    const isFieldOccupiedInner = (tree: any, keyname: string): boolean => {
+        if (tree.data && tree.data.field && tree.data.field === keyname) {
+            return true;
+        }
+
+        if (tree.list && Array.isArray(tree.list)) {
+            for (const item of tree.list) {
+                if (isFieldOccupiedInner(item, keyname)) {
+                    return true;
+                }
+            }
+        }
+
+        if (tree.value && tree.value.tabs && Array.isArray(tree.value.tabs)) {
+            for (const tab of tree.value.tabs) {
+                if (tab.items && isFieldOccupiedInner(tab.items, keyname)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    };
+
+    return isFieldOccupiedInner(inputsTree, keyname);
+}

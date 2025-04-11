@@ -30,10 +30,9 @@
 .panel-header {
     background-color: rgb(204, 204, 204);
     padding: 4px 8px;
-    height: 21px;
     text-justify: center;
     size: 12px;
-    margin-bottom: 4px;
+    display: flex;
 }
 
 .form_element_fbwidget {
@@ -153,12 +152,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 295px;
-}
-
-.data_fbwidget {
-    border-bottom: none;
-    padding-bottom: 20px;
+    width: 300px;
 }
 
 .props_fbwidget {
