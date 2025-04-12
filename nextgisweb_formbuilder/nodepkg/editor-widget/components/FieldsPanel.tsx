@@ -44,7 +44,7 @@ export const FieldsPanel = observer(
                 display_name: newKeyname,
                 keyname: newKeyname,
                 datatype: "STRING",
-                editable: true,
+                existing: false,
             };
 
             const fields = store.fields;
@@ -64,7 +64,7 @@ export const FieldsPanel = observer(
 
         const getStatusIcon = (field: FormbuilderEditorField) => {
             const isUsed = isFieldOccupied(field.keyname, store.inputsTree);
-            if (field.isParents) {
+            if (field.existing) {
                 return isUsed ? (
                     <ExistingUsedFieldIcon
                         style={{ color: "var(--theme-color-success)" }}
@@ -131,7 +131,7 @@ export const FieldsPanel = observer(
                                 variant="borderless"
                                 size="small"
                                 value={field.display_name}
-                                readOnly={field.isParents}
+                                readOnly={field.existing}
                                 onChange={(value) => {
                                     handleFieldChange(field.keyname, {
                                         display_name: value,
@@ -142,10 +142,10 @@ export const FieldsPanel = observer(
                                 className="datatype"
                                 variant="borderless"
                                 options={typeOptions}
-                                suffixIcon={field.isParents ? <></> : undefined}
-                                open={field.isParents ? false : undefined}
+                                suffixIcon={field.existing ? <></> : undefined}
+                                open={field.existing ? false : undefined}
                                 style={
-                                    field.isParents
+                                    field.existing
                                         ? { cursor: "default" }
                                         : undefined
                                 }
@@ -157,7 +157,7 @@ export const FieldsPanel = observer(
                                 onChange={(
                                     value: FeatureLayerFieldDatatype
                                 ) => {
-                                    if (field.isParents) return;
+                                    if (field.existing) return;
                                     handleFieldChange(field.keyname, {
                                         datatype: value,
                                     });
@@ -169,15 +169,15 @@ export const FieldsPanel = observer(
                                     size="small"
                                     type="text"
                                     icon={
-                                        field.isParents ? (
+                                        field.existing ? (
                                             <ExistingFieldLockIcon />
                                         ) : (
                                             <RemoveIcon />
                                         )
                                     }
-                                    disabled={field.isParents}
+                                    disabled={field.existing}
                                     style={
-                                        field.isParents
+                                        field.existing
                                             ? { cursor: "default" }
                                             : undefined
                                     }
@@ -198,7 +198,7 @@ export const FieldsPanel = observer(
                 </div>
 
                 <div style={{ margin: "6px 4px 4px 6px" }}>
-                    {store.fields.find((field) => !field.isParents) &&
+                    {store.fields.find((field) => !field.existing) &&
                         store.canUpdateFields && (
                             <Checkbox
                                 style={{ marginLeft: "4px" }}

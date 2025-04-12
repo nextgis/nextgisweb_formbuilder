@@ -13,8 +13,7 @@ import type {
 import { updateElementById } from "./util/updateElementById";
 
 export interface FormbuilderEditorField extends FormbuilderField {
-    editable?: boolean;
-    isParents?: boolean;
+    existing: boolean;
 }
 
 export interface FormbuilderValue {

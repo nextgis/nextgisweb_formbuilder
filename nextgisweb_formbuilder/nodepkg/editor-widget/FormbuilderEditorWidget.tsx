@@ -87,7 +87,7 @@ export const FormbuilderEditorWidget = observer(
                             keyname,
                             display_name,
                             datatype,
-                            isParents: true,
+                            existing: true,
                         })
                     );
 
@@ -220,7 +220,7 @@ export const FormbuilderEditorWidget = observer(
                                             display_name: newKeyname,
                                             keyname: newKeyname,
                                             datatype: "STRING",
-                                            editable: true,
+                                            existing: false,
                                         };
 
                                     store.setFields([...fields, newFieldItem]);

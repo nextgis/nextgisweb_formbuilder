@@ -4,7 +4,10 @@ import type { FormbuilderField } from "@nextgisweb/formbuilder/type/api";
 import { Button } from "@nextgisweb/gui/antd";
 import { AddIcon, RemoveIcon } from "@nextgisweb/gui/icon";
 
-import type { FormbuilderEditorStore } from "../FormbuilderEditorStore";
+import type {
+    FormbuilderEditorField,
+    FormbuilderEditorStore,
+} from "../FormbuilderEditorStore";
 import { isNonFieldElement } from "../elements_data";
 import type { GrabbedInputComposite, UIListItem, UITab } from "../type";
 import { getNewFieldKeyname } from "../util/newFieldKeyname";
@@ -243,11 +246,13 @@ export const TabsFormComponent = observer(
                                         store.fields
                                     );
 
-                                    const newFieldItem: FormbuilderField = {
-                                        display_name: newKeyname,
-                                        keyname: newKeyname,
-                                        datatype: "STRING",
-                                    };
+                                    const newFieldItem: FormbuilderEditorField =
+                                        {
+                                            display_name: newKeyname,
+                                            keyname: newKeyname,
+                                            datatype: "STRING",
+                                            existing: false,
+                                        };
 
                                     const fields = store.fields;
                                     store.setFields([...fields, newFieldItem]);

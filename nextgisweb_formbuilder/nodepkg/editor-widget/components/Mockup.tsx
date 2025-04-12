@@ -41,7 +41,7 @@ const addNewField = (store: FormbuilderEditorStore) => {
         display_name: newKeyname,
         keyname: newKeyname,
         datatype: "STRING",
-        editable: true,
+        existing: false,
     };
     store.setFields([...store.fields, newFieldItem]);
 };
