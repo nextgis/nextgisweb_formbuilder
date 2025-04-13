@@ -1,0 +1,39 @@
+.ngw-formbuilder-editor-widget-tabs-element {
+    width: 100%;
+
+    > .tabs {
+        display: flex;
+        justify-content: space-between;
+        gap: 6px;
+
+        > .tab {
+            display: flex;
+            border-block-end: 2px solid transparent;
+            min-width: 0;
+
+            &.active {
+                border-block-end-color: var(--theme-color-primary);
+            }
+
+            > span {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+        > .ant-btn {
+            flex-shrink: 0;
+            margin-inline-start: auto;
+        }
+    }
+
+    > .container {
+        display: flex;
+        flex-direction: column;
+        margin-inline: -22px -32px;
+        margin-block: 2px -4px;
+        padding: 0;
+        min-height: 42px;
+    }
+}

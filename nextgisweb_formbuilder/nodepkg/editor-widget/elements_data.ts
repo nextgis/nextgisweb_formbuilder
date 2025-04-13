@@ -13,6 +13,15 @@ const msgDefaultText = gettext("Text");
 export const elements: FormElementData[] = [
     {
         value: {
+            name: gettext("Label"),
+            type: "label",
+        },
+        data: {
+            text: msgDefaultText,
+        },
+    },
+    {
+        value: {
             name: gettext("Tabs"),
             type: "tabs",
         },
@@ -39,18 +48,15 @@ export const elements: FormElementData[] = [
             label: msgDefaultText,
         },
     },
-    {
-        value: {
-            name: gettext("Label"),
-            type: "label",
-        },
-        data: {
-            text: msgDefaultText,
-        },
-    },
 ];
 
 export const inputsSchema = {
+    label: {
+        label: "string",
+    },
+    tabs: {
+        currentPage: "number",
+    },
     textbox: {
         field: "string",
         remember: "boolean",
@@ -58,12 +64,6 @@ export const inputsSchema = {
     checkbox: {
         field: "string",
         remember: "boolean",
-        label: "string",
-    },
-    tabs: {
-        currentPage: "number",
-    },
-    label: {
         label: "string",
     },
 };

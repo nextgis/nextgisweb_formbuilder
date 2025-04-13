@@ -1,8 +1,12 @@
 import { observer } from "mobx-react-lite";
 
 import type { FeatureLayerFieldDatatype } from "@nextgisweb/feature-layer/type/api";
-import { Button, Checkbox, InputValue, Select } from "@nextgisweb/gui/antd";
-import type { CheckboxChangeEvent } from "@nextgisweb/gui/antd";
+import {
+    Button,
+    CheckboxValue,
+    InputValue,
+    Select,
+} from "@nextgisweb/gui/antd";
 import { useThemeVariables } from "@nextgisweb/gui/hook";
 import { ErrorIcon, RemoveIcon } from "@nextgisweb/gui/icon";
 import { gettext } from "@nextgisweb/pyramid/i18n";
@@ -56,10 +60,6 @@ export const FieldsPanel = observer(
             newData: Partial<FormbuilderEditorField>
         ) => {
             store.updateField(keyname, newData);
-        };
-
-        const handleAddToLayerCheck = (e: CheckboxChangeEvent) => {
-            store.setUpdateFeatureLayerFields(e.target.checked);
         };
 
         const getStatusIcon = (field: FormbuilderEditorField) => {
@@ -122,92 +122,98 @@ export const FieldsPanel = observer(
                         {msgAdd}
                     </Button>
                 </div>
-                <div className="fields">
-                    {store.fields.map((field, i) => (
-                        <div key={field.keyname + i} className="field-row">
-                            <div className="status">{getStatusIcon(field)}</div>
-                            <InputValue
-                                className="display-name"
-                                variant="borderless"
-                                size="small"
-                                value={field.display_name}
-                                readOnly={field.existing}
-                                onChange={(value) => {
-                                    handleFieldChange(field.keyname, {
-                                        display_name: value,
-                                    });
-                                }}
-                            />
-                            <Select
-                                className="datatype"
-                                variant="borderless"
-                                options={typeOptions}
-                                suffixIcon={field.existing ? <></> : undefined}
-                                open={field.existing ? false : undefined}
-                                style={
-                                    field.existing
-                                        ? { cursor: "default" }
-                                        : undefined
-                                }
-                                defaultValue={
-                                    typeOptions[0]
-                                        .value as FeatureLayerFieldDatatype
-                                }
-                                value={field.datatype}
-                                onChange={(
-                                    value: FeatureLayerFieldDatatype
-                                ) => {
-                                    if (field.existing) return;
-                                    handleFieldChange(field.keyname, {
-                                        datatype: value,
-                                    });
-                                }}
-                            />
-
-                            <div className="action">
-                                <Button
+                <div className="fields-container">
+                    <div className="fields">
+                        {store.fields.map((field, i) => (
+                            <div key={field.keyname + i} className="field-row">
+                                <div className="status">
+                                    {getStatusIcon(field)}
+                                </div>
+                                <InputValue
+                                    className="display-name"
+                                    variant="borderless"
                                     size="small"
-                                    type="text"
-                                    icon={
-                                        field.existing ? (
-                                            <ExistingFieldLockIcon />
-                                        ) : (
-                                            <RemoveIcon />
-                                        )
+                                    value={field.display_name}
+                                    readOnly={field.existing}
+                                    onChange={(value) => {
+                                        handleFieldChange(field.keyname, {
+                                            display_name: value,
+                                        });
+                                    }}
+                                />
+                                <Select
+                                    className="datatype"
+                                    variant="borderless"
+                                    options={typeOptions}
+                                    suffixIcon={
+                                        field.existing ? <></> : undefined
                                     }
-                                    disabled={field.existing}
+                                    open={field.existing ? false : undefined}
                                     style={
                                         field.existing
                                             ? { cursor: "default" }
                                             : undefined
                                     }
-                                    onClick={() => {
-                                        const updatedFieldsList =
-                                            store.fields.filter(
-                                                (onDeleteField) =>
-                                                    onDeleteField.keyname !==
-                                                    field.keyname
-                                            );
-
-                                        store.setFields(updatedFieldsList);
+                                    defaultValue={
+                                        typeOptions[0]
+                                            .value as FeatureLayerFieldDatatype
+                                    }
+                                    value={field.datatype}
+                                    onChange={(
+                                        value: FeatureLayerFieldDatatype
+                                    ) => {
+                                        if (field.existing) return;
+                                        handleFieldChange(field.keyname, {
+                                            datatype: value,
+                                        });
                                     }}
                                 />
+
+                                <div className="action">
+                                    <Button
+                                        size="small"
+                                        type="text"
+                                        icon={
+                                            field.existing ? (
+                                                <ExistingFieldLockIcon />
+                                            ) : (
+                                                <RemoveIcon />
+                                            )
+                                        }
+                                        disabled={field.existing}
+                                        style={
+                                            field.existing
+                                                ? { cursor: "default" }
+                                                : undefined
+                                        }
+                                        onClick={() => {
+                                            const updatedFieldsList =
+                                                store.fields.filter(
+                                                    (onDeleteField) =>
+                                                        onDeleteField.keyname !==
+                                                        field.keyname
+                                                );
+
+                                            store.setFields(updatedFieldsList);
+                                        }}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
 
-                <div style={{ margin: "6px 4px 4px 6px" }}>
-                    {store.fields.find((field) => !field.existing) &&
-                        store.canUpdateFields && (
-                            <Checkbox
-                                style={{ marginLeft: "4px" }}
-                                onChange={handleAddToLayerCheck}
+                {store.fields.find((field) => !field.existing) &&
+                    store.canUpdateFields && (
+                        <div className="update-fields">
+                            <CheckboxValue
+                                value={store.updateFeatureLayerFields}
+                                onChange={store.setUpdateFeatureLayerFields}
                             >
                                 {msgAddToLayer}
-                            </Checkbox>
-                        )}
-                </div>
+                            </CheckboxValue>
+                        </div>
+                    )}
             </div>
         );
     }

@@ -1,4 +1,5 @@
 import { Button } from "antd";
+import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 
 import { RemoveIcon } from "@nextgisweb/gui/icon";
@@ -7,6 +8,7 @@ import type {
     FormbuilderEditorField,
     FormbuilderEditorStore,
 } from "../FormbuilderEditorStore";
+import { getInputComponent } from "../elements";
 import { elements, isNonFieldElement } from "../elements_data";
 import type {
     FormBuilderUIData,
@@ -16,7 +18,6 @@ import type {
 import { getNewFieldKeyname } from "../util/newFieldKeyname";
 
 import { DropPlace } from "./DropPlace";
-import { getInputComponent } from "./InputElements";
 
 import { HolderOutlined } from "@ant-design/icons";
 
@@ -276,38 +277,28 @@ export const getInputElement = ({
     return (
         <div
             key={index}
-            className={
-                store.selectedInput?.id === input.id
-                    ? "mockup_input_element_wrapper_fbwidget--selected"
-                    : "mockup_input_element_wrapper_fbwidget"
-            }
+            className={classNames(
+                "ngw-formbuilder-editor-widget-mockup-element-wrapper",
+                { selected: store.selectedInput?.id === input.id }
+            )}
         >
-            <div
-                style={{
-                    flexGrow: "10",
-                    display: "flex",
-                    gap: "6px",
-                    width: "100%",
-                    userSelect: "none",
-                }}
-            >
-                <HolderOutlined
-                    style={{
-                        color: "grey",
-                        paddingLeft: "6px",
-                        cursor: "grab",
-                    }}
-                    onMouseDown={handleMouseDown}
-                    onMouseUp={onMouseUp}
-                />
-                <InputComponent
-                    store={store}
-                    onGrabDrop={() => store.grabbedInput}
-                    input={input}
-                    i={index}
-                />
-            </div>
-            <Button type="text" icon={<RemoveIcon />} onClick={handleDelete} />
+            <HolderOutlined
+                className="holder"
+                onMouseDown={handleMouseDown}
+                onMouseUp={onMouseUp}
+            />
+            <InputComponent
+                store={store}
+                onGrabDrop={() => store.grabbedInput}
+                input={input}
+                i={index}
+            />
+            <Button
+                size="small"
+                type="text"
+                icon={<RemoveIcon />}
+                onClick={handleDelete}
+            />
         </div>
     );
 };
@@ -324,6 +315,9 @@ const renderInputElement = (
     const handleMouseDown = () => {
         const grabbed = elements.find((e) => e.value.type === input.value.type);
         if (!grabbed) return;
+
+        store.setSelectedInput(input);
+        store.setDragPos(null);
         store.setDragging(true);
         store.setGrabbedIndex(index);
         store.setGrabbedSourceListId(listId);
@@ -371,7 +365,7 @@ export const Mockup = observer(
         const { list: inputs, listId } = inputsWithId;
 
         return (
-            <div className="mockup_main_fbwidget">
+            <>
                 {inputs?.map((input, i) =>
                     input?.value?.type === "dropPlace"
                         ? renderDropPlace(
@@ -384,7 +378,7 @@ export const Mockup = observer(
                           )
                         : renderInputElement(store, input, i, inputs, listId)
                 )}
-            </div>
+            </>
         );
     }
 );

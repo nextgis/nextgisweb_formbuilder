@@ -23,7 +23,7 @@ import DoneIcon from "@nextgisweb/icon/material/check";
 import ArrowIcon from "@nextgisweb/icon/material/keyboard_arrow_left";
 import MoreVertIcon from "@nextgisweb/icon/material/more_vert";
 
-import "./FormbuilderEditorWidget.css";
+import "./FormbuilderEditorWidget.less";
 
 export const FormbuilderEditorWidget = observer(
     ({
@@ -123,18 +123,11 @@ export const FormbuilderEditorWidget = observer(
                 const handleMouseMove = (e: MouseEvent) => {
                     setDragPos({ x: e.clientX, y: e.clientY });
                 };
+
                 document.addEventListener("mousemove", handleMouseMove);
 
-                const html = document.documentElement;
-
-                if (dragging) {
-                    html.classList.add("dragging-active");
-                } else {
-                    html.classList.remove("dragging-active");
-                }
                 return () => {
                     document.removeEventListener("mousemove", handleMouseMove);
-                    html.classList.remove("dragging-active");
                 };
             }
         }, [dragging, setDragPos]);
@@ -155,20 +148,25 @@ export const FormbuilderEditorWidget = observer(
 
         const themeVariables = useThemeVariables({
             "theme-border-radius": "borderRadius",
+            "theme-color-border-secondary": "colorBorderSecondary",
+            "theme-color-border": "colorBorder",
+            "theme-color-fill-alter": "colorFillAlter",
+            "theme-color-icon": "colorIcon",
+            "theme-color-primary-bg": "colorPrimaryBg",
+            "theme-color-primary": "colorPrimary",
         });
 
         return (
             <div
-                className={classNames("formbuilder_main_fbwidget", {
-                    "formbuilder_main_drag_fbwidget": dragging,
+                className={classNames("ngw-formbuilder-editor-widget", {
+                    dragging,
                 })}
                 style={themeVariables}
             >
                 <ElementsPanel store={store} />
-
-                <div className="mockup_background_field_fbwidget">
+                <div className="mockup-container">
                     <div
-                        className={"mockup_wrapper_top_level_fbwidget"}
+                        className={"mockup"}
                         onMouseUp={(e) => {
                             if (
                                 e.currentTarget === e.target &&
@@ -226,7 +224,9 @@ export const FormbuilderEditorWidget = observer(
                                     store.setFields([...fields, newFieldItem]);
                                 }
 
-                                // It happens to be unique top level in tree case, prolly can be recursive like other cases
+                                // It happens to be unique top level in tree
+                                // case, prolly can be recursive like other
+                                // cases
                                 const updatedInputs = [
                                     ...inputsTree.list,
                                     droppingInputWithField,
@@ -242,51 +242,37 @@ export const FormbuilderEditorWidget = observer(
                             }
                         }}
                     >
-                        <div className="mockup_app_header_fbwidget">
-                            <ArrowIcon
-                                style={{ fontSize: "32px", color: "white" }}
-                            />
-                            <div style={{ display: "flex" }}>
-                                <DoneIcon
-                                    style={{
-                                        fontSize: "32px",
-                                        color: "white",
-                                    }}
-                                />
-                                <MoreVertIcon
-                                    style={{
-                                        fontSize: "30px",
-                                        color: "white",
-                                    }}
+                        <div className="mockup-header">
+                            <ArrowIcon />
+                            <DoneIcon />
+                            <MoreVertIcon />
+                        </div>
+                        <div className="mockup-body-container">
+                            <div className="mockup-body">
+                                <Mockup
+                                    inputsWithId={inputsTree}
+                                    store={store}
                                 />
                             </div>
                         </div>
-
-                        <Mockup inputsWithId={inputsTree} store={store} />
                     </div>
                 </div>
 
-                <div className={"settings_fbwidget"}>
-                    <FieldsPanel store={store} />
-
-                    <div className={"props_fbwidget"}>
-                        <SelectedInputProperties store={store} />
+                <div className="fields-and-properties">
+                    <div className="fields">
+                        <FieldsPanel store={store} />
                     </div>
+                    {store.selectedInput && (
+                        <div className="properties">
+                            <SelectedInputProperties store={store} />
+                        </div>
+                    )}
                 </div>
 
-                {dragging && grabbedInput && (
+                {dragging && grabbedInput && dragPos && (
                     <div
-                        style={{
-                            position: "fixed",
-                            cursor: "grabbing",
-                            left: dragPos.x,
-                            top: dragPos.y,
-                            transform: "translate(-50%, -50%)",
-                            pointerEvents: "none",
-                            opacity: 0.5,
-                            zIndex: 1000,
-                            minWidth: "200px",
-                        }}
+                        className="grabbed-input"
+                        style={{ left: dragPos.x, top: dragPos.y }}
                     >
                         {getInputElement({
                             store,
@@ -299,6 +285,7 @@ export const FormbuilderEditorWidget = observer(
         );
     }
 );
+
 FormbuilderEditorWidget.displayName = gettext("Form");
 
 export default FormbuilderEditorWidget;

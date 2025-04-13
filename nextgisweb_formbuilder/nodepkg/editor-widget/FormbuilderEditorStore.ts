@@ -41,8 +41,8 @@ export class FormbuilderEditorStore {
     @observable.ref accessor grabbedSourceListId: number | null = null;
     @observable.ref accessor isMoving: boolean = false;
     @observable.ref accessor listCounter: number = 0;
-    @observable.shallow accessor selectedInput: UIListItem | null = null;
-    @observable.shallow accessor dragPos: DragPos = { x: 0, y: 0 };
+    @observable.ref accessor selectedInput: UIListItem | null = null;
+    @observable.ref accessor dragPos: DragPos | null = null;
     @observable.ref accessor dragging = false;
 
     @observable.ref accessor onChange:
@@ -58,7 +58,7 @@ export class FormbuilderEditorStore {
     }
 
     @action.bound
-    setDragPos(dragPos: DragPos) {
+    setDragPos(dragPos: DragPos | null) {
         this.dragPos = dragPos;
     }
 

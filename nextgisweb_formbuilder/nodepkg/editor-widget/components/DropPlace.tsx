@@ -1,3 +1,5 @@
+import classNames from "classnames";
+
 export const DropPlace = ({
     onDrop,
     elId,
@@ -10,9 +12,7 @@ export const DropPlace = ({
     return (
         <div
             data-elid={elId}
-            className={
-                active ? "drop_place_fbwidget" : "drop_place_inactive_fbwidget"
-            }
+            className={classNames("drop-place", { active })}
             onMouseUp={(e: any) => {
                 onDrop(e);
             }}

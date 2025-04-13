@@ -1,8 +1,9 @@
+import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 
-import type { FormbuilderField } from "@nextgisweb/formbuilder/type/api";
 import { Button } from "@nextgisweb/gui/antd";
 import { AddIcon, RemoveIcon } from "@nextgisweb/gui/icon";
+import { gettextf } from "@nextgisweb/pyramid/i18n";
 
 import type {
     FormbuilderEditorField,
@@ -13,6 +14,8 @@ import type { GrabbedInputComposite, UIListItem, UITab } from "../type";
 import { getNewFieldKeyname } from "../util/newFieldKeyname";
 
 import { Mockup } from "./Mockup";
+
+import "./TabsFormComponent.less";
 
 const updateActiveTab = (input: UIListItem): UIListItem => {
     const { value } = input;
@@ -90,8 +93,9 @@ export const TabsFormComponent = observer(
             if (!tabsInputFromStore) {
                 return;
             }
+            const newIdx = (tabsInputFromStore.value.tabs || []).length + 1;
             const newTab = {
-                title: `Tab${(tabsInputFromStore.value.tabs || []).length + 1}`,
+                title: gettextf("Tab {}")(newIdx),
                 active: false,
                 items: {
                     listId: store.getNewListIndex(),
@@ -176,19 +180,15 @@ export const TabsFormComponent = observer(
         };
 
         return (
-            <div>
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                    }}
-                >
+            <div className="ngw-formbuilder-editor-widget-tabs-element">
+                <div className="tabs">
                     {(tabsInputFromStore?.value.tabs || []).map((tab, i) => (
                         <div
                             key={tab.title}
-                            style={{
-                                flexGrow: 1,
-                            }}
+                            className={classNames("tab", {
+                                active: tab.active,
+                            })}
+                            title={tab.title}
                             onClick={() => {
                                 setActive(i);
                             }}
@@ -299,50 +299,35 @@ export const TabsFormComponent = observer(
                                 );
                             }}
                         >
-                            <div
-                                className={
-                                    tab.active
-                                        ? "tab-active_fbwidget"
-                                        : "tab_fbwidget"
-                                }
-                            >
-                                <span>{tab.title}</span>
-                                <Button
-                                    type="text"
-                                    icon={
-                                        <RemoveIcon className="tab_close-button_fbwidget" />
-                                    }
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (!tabsInputFromStore) return;
-                                        const updatedTabsInput = deleteTab(
-                                            tabsInputFromStore,
-                                            i
-                                        );
+                            <span>{tab.title}</span>
+                            <Button
+                                size="small"
+                                type="text"
+                                icon={<RemoveIcon />}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (!tabsInputFromStore) return;
+                                    const updatedTabsInput = deleteTab(
+                                        tabsInputFromStore,
+                                        i
+                                    );
 
-                                        store.setNewElementData(
-                                            value.id as number,
-                                            updatedTabsInput.data
-                                        );
-                                        store.setNewElementValue(
-                                            value.id as number,
-                                            updatedTabsInput.value
-                                        );
+                                    store.setNewElementData(
+                                        value.id as number,
+                                        updatedTabsInput.data
+                                    );
+                                    store.setNewElementValue(
+                                        value.id as number,
+                                        updatedTabsInput.value
+                                    );
 
-                                        store.setSelectedInput(
-                                            updatedTabsInput
-                                        );
-                                    }}
-                                />
-                            </div>
+                                    store.setSelectedInput(updatedTabsInput);
+                                }}
+                            />
                         </div>
                     ))}
-
                     <Button
-                        style={{
-                            marginLeft: "4px",
-                            cursor: "pointer",
-                        }}
+                        size="small"
                         type="text"
                         icon={<AddIcon />}
                         onClick={(e) => {
@@ -351,8 +336,7 @@ export const TabsFormComponent = observer(
                         }}
                     />
                 </div>
-
-                <div className="tabs_mockup_wrapper_fbwidget">
+                <div className="container">
                     <Mockup
                         inputsWithId={getActiveTabItems()}
                         store={store}

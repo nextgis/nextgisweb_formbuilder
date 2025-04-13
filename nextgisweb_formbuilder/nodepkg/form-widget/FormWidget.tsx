@@ -101,12 +101,12 @@ export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
                     onChange={store.setMode}
                 />
             )}
-            {modeComponent}
+            <div className="container">{modeComponent}</div>
         </div>
     );
 });
 
 FormWidget.displayName = "FormWidget";
 FormWidget.title = gettext("Form");
-FormWidget.activateOn = { create: true };
+FormWidget.activateOn = { create: true, update: true };
 FormWidget.order = -50;

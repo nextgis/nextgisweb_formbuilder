@@ -74,7 +74,7 @@ export const SelectedInputProperties = observer(
         };
 
         return (
-            <div>
+            <div className="ngw-formbuilder-editor-widget-properties-panel">
                 <div className="panel-header">{msgPropertiesHeader}</div>
                 {store.selectedInput && (
                     <>

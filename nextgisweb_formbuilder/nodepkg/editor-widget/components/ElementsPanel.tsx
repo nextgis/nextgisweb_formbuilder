@@ -12,7 +12,7 @@ const msgHeader = gettext("Elements");
 export const ElementsPanel = observer(
     ({ store }: { store: FormbuilderEditorStore }) => {
         return (
-            <div className="formbuilder-form--inputs">
+            <div className="ngw-formbuilder-editor-widget-panel">
                 <div className="panel-header">{msgHeader}</div>
                 {elements.map((element: FormElementData) => (
                     <FormElement

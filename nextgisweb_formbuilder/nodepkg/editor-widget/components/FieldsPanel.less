@@ -2,33 +2,51 @@
     display: flex;
     flex-direction: column;
 
-    > .fields {
+    > .fields-container {
         flex-grow: 1;
+        min-height: 0;
+        overflow-y: auto;
+        scrollbar-width: thin;
 
-        > .field-row {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 4px;
-            border-bottom: 1px solid #eee;
-            padding: 2px 4px;
+        &:last-child {
+            border-bottom: 1px solid var(--theme-color-border-secondary);
+        }
 
-            > .status {
-                min-width: 14px;
-                padding-inline-start: 4px;
-            }
+        > .fields {
+            > .field-row {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 4px;
+                border-bottom: 1px solid var(--theme-color-border-secondary);
+                padding: 2px 4px;
 
-            > .display-name {
-                flex-grow: 1;
-            }
+                &:last-child {
+                    border-bottom: none;
+                }
 
-            > .datatype {
-                min-width: 110px;
-            }
+                > .status {
+                    padding-inline-start: 4px;
+                    min-width: 14px;
+                }
 
-            > .action {
-                min-width: 24px;
+                > .display-name {
+                    flex-grow: 1;
+                }
+
+                > .datatype {
+                    min-width: 110px;
+                }
+
+                > .action {
+                    min-width: 24px;
+                }
             }
         }
+    }
+
+    .update-fields {
+        border-top: 1px solid var(--theme-color-border-secondary);
+        padding: 6px 6px;
     }
 }
