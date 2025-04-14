@@ -107,7 +107,7 @@ def test_struct(vector_layer, ngw_webtest_app):
         ],
         "items": [
             {"type": "label", "label": "Field 1"},
-            {"type": "textbox", "field": "f1", "remember": False},
+            {"type": "textbox", "field": "f1", "remember": False, "max_lines": 1, "numbers_only": True},
             {
                 "type": "tabs",
                 "tabs": [

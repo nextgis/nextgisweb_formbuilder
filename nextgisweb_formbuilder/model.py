@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Union
 from zipfile import BadZipFile, ZipFile
 
 import sqlalchemy as sa
@@ -8,7 +8,6 @@ from msgspec import UNSET, Struct, UnsetType
 from msgspec import DecodeError as MsgspecDecodeErrror
 from msgspec import ValidationError as MsgspecValidationError
 from msgspec.json import decode as msgspec_json_decode
-from typing_extensions import Annotated
 
 from nextgisweb.env import Base, gettext, gettextf
 from nextgisweb.lib.saext import Msgspec
@@ -22,128 +21,16 @@ from nextgisweb.feature_layer import (
 )
 from nextgisweb.file_storage import FileObj
 from nextgisweb.file_upload import FileUploadRef
-from nextgisweb.jsrealm import TSExport
 from nextgisweb.resource import DataScope, Resource, ResourceScope, SAttribute, Serializer
 from nextgisweb.resource.category import FieldDataCollectionCategory
+
+from .element import FormbuilderFormItemUnion
 
 
 class FormbuilderField(Struct):
     keyname: str
     display_name: str
     datatype: FeatureLayerFieldDatatype
-
-
-T = TypeVar("T", bound=Type["FormbuilderItem"])
-
-
-class FormbuilderItem(Struct, kw_only=True):
-    registry: ClassVar[list[Type["FormbuilderItem"]]] = list()
-    legacy_type: ClassVar[str]
-
-    @classmethod
-    def register(cls, item: T) -> T:
-        cls.registry.append(item)
-        return item
-
-    def to_legacy(self) -> Dict[str, Any]:
-        return dict(type=self.legacy_type, attributes=dict())
-
-
-@FormbuilderItem.register
-class FormbuilderLabelItem(FormbuilderItem, tag="label"):
-    legacy_type = "text"
-
-    label: str
-
-    def to_legacy(self) -> Dict[str, Any]:
-        result = super().to_legacy()
-        result["attributes"]["text"] = self.label
-        return result
-
-
-class FormbuilderTab(Struct):
-    title: str
-    active: bool
-    items: List["FormbuilderFormItemUnion"]
-
-    def to_legacy(self) -> Dict[str, Any]:
-        result: Dict[str, Any] = dict(caption=self.title)
-        if self.active:
-            result["default"] = True
-        result["elements"] = [i.to_legacy() for i in self.items]
-        return result
-
-
-@FormbuilderItem.register
-class FormbuilderTabsItem(FormbuilderItem, tag="tabs"):
-    legacy_type = "tabs"
-
-    tabs: List[FormbuilderTab]
-
-    def to_legacy(self) -> Dict[str, Any]:
-        result = super().to_legacy()
-        result["pages"] = [t.to_legacy() for t in self.tabs]
-        return result
-
-
-class FormbuilderFieldItem(FormbuilderItem):
-    field: str
-
-    remember: bool
-
-    def to_legacy(self) -> Dict[str, Any]:
-        result = super().to_legacy()
-        result["attributes"].update(
-            {
-                "field": self.field,
-                "last": self.remember,
-            }
-        )
-        return result
-
-
-@FormbuilderItem.register
-class FormbuilderTextboxItem(FormbuilderFieldItem, tag="textbox", kw_only=True):
-    legacy_type = "text_edit"
-
-    def to_legacy(self) -> Dict[str, Any]:
-        result = super().to_legacy()
-        result["attributes"].update(
-            {
-                "init_value": "",
-                "max_string_count": 1,
-                "ngid_login": False,
-                "ngw_login": False,
-                "only_figures": False,
-            }
-        )
-        return result
-
-
-@FormbuilderItem.register
-class FormbuilderCheckboxItem(FormbuilderFieldItem, tag="checkbox", kw_only=True):
-    legacy_type = "checkbox"
-
-    label: str
-
-    def to_legacy(self) -> Dict[str, Any]:
-        result = super().to_legacy()
-        result["attributes"].update(
-            {
-                "init_value": False,
-                "text": self.label,
-            }
-        )
-        return result
-
-
-if TYPE_CHECKING:
-    FormbuilderFormItemUnion = FormbuilderItem
-else:
-    FormbuilderFormItemUnion = Annotated[
-        Union[tuple(FormbuilderItem.registry)],
-        TSExport("FormbuilderFormItem"),
-    ]
 
 
 class FormbuilderFormValue(Struct, kw_only=True):
