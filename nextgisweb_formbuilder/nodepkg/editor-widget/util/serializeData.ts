@@ -16,12 +16,6 @@ export function serializeData(
     function processList(list: UIListItem[]): FormbuilderFormItem[] {
         return list
             .map((item) => {
-                // Skip dropPlace items
-                if (item.value.type === "dropPlace") {
-                    return null;
-                }
-
-                // Handle tabs
                 if (item.value.type === "tabs") {
                     return {
                         type: "tabs",
@@ -33,14 +27,12 @@ export function serializeData(
                     } as unknown as FormbuilderTabsItem; // fix me
                 }
 
-                // Handle all other types dynamically
                 return {
-                    type: item.value.type, // Use the type from the input
-                    // attributes: item.data || {}, // Use the data as attributes
-                    ...(item.data || {}), // Use the data as attributes
+                    type: item.value.type,
+                    ...(item.data || {}),
                 } as FormbuilderFormItem;
             })
-            .filter((item) => item !== null) as FormbuilderFormItem[]; // Filter out null items (dropPlace)
+            .filter((item) => item !== null) as FormbuilderFormItem[];
     }
 
     const processedList = processList(input.list);
@@ -49,11 +41,6 @@ export function serializeData(
     return output;
 }
 
-const createDropPlace = (): UIListItem => ({
-    value: { type: "dropPlace" },
-    data: null,
-});
-
 export function convertToUIData(
     items: Array<FormbuilderTabsItem | FormbuilderFormItem>,
     getNewId: () => number
@@ -61,7 +48,7 @@ export function convertToUIData(
     const processItems = (
         items: Array<FormbuilderTabsItem | FormbuilderFormItem>
     ): UIListItem[] => {
-        const result: UIListItem[] = [createDropPlace()];
+        const result: UIListItem[] = [];
 
         const convertItem = (
             item: FormbuilderTabsItem | FormbuilderFormItem
@@ -81,7 +68,7 @@ export function convertToUIData(
                             },
                         })),
                     },
-                    data: { currentPage: 0 },
+                    data: {},
                     id: getNewId(),
                 };
             } else {
@@ -102,7 +89,6 @@ export function convertToUIData(
 
         items.forEach((item) => {
             result.push(convertItem(item));
-            result.push(createDropPlace());
         });
 
         return result;
@@ -112,35 +98,4 @@ export function convertToUIData(
         listId: getNewId(),
         list: processItems(items),
     };
-}
-
-export function isFieldOccupied(
-    keyname: string,
-    inputsTree: FormBuilderUIData
-) {
-    const isFieldOccupiedInner = (tree: any, keyname: string): boolean => {
-        if (tree.data && tree.data.field && tree.data.field === keyname) {
-            return true;
-        }
-
-        if (tree.list && Array.isArray(tree.list)) {
-            for (const item of tree.list) {
-                if (isFieldOccupiedInner(item, keyname)) {
-                    return true;
-                }
-            }
-        }
-
-        if (tree.value && tree.value.tabs && Array.isArray(tree.value.tabs)) {
-            for (const tab of tree.value.tabs) {
-                if (tab.items && isFieldOccupiedInner(tab.items, keyname)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    };
-
-    return isFieldOccupiedInner(inputsTree, keyname);
 }

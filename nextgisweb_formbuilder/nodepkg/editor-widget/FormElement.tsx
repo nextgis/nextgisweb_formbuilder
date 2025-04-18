@@ -1,34 +1,30 @@
 import { observer } from "mobx-react-lite";
+import type { FC, ReactNode } from "react";
 
-import { getIconComponent } from "../helper";
-import type { IconName } from "../helper";
+import { elementsData } from "./element";
+import type { FormElementData } from "./element";
 
-import { elements } from "./elements_data";
-import type { FormElementData } from "./elements_data";
+export interface FormElementProps {
+    data: FormElementData;
+    icon: ReactNode;
+    grabCallback: (element: FormElementData) => void;
+}
 
-export const FormElement = observer(
-    ({
-        data,
-        grabCallback,
-    }: {
-        data: FormElementData;
-        grabCallback: (element: FormElementData) => void;
-    }) => {
-        const IconComp = getIconComponent(data.value.type as IconName);
-
+export const FormElement: FC<FormElementProps> = observer(
+    ({ data, icon, grabCallback }) => {
         return (
             <div
                 className={"form_element_fbwidget"}
                 data-name={data.value.type}
                 onMouseDown={(e) => {
                     const name = e.currentTarget.dataset.name;
-                    const element = elements.find(
-                        (el) => el.value.type === name
+                    const element = elementsData.find(
+                        (el) => el.storeData.value.type === name
                     );
-                    if (element) grabCallback(element);
+                    if (element) grabCallback(element.storeData);
                 }}
             >
-                <IconComp />
+                {icon}
                 <span>{data.value.name}</span>
             </div>
         );

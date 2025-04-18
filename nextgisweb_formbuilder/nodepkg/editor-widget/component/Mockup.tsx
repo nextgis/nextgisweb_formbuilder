@@ -3,19 +3,19 @@ import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 
 import { RemoveIcon } from "@nextgisweb/gui/icon";
+import { gettext } from "@nextgisweb/pyramid/i18n";
 
 import type {
     FormbuilderEditorField,
     FormbuilderEditorStore,
 } from "../FormbuilderEditorStore";
-import { getInputComponent } from "../elements";
-import { elements, isNonFieldElement } from "../elements_data";
+import { elementsData, isNonFieldElement } from "../element";
 import type {
     FormBuilderUIData,
     GrabbedInputComposite,
     UIListItem,
 } from "../type";
-import { getNewFieldKeyname } from "../util/newFieldKeyname";
+import { getNewFieldKeynamePostfix } from "../util/newFieldKeyname";
 
 import { DropPlace } from "./DropPlace";
 
@@ -36,15 +36,17 @@ const resetGrabState = (store: FormbuilderEditorStore) => {
 };
 
 const addNewField = (store: FormbuilderEditorStore) => {
-    const newKeyname = getNewFieldKeyname(store.fields);
+    const newFieldPostfix = getNewFieldKeynamePostfix(store.fields);
 
     const newFieldItem: FormbuilderEditorField = {
-        display_name: newKeyname,
-        keyname: newKeyname,
+        display_name: `${gettext("Field")} ${newFieldPostfix}`,
+        keyname: `field_${newFieldPostfix}`,
         datatype: "STRING",
         existing: false,
     };
+
     store.setFields([...store.fields, newFieldItem]);
+    if (store.setDirty) store.setDirty(true);
 };
 
 const createDroppingInput = (
@@ -57,7 +59,7 @@ const createDroppingInput = (
     const getDroppingFieldValue = () => {
         if (isMoving) return input.data?.field;
         if (isNonFieldElement(input)) return undefined;
-        return `field_${store.fields.length + 1}`;
+        return "field_" + getNewFieldKeynamePostfix(store.fields);
     };
 
     return {
@@ -78,15 +80,9 @@ const getInputsForMoveBefore = (
 ) => {
     const pre = inputs.slice(0, dropIndex);
     const mid = inputs.slice(dropIndex, grabbedIndex);
-    const post = inputs.slice(grabbedIndex + 2, inputs.length);
+    const post = inputs.slice(grabbedIndex, inputs.length);
 
-    return [
-        ...pre,
-        { value: { type: "dropPlace" }, data: null },
-        droppingInput,
-        ...mid,
-        ...post,
-    ];
+    return [...pre, droppingInput, ...mid, ...post];
 };
 
 const getInputsForMoveAfter = (
@@ -96,65 +92,58 @@ const getInputsForMoveAfter = (
     droppingInput: UIListItem
 ) => {
     const pre = inputs.slice(0, grabbedIndex);
-    const mid = inputs.slice(grabbedIndex + 2, dropIndex);
-    const post = inputs.slice(dropIndex, inputs.length);
+    const mid = inputs.slice(grabbedIndex, dropIndex - 1);
+    const post = inputs.slice(dropIndex - 1, inputs.length);
 
-    return [
-        ...pre,
-        ...mid,
-        { value: { type: "dropPlace" }, data: null },
-        droppingInput,
-        ...post,
-    ];
+    return [...pre, ...mid, droppingInput, ...post];
 };
 
 const handleDrop = (
     store: FormbuilderEditorStore,
-    inputs: UIListItem[],
     listId: number,
     dropIndex: number,
     droppingInput?: GrabbedInputComposite
 ) => {
     if (!droppingInput) return;
 
-    const pre = inputs.slice(0, dropIndex);
-    const post = inputs.slice(dropIndex, inputs.length);
+    const inputsListStore = store.getListById(listId)?.list || [];
 
-    const updatedInputs = [
-        ...pre,
-        { value: { type: "dropPlace" }, data: null },
-        droppingInput,
-        ...post,
-    ];
+    const pre = inputsListStore.slice(0, dropIndex);
+    const post = inputsListStore.slice(dropIndex, inputsListStore.length);
+
+    const updatedInputs = [...pre, droppingInput, ...post];
 
     store.setListById(listId, updatedInputs);
+    if (store.setDirty) store.setDirty(true);
     resetGrabState(store);
 };
 
 const handleExistingPositionDrop = (
     store: FormbuilderEditorStore,
-    inputs: UIListItem[],
     listId: number,
     dropIndex: number,
     grabbedIndex: number,
     droppingInput: GrabbedInputComposite | null
 ) => {
-    if (!droppingInput || Math.abs(dropIndex - grabbedIndex) < 2) {
+    if (!droppingInput || [0, 1].includes(dropIndex - grabbedIndex)) {
         resetGrabState(store);
+        // BUT SEEMS IN THIS CASE DROP CALLBACK STILL RUNS AND MAYBE ITS BAD
         return;
     }
+
+    const inputsListStore = store.getListById(listId)?.list || [];
 
     let updatedInputs;
     if (grabbedIndex > dropIndex) {
         updatedInputs = getInputsForMoveBefore(
-            inputs,
+            inputsListStore,
             dropIndex,
             grabbedIndex,
             droppingInput
         );
     } else {
         updatedInputs = getInputsForMoveAfter(
-            inputs,
+            inputsListStore,
             dropIndex,
             grabbedIndex,
             droppingInput
@@ -167,10 +156,8 @@ const handleExistingPositionDrop = (
 
 const handleDropLogic = (
     store: FormbuilderEditorStore,
-    inputs: UIListItem[],
     listId: number,
     dropIndex: number
-    // parentId?: number
 ) => {
     const { grabbedInput, grabbedSourceListId, grabbedIndex, isMoving } = store;
 
@@ -180,7 +167,7 @@ const handleDropLogic = (
     const isSameList = () => isExistingList() && grabbedSourceListId === listId;
     const isDifferenceOne = () => {
         if (grabbedIndex === null) return false;
-        return Math.abs(grabbedIndex - dropIndex) === 1;
+        return [0, 1].includes(dropIndex - grabbedIndex);
     };
 
     const isSameListSamePlace =
@@ -206,16 +193,15 @@ const handleDropLogic = (
     }
 
     if (listId !== grabbedSourceListId) {
-        handleDrop(store, inputs, listId, dropIndex, droppingInputWithField);
+        handleDrop(store, listId, dropIndex, droppingInputWithField);
         return;
     }
 
     if (grabbedIndex === null) {
-        handleDrop(store, inputs, listId, dropIndex, droppingInputWithField);
+        handleDrop(store, listId, dropIndex, droppingInputWithField);
     } else {
         handleExistingPositionDrop(
             store,
-            inputs,
             listId,
             dropIndex,
             grabbedIndex,
@@ -227,9 +213,7 @@ const handleDropLogic = (
 // Render functions
 const renderDropPlace = (
     store: FormbuilderEditorStore,
-    input: UIListItem,
     index: number,
-    inputs: UIListItem[],
     listId: number,
     parentId?: number
 ) => {
@@ -244,14 +228,13 @@ const renderDropPlace = (
             return;
         }
 
-        handleDropLogic(store, inputs, listId, index);
+        handleDropLogic(store, listId, index);
     };
 
     return (
         <DropPlace
             active={!!store.grabbedInput}
-            key={`${input.value.type}_${index}`}
-            elId={index}
+            key={`drop_${index * 2 + 1}`}
             onDrop={handleDrop}
         />
     );
@@ -272,7 +255,9 @@ export const getInputElement = ({
     handleDelete?: () => void;
     onMouseUp?: () => void;
 }) => {
-    const InputComponent = getInputComponent(input.value.type);
+    const InputComponent =
+        elementsData.find((el) => el.elementId === input.value.type)?.render ||
+        (() => null);
 
     return (
         <div
@@ -291,7 +276,6 @@ export const getInputElement = ({
                 store={store}
                 onGrabDrop={() => store.grabbedInput}
                 input={input}
-                i={index}
             />
             <Button
                 size="small"
@@ -307,13 +291,16 @@ const renderInputElement = (
     store: FormbuilderEditorStore,
     input: UIListItem,
     index: number,
-    inputs: UIListItem[],
     listId: number
 ) => {
     if (!input?.value) return null;
 
+    const inputsListStore = store.getListById(listId)?.list || [];
+
     const handleMouseDown = () => {
-        const grabbed = elements.find((e) => e.value.type === input.value.type);
+        const grabbed = elementsData.find(
+            (e) => e.storeData.value.type === input.value.type
+        );
         if (!grabbed) return;
 
         store.setSelectedInput(input);
@@ -325,8 +312,8 @@ const renderInputElement = (
             ...input,
             dropCallback: () => {
                 const updatedInputs = [
-                    ...inputs.slice(0, index),
-                    ...inputs.slice(index + 2, inputs.length),
+                    ...inputsListStore.slice(0, index),
+                    ...inputsListStore.slice(index + 1, inputsListStore.length),
                 ];
                 store.setListById(listId, updatedInputs);
             },
@@ -339,10 +326,12 @@ const renderInputElement = (
             store.setSelectedInput(null);
         }
         const updatedInputs = [
-            ...inputs.slice(0, index),
-            ...inputs.slice(index + 2, inputs.length),
+            ...inputsListStore.slice(0, index),
+            ...inputsListStore.slice(index + 1, inputsListStore.length),
         ];
         store.setListById(listId, updatedInputs);
+
+        if (store.setDirty) store.setDirty(true);
     };
 
     const onMouseUp = () => store.setGrabbedInput(null);
@@ -364,19 +353,21 @@ export const Mockup = observer(
 
         const { list: inputs, listId } = inputsWithId;
 
+        const renderList = [
+            ...inputs.flatMap((input, i) => [
+                renderDropPlace(store, i, listId, parentId),
+                renderInputElement(store, input, i, listId),
+            ]),
+        ];
+
         return (
             <>
-                {inputs?.map((input, i) =>
-                    input?.value?.type === "dropPlace"
-                        ? renderDropPlace(
-                              store,
-                              input,
-                              i,
-                              inputs,
-                              listId,
-                              parentId
-                          )
-                        : renderInputElement(store, input, i, inputs, listId)
+                {renderList}
+                {renderDropPlace(
+                    store,
+                    renderList.length - 1,
+                    listId,
+                    parentId
                 )}
             </>
         );

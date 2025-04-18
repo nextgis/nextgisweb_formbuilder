@@ -41,6 +41,8 @@ export class FormStore
     @observable.ref accessor file_upload: FileMeta | undefined = undefined;
     @observable.ref accessor uploading: boolean = false;
 
+    @observable.ref accessor dirty: boolean = false;
+
     @observable.ref accessor editorData: EditorData | undefined = undefined;
     @observable.ref accessor initEditorData: EditorData | undefined = undefined;
 
@@ -80,6 +82,11 @@ export class FormStore
         this.mode = mode;
     }
 
+    @action.bound
+    setDirty(val: boolean) {
+        this.dirty = val;
+    }
+
     @computed
     get isValid() {
         if (this.editorData) {
@@ -90,11 +97,6 @@ export class FormStore
                 (this.composite.operation === "update" || !!this.file_upload)
             );
         }
-    }
-
-    @computed
-    get dirty() {
-        return this.uploading || !!this.file_upload;
     }
 
     @computed

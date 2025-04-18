@@ -15,8 +15,11 @@ import type {
     FormbuilderEditorField,
     FormbuilderEditorStore,
 } from "../FormbuilderEditorStore";
-import { getNewFieldKeyname } from "../util/newFieldKeyname";
-import { isFieldOccupied } from "../util/serializeData";
+import {
+    getElementIdByField,
+    isFieldOccupied,
+} from "../util/fieldRelatedOperations";
+import { getNewFieldKeynamePostfix } from "../util/newFieldKeyname";
 
 import NewUsedFieldIcon from "@nextgisweb/icon/material/add_link/outline";
 import ExistingUsedFieldIcon from "@nextgisweb/icon/material/link/outline";
@@ -42,17 +45,18 @@ const msgAddToLayer = gettext("Add absent fields to layer");
 export const FieldsPanel = observer(
     ({ store }: { store: FormbuilderEditorStore }) => {
         const addField = () => {
-            const newKeyname = getNewFieldKeyname(store.fields);
+            const newFieldPostfix = getNewFieldKeynamePostfix(store.fields);
 
             const newFieldItem: FormbuilderEditorField = {
-                display_name: newKeyname,
-                keyname: newKeyname,
+                display_name: `${gettext("Field")} ${newFieldPostfix}`,
+                keyname: `field_${newFieldPostfix}`,
                 datatype: "STRING",
                 existing: false,
             };
 
             const fields = store.fields;
             store.setFields([...fields, newFieldItem]);
+            if (store.setDirty) store.setDirty(true);
         };
 
         const handleFieldChange = (
@@ -60,6 +64,7 @@ export const FieldsPanel = observer(
             newData: Partial<FormbuilderEditorField>
         ) => {
             store.updateField(keyname, newData);
+            if (store.setDirty) store.setDirty(true);
         };
 
         const getStatusIcon = (field: FormbuilderEditorField) => {
@@ -193,6 +198,32 @@ export const FieldsPanel = observer(
                                                         onDeleteField.keyname !==
                                                         field.keyname
                                                 );
+
+                                            if (
+                                                isFieldOccupied(
+                                                    field.keyname,
+                                                    store.inputsTree
+                                                )
+                                            ) {
+                                                const elIdtoCleanField =
+                                                    getElementIdByField(
+                                                        field.keyname,
+                                                        store.inputsTree
+                                                    );
+                                                if (elIdtoCleanField >= 0) {
+                                                    const elementToClean =
+                                                        store.getElementById(
+                                                            elIdtoCleanField
+                                                        );
+                                                    store.setNewElementData(
+                                                        elIdtoCleanField,
+                                                        {
+                                                            ...elementToClean?.data,
+                                                            field: "-",
+                                                        }
+                                                    );
+                                                }
+                                            }
 
                                             store.setFields(updatedFieldsList);
                                         }}

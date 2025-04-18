@@ -1,3 +1,4 @@
+import { cloneDeep } from "lodash-es";
 import { action, observable } from "mobx";
 
 import type { FeaureLayerGeometryType } from "@nextgisweb/feature-layer/type/api";
@@ -24,11 +25,9 @@ export interface FormbuilderValue {
 }
 
 export class FormbuilderEditorStore {
-    @observable accessor file_upload = null;
-    @observable.ref accessor uploading = false;
     @observable.shallow accessor inputsTree: FormBuilderUIData = {
         listId: 0,
-        list: [{ value: { type: "dropPlace" }, data: null }],
+        list: [],
     };
     @observable.ref accessor geometryType: FeaureLayerGeometryType = "POINT";
     @observable.shallow accessor fields: FormbuilderEditorField[] = [];
@@ -48,13 +47,17 @@ export class FormbuilderEditorStore {
     @observable.ref accessor onChange:
         | ((val: FormbuilderValue) => void)
         | null = null;
+    @observable.ref accessor setDirty: ((val: boolean) => void) | null;
 
     constructor({
         onChange,
+        setDirty,
     }: {
         onChange?: (val: FormbuilderValue) => void;
+        setDirty?: (val: boolean) => void;
     } = {}) {
         this.onChange = onChange ?? null;
+        this.setDirty = setDirty ?? null;
     }
 
     @action.bound
@@ -128,6 +131,7 @@ export class FormbuilderEditorStore {
     @action.bound
     setUpdateFeatureLayerFields(value: boolean) {
         this.updateFeatureLayerFields = value;
+
         this.onChange?.({
             tree: this.inputsTree,
             fields: this.fields,
@@ -139,6 +143,13 @@ export class FormbuilderEditorStore {
     @action.bound
     setGeometryType(value: FeaureLayerGeometryType) {
         this.geometryType = value;
+
+        this.onChange?.({
+            tree: this.inputsTree,
+            fields: this.fields,
+            updateFeatureLayerFields: this.updateFeatureLayerFields,
+            geometryType: this.geometryType,
+        });
     }
 
     @action.bound
@@ -280,7 +291,7 @@ export class FormbuilderEditorStore {
         return false;
     }
 
-    @action
+    @action.bound
     setListById(id: number, newList: UIListItem[]) {
         function setListByIdInner(
             data: FormBuilderUIData | UIListItem | UITab,
@@ -326,7 +337,18 @@ export class FormbuilderEditorStore {
             return false;
         }
 
-        setListByIdInner(this.inputsTree, id, newList);
+        const treeDeepClone = cloneDeep(this.inputsTree);
+
+        setListByIdInner(treeDeepClone, id, newList);
+
+        this.setInputsTree(treeDeepClone);
+
+        this.onChange?.({
+            tree: treeDeepClone,
+            fields: this.fields,
+            updateFeatureLayerFields: this.updateFeatureLayerFields,
+            geometryType: this.geometryType,
+        });
     }
 
     setNewElementData(id: number, newData: any) {
@@ -339,6 +361,13 @@ export class FormbuilderEditorStore {
         );
 
         this.setInputsTree(newInputsTree);
+
+        this.onChange?.({
+            tree: this.inputsTree,
+            fields: this.fields,
+            updateFeatureLayerFields: this.updateFeatureLayerFields,
+            geometryType: this.geometryType,
+        });
     }
 
     setNewElementValue(id: number, newValue: any) {
@@ -351,5 +380,12 @@ export class FormbuilderEditorStore {
         );
 
         this.setInputsTree(newInputsTree);
+
+        this.onChange?.({
+            tree: this.inputsTree,
+            fields: this.fields,
+            updateFeatureLayerFields: this.updateFeatureLayerFields,
+            geometryType: this.geometryType,
+        });
     }
 }

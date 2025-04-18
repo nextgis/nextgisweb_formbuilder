@@ -11,12 +11,12 @@ import type {
     FormbuilderEditorField,
     FormbuilderValue,
 } from "./FormbuilderEditorStore";
-import { ElementsPanel } from "./components/ElementsPanel";
-import { FieldsPanel } from "./components/FieldsPanel";
-import { Mockup, getInputElement } from "./components/Mockup";
-import { SelectedInputProperties } from "./components/SelectedInputProperties";
-import { isNonFieldElement } from "./elements_data";
-import { getNewFieldKeyname } from "./util/newFieldKeyname";
+import { ElementsPanel } from "./component/ElementsPanel";
+import { FieldsPanel } from "./component/FieldsPanel";
+import { Mockup, getInputElement } from "./component/Mockup";
+import { PropertiesPanel } from "./component/PropertiesPanel";
+import { isNonFieldElement } from "./element";
+import { getNewFieldKeynamePostfix } from "./util/newFieldKeyname";
 import { convertToUIData } from "./util/serializeData";
 
 import DoneIcon from "@nextgisweb/icon/material/check";
@@ -31,14 +31,17 @@ export const FormbuilderEditorWidget = observer(
         store: storeProp,
         parent,
         onChange,
+        setDirty,
     }: {
         value?: any;
         store?: FormbuilderEditorStore;
         parent?: number | null | undefined;
         onChange?: (val: FormbuilderValue) => void;
+        setDirty?: (val: boolean) => void;
     }) => {
         const [store] = useState(
-            () => storeProp || new FormbuilderEditorStore({ onChange })
+            () =>
+                storeProp || new FormbuilderEditorStore({ onChange, setDirty })
         );
 
         const {
@@ -209,14 +212,13 @@ export const FormbuilderEditorWidget = observer(
                                     !isMoving &&
                                     !isNonFieldElement(droppingInputWithField)
                                 ) {
-                                    const newKeyname = getNewFieldKeyname(
-                                        store.fields
-                                    );
+                                    const newFieldPostfix =
+                                        getNewFieldKeynamePostfix(store.fields);
 
                                     const newFieldItem: FormbuilderEditorField =
                                         {
-                                            display_name: newKeyname,
-                                            keyname: newKeyname,
+                                            display_name: `${gettext("Field")} ${newFieldPostfix}`,
+                                            keyname: `field_${newFieldPostfix}`,
                                             datatype: "STRING",
                                             existing: false,
                                         };
@@ -230,15 +232,13 @@ export const FormbuilderEditorWidget = observer(
                                 const updatedInputs = [
                                     ...inputsTree.list,
                                     droppingInputWithField,
-                                    {
-                                        value: { type: "dropPlace" },
-                                        data: null,
-                                    },
                                 ];
                                 store.setInputsTree({
                                     listId: 0,
                                     list: updatedInputs,
                                 });
+
+                                if (store.setDirty) store.setDirty(true);
                             }
                         }}
                     >
@@ -264,7 +264,7 @@ export const FormbuilderEditorWidget = observer(
                     </div>
                     {store.selectedInput && (
                         <div className="properties">
-                            <SelectedInputProperties store={store} />
+                            <PropertiesPanel store={store} />
                         </div>
                     )}
                 </div>

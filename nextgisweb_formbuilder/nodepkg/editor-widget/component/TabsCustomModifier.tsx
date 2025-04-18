@@ -1,4 +1,5 @@
 import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
 
 import { Form, Input } from "@nextgisweb/gui/antd";
 import { gettextf } from "@nextgisweb/pyramid/i18n";
@@ -21,13 +22,15 @@ const updateTabTitles = (tabsObject: UIListItem, newTitles: any) => {
 
 export const TabsCustomModifier = observer(
     ({ store }: { store: FormbuilderEditorStore }) => {
+        const tabs = store?.selectedInput?.value?.tabs || [];
+
+        const tabTitles = tabs.map((tab: UITab) => tab.title);
+
         const [form] = Form.useForm();
 
-        // Consider refactor
-        const tabTitles = (store?.selectedInput?.value?.tabs || []).map(
-            (tab: UITab) => tab.title
-        );
-        form.setFieldsValue(tabTitles);
+        useEffect(() => {
+            form.setFieldsValue(tabTitles);
+        }, [tabTitles, form]);
 
         const onFormChange = () => {
             if (!store?.selectedInput && !store?.selectedInput?.id) return;
@@ -46,6 +49,8 @@ export const TabsCustomModifier = observer(
                     store.selectedInput.id as number,
                     updatedTabs.value
                 );
+
+                if (store.setDirty) store.setDirty(true);
             }
         };
 
@@ -63,18 +68,15 @@ export const TabsCustomModifier = observer(
                     labelWrap
                     layout="horizontal"
                 >
-                    {(store?.selectedInput?.value?.tabs || []).map(
-                        (tab: UITab, i: number) => (
-                            <Form.Item
-                                key={i}
-                                label={gettextf("Tab {}")(i + 1)}
-                                name={i}
-                                initialValue={tab.title}
-                            >
-                                <Input />
-                            </Form.Item>
-                        )
-                    )}
+                    {tabs.map((tab: UITab, i: number) => (
+                        <Form.Item
+                            key={i}
+                            label={gettextf("Tab {}")(i + 1)}
+                            name={i}
+                        >
+                            <Input />
+                        </Form.Item>
+                    ))}
                 </Form>
             </div>
         );

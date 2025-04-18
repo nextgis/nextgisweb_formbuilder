@@ -10,10 +10,8 @@ import type { EditorWidget } from "@nextgisweb/resource/type";
 
 import clientSettings from "../client-settings";
 import FormbuilderEditorWidget from "../editor-widget/FormbuilderEditorWidget";
-import {
-    isFieldOccupied,
-    serializeData,
-} from "../editor-widget/util/serializeData";
+import { isFieldOccupied } from "../editor-widget/util/fieldRelatedOperations";
+import { serializeData } from "../editor-widget/util/serializeData";
 
 import type { FormStore, Mode } from "./FormStore";
 
@@ -55,6 +53,7 @@ export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
                         onChange={(value) => {
                             runInAction(() => {
                                 store.file_upload = value;
+                                store.setDirty(true);
                             });
                         }}
                         onUploading={(value) => {
@@ -70,6 +69,7 @@ export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
                     <FormbuilderEditorWidget
                         value={store.initEditorData}
                         parent={store.composite.parent}
+                        setDirty={store.setDirty}
                         onChange={(val) => {
                             runInAction(() => {
                                 const usedFields = val.fields.filter((field) =>

@@ -3,15 +3,20 @@ import { observer } from "mobx-react-lite";
 
 import { Button } from "@nextgisweb/gui/antd";
 import { AddIcon, RemoveIcon } from "@nextgisweb/gui/icon";
-import { gettextf } from "@nextgisweb/pyramid/i18n";
+import { gettext, gettextf } from "@nextgisweb/pyramid/i18n";
 
 import type {
     FormbuilderEditorField,
     FormbuilderEditorStore,
 } from "../FormbuilderEditorStore";
-import { isNonFieldElement } from "../elements_data";
-import type { GrabbedInputComposite, UIListItem, UITab } from "../type";
-import { getNewFieldKeyname } from "../util/newFieldKeyname";
+import { isNonFieldElement } from "../element";
+import type {
+    FormBuilderUIData,
+    GrabbedInputComposite,
+    UIListItem,
+    UITab,
+} from "../type";
+import { getNewFieldKeynamePostfix } from "../util/newFieldKeyname";
 
 import { Mockup } from "./Mockup";
 
@@ -36,39 +41,26 @@ const updateActiveTab = (input: UIListItem): UIListItem => {
 };
 
 const deleteTab = (input: UIListItem, tabIndex: number): UIListItem => {
-    const { data, value } = input;
-    const { currentPage } = data;
+    const { value } = input;
     const tabs = value?.tabs || [];
 
-    const updatedTabs = tabs.filter((_, index) => index !== tabIndex);
-
-    let newCurrentPage = currentPage;
-
-    if (tabIndex === currentPage) {
-        if (updatedTabs.length === 0) {
-            newCurrentPage = -1;
-        } else if (currentPage >= updatedTabs.length) {
-            newCurrentPage = updatedTabs.length - 1;
-        } else {
-            newCurrentPage = currentPage;
-        }
-    } else if (tabIndex < currentPage) {
-        newCurrentPage = currentPage - 1;
-    }
-
-    const finalTabs = updatedTabs.map((tab, index) => ({
-        ...tab,
-        active: index === newCurrentPage,
-    }));
+    const updatedTabs = tabs
+        .filter((_, index) => index !== tabIndex)
+        .map((tab, i) => {
+            if (i === 0) {
+                // maybe better set previous i
+                return { ...tab, active: true };
+            } else {
+                return { ...tab, active: false };
+            }
+        });
 
     return {
         ...input,
-        data: {
-            currentPage: newCurrentPage,
-        },
+        data: {},
         value: {
             ...value,
-            tabs: finalTabs,
+            tabs: updatedTabs,
         },
     };
 };
@@ -83,7 +75,10 @@ export const TabsFormComponent = observer(
         value: UIListItem;
         onGrabDrop: () => GrabbedInputComposite | null;
     }) => {
-        const rawData = store.getElementById(value.id as number);
+        const rawData = value;
+
+        const activeTab = rawData.value.tabs?.find((tab) => tab.active);
+        const activeTabItems = activeTab?.items;
 
         const tabsInputFromStore = rawData
             ? updateActiveTab(rawData as UIListItem)
@@ -99,7 +94,7 @@ export const TabsFormComponent = observer(
                 active: false,
                 items: {
                     listId: store.getNewListIndex(),
-                    list: [{ value: { type: "dropPlace" }, data: null }],
+                    list: [],
                 },
             };
 
@@ -119,6 +114,8 @@ export const TabsFormComponent = observer(
             if (tabsInputFromStore?.id === store?.selectedInput?.id) {
                 store.setSelectedInput(updatedTabsInput);
             }
+
+            if (store.setDirty) store.setDirty(true);
         };
 
         const setActive = (currentTabIndex: number) => {
@@ -145,7 +142,6 @@ export const TabsFormComponent = observer(
                 ...tabsInputFromStore,
                 data: {
                     ...tabsInputFromStore?.data,
-                    currentPage: currentTabIndex,
                 },
                 value: {
                     ...tabsInputFromStore?.value,
@@ -161,22 +157,6 @@ export const TabsFormComponent = observer(
             );
 
             store.setSelectedInput(updatedTabsInput);
-        };
-
-        const getActiveTabItems = () => {
-            // something delirious here
-
-            const activeTab = (tabsInputFromStore?.value.tabs || []).find(
-                (tab) => !!tab.active
-            );
-
-            if (activeTab?.items.listId) {
-                const activeTabItemsFromStore = store.getListById(
-                    activeTab?.items.listId
-                );
-
-                return activeTabItemsFromStore;
-            } else return null;
         };
 
         return (
@@ -242,14 +222,13 @@ export const TabsFormComponent = observer(
                                     !store.isMoving &&
                                     !isNonFieldElement(droppedInput)
                                 ) {
-                                    const newKeyname = getNewFieldKeyname(
-                                        store.fields
-                                    );
+                                    const newFieldPostfix =
+                                        getNewFieldKeynamePostfix(store.fields);
 
                                     const newFieldItem: FormbuilderEditorField =
                                         {
-                                            display_name: newKeyname,
-                                            keyname: newKeyname,
+                                            display_name: `${gettext("Field")} ${newFieldPostfix}`,
+                                            keyname: `field_${newFieldPostfix}`,
                                             datatype: "STRING",
                                             existing: false,
                                         };
@@ -258,32 +237,31 @@ export const TabsFormComponent = observer(
                                     store.setFields([...fields, newFieldItem]);
                                 }
 
-                                const updatedTabs = (
-                                    tabsInputFromStore?.value.tabs || []
-                                ).map((tab, index) => {
-                                    if (index === i) {
-                                        return {
-                                            ...tab,
-                                            items: {
-                                                listId: tab.items.listId,
-                                                list: [
-                                                    ...tab.items.list,
-                                                    {
-                                                        ...droppingInputWithField,
-                                                    },
-                                                    {
-                                                        value: {
-                                                            type: "dropPlace",
+                                const freshTabs =
+                                    store.getElementById(
+                                        tabsInputFromStore?.id as number
+                                    )?.value.tabs || [];
+
+                                const updatedTabs = freshTabs.map(
+                                    (tab, index) => {
+                                        if (index === i) {
+                                            return {
+                                                ...tab,
+                                                items: {
+                                                    listId: tab.items.listId,
+                                                    list: [
+                                                        ...tab.items.list,
+                                                        {
+                                                            ...droppingInputWithField,
                                                         },
-                                                        data: null,
-                                                    },
-                                                ],
-                                            },
-                                        };
-                                    } else {
-                                        return { ...tab };
+                                                    ],
+                                                },
+                                            };
+                                        } else {
+                                            return { ...tab };
+                                        }
                                     }
-                                });
+                                );
 
                                 const updatedTabsInput = {
                                     ...tabsInputFromStore,
@@ -297,6 +275,8 @@ export const TabsFormComponent = observer(
                                     value.id as number,
                                     updatedTabsInput.value
                                 );
+
+                                if (store.setDirty) store.setDirty(true);
                             }}
                         >
                             <span>{tab.title}</span>
@@ -321,6 +301,8 @@ export const TabsFormComponent = observer(
                                         updatedTabsInput.value
                                     );
 
+                                    if (store.setDirty) store.setDirty(true);
+
                                     store.setSelectedInput(updatedTabsInput);
                                 }}
                             />
@@ -338,7 +320,7 @@ export const TabsFormComponent = observer(
                 </div>
                 <div className="container">
                     <Mockup
-                        inputsWithId={getActiveTabItems()}
+                        inputsWithId={activeTabItems as FormBuilderUIData}
                         store={store}
                         parentId={value.id}
                     />

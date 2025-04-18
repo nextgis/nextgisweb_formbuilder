@@ -1,13 +1,13 @@
-#: model.py:167 nodepkg/editor-widget/FormbuilderEditorWidget.tsx:295
-#: nodepkg/form-widget/FormWidget.tsx:108 view.py:20
+#: model.py:54 nodepkg/editor-widget/FormbuilderEditorWidget.tsx:289
+#: nodepkg/form-widget/FormWidget.tsx:112 view.py:20
 msgid "Form"
 msgstr "Форма"
 
-#: model.py:193
+#: model.py:80
 msgid "Invalid NGFP file."
 msgstr "Некорректный файл NGFP"
 
-#: model.py:194
+#: model.py:81
 msgid "NGFP file size exceeds {} bytes."
 msgstr "Размер файла NGFP превышает {} байт."
 
@@ -15,15 +15,15 @@ msgstr "Размер файла NGFP превышает {} байт."
 msgid "Elements"
 msgstr "Элементы"
 
-#: nodepkg/editor-widget/components/FieldsPanel.tsx:37
+#: nodepkg/editor-widget/components/FieldsPanel.tsx:38
 msgid "Add"
 msgstr "Добавить"
 
-#: nodepkg/editor-widget/components/FieldsPanel.tsx:38
+#: nodepkg/editor-widget/components/FieldsPanel.tsx:39
 msgid "Fields"
 msgstr "Поля"
 
-#: nodepkg/editor-widget/components/FieldsPanel.tsx:39
+#: nodepkg/editor-widget/components/FieldsPanel.tsx:40
 msgid "Add absent fields to layer"
 msgstr "Добавить недостающие поля в слой"
 
@@ -31,32 +31,57 @@ msgstr "Добавить недостающие поля в слой"
 msgid "Properties"
 msgstr "Свойства"
 
-#: nodepkg/editor-widget/components/TabsCustomModifier.tsx:70
-#: nodepkg/editor-widget/elements_data.ts:91
-#: nodepkg/editor-widget/elements_data.ts:106
+#: nodepkg/editor-widget/components/TabsCustomModifier.tsx:74
+#: nodepkg/editor-widget/components/TabsFormComponent.tsx:93
+#: nodepkg/editor-widget/elements_data.tsx:188
+#: nodepkg/editor-widget/elements_data.tsx:196
 msgid "Tab {}"
 msgstr "Вкладка {}"
 
-#: nodepkg/editor-widget/elements_data.ts:11
+#: nodepkg/editor-widget/elements_data.tsx:21
 msgid "Text"
 msgstr "Текст"
 
-#: nodepkg/editor-widget/elements_data.ts:16
-#: nodepkg/editor-widget/elements_data.ts:87
-msgid "Tabs"
-msgstr "Вкладки"
+#: nodepkg/editor-widget/elements_data.tsx:27
+#: nodepkg/editor-widget/elements_data.tsx:31
+#: nodepkg/editor-widget/elements_data.tsx:106
+msgid "Label"
+msgstr "Надпись"
 
-#: nodepkg/editor-widget/elements_data.ts:24
+#: nodepkg/editor-widget/elements_data.tsx:55
+#: nodepkg/editor-widget/elements_data.tsx:100
+msgid "Field"
+msgstr "Поле"
+
+#: nodepkg/editor-widget/elements_data.tsx:58
+#: nodepkg/editor-widget/elements_data.tsx:103
+msgid "Remember last value"
+msgstr "Запоминать значение"
+
+#: nodepkg/editor-widget/elements_data.tsx:60
+msgid "Max. lines"
+msgstr "Макс. число строк"
+
+#: nodepkg/editor-widget/elements_data.tsx:63
+msgid "Numbers only"
+msgstr "Только цифры"
+
+#: nodepkg/editor-widget/elements_data.tsx:69
 msgid "Text box"
 msgstr "Текстовое поле"
 
-#: nodepkg/editor-widget/elements_data.ts:33
+#: nodepkg/editor-widget/elements_data.tsx:105
+msgid "Initial value"
+msgstr "Исходное значение"
+
+#: nodepkg/editor-widget/elements_data.tsx:110
 msgid "Check box"
 msgstr "Флажок"
 
-#: nodepkg/editor-widget/elements_data.ts:44
-msgid "Label"
-msgstr "Надпись"
+#: nodepkg/editor-widget/elements_data.tsx:144
+#: nodepkg/editor-widget/elements_data.tsx:184
+msgid "Tabs"
+msgstr "Вкладки"
 
 #: nodepkg/form-widget/FormWidget.tsx:26
 msgid "Select a form file"
