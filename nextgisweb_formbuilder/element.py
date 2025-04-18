@@ -106,13 +106,14 @@ class FormbuilderTextboxItem(FormbuilderFieldItem, tag="textbox", kw_only=True):
 class FormbuilderCheckboxItem(FormbuilderFieldItem, tag="checkbox", kw_only=True):
     legacy_type = "checkbox"
 
+    initial: Union[bool, UnsetType] = UNSET
     label: str
 
     def to_legacy(self) -> Dict[str, Any]:
         result = super().to_legacy()
         result["attributes"].update(
             {
-                "init_value": False,
+                "init_value": False if self.initial is UNSET else self.initial,
                 "text": self.label,
             }
         )
