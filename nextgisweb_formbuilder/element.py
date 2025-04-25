@@ -121,7 +121,7 @@ class FormbuilderCheckboxItem(FormbuilderFieldItem, tag="checkbox", kw_only=True
 
 
 @FormbuilderItem.register
-class FormbuilderSystemItem(FormbuilderItem, tag="system", kw_only=True):
+class FormbuilderSystemItem(FormbuilderFieldItem, tag="system", kw_only=True):
     legacy_type = "text_edit"
 
     system: Literal["ngid_username", "ngw_username"]
