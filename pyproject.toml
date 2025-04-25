@@ -6,7 +6,7 @@ line-length = 99
 exclude = ["./docker.py"]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I"]
+select = ["E", "F", "W", "I", "TID251"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
@@ -27,3 +27,6 @@ section-order = [
 [tool.ruff.lint.isort.sections]
 "nextgisweb-env-lib" = ["nextgisweb.env", "nextgisweb.lib"]
 "nextgisweb-comp" = ["nextgisweb"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"typing_extensions.Annotated".msg = "Import Annotated from typing directly"

@@ -1,8 +1,18 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Literal, Type, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Annotated,
+    Any,
+    ClassVar,
+    Dict,
+    List,
+    Literal,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from msgspec import UNSET, Meta, Struct, UnsetType
-from typing_extensions import Annotated
 
 from nextgisweb.jsrealm import TSExport
 
