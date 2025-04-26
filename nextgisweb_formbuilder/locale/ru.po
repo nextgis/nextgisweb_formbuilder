@@ -1,101 +1,130 @@
-#: model.py:54 nodepkg/editor-widget/FormbuilderEditorWidget.tsx:289
-#: nodepkg/form-widget/FormWidget.tsx:112 view.py:20
+#: element.py:206
+msgid "Invalid initial value: '{i}'. Expected a value matching the pattern for '{t}'."
+msgstr ""
+"Недопустимое начальное значение: '{i}'. Ожидалось значение, соответствующее "
+"шаблону для '{t}'."
+
+#: model.py:48
+msgid "Duplicate keyname '{}' found in fields."
+msgstr "Обнаружено дублирование ключа '{}' в полях."
+
+#: model.py:53
+msgid "Duplicate display name '{}' found in fields."
+msgstr "Обнаружено дублирование наименования '{}' в полях."
+
+#: model.py:64
+msgid "Unknown field '{}'."
+msgstr "Неизвестное поле '{}'."
+
+#: model.py:68
+msgid ""
+"The '{dn}' field (keyname '{kn}') is bound to two or more form elements. Each"
+" field can only be bound to a single element."
+msgstr ""
+"Поле '{dn}' (ключ '{kn}') связано с двумя или более элементами формы. Каждое "
+"поле может быть связано только с одним элементом."
+
+#: model.py:87
+msgid ""
+"The '{dn}' field (keyname '{kn}') is not bound to any element and must be "
+"removed from the form."
+msgstr ""
+"Поле '{dn}' (ключ '{kn}') не связано ни с одним элементом и должно быть "
+"удалено из формы."
+
+#: model.py:106 nodepkg/editor-widget/FormbuilderEditorWidget.tsx:289
+#: nodepkg/form-widget/FormWidget.tsx:110 view.py:20
 msgid "Form"
 msgstr "Форма"
 
-#: model.py:80
+#: model.py:132
 msgid "Invalid NGFP file."
 msgstr "Некорректный файл NGFP"
 
-#: model.py:81
+#: model.py:133
 msgid "NGFP file size exceeds {} bytes."
 msgstr "Размер файла NGFP превышает {} байт."
 
-#: nodepkg/editor-widget/components/ElementsPanel.tsx:10
+#: nodepkg/editor-widget/component/ElementsPanel.tsx:10
 msgid "Elements"
 msgstr "Элементы"
 
-#: nodepkg/editor-widget/components/FieldsPanel.tsx:38
+#: nodepkg/editor-widget/component/FieldsPanel.tsx:41
 msgid "Add"
 msgstr "Добавить"
 
-#: nodepkg/editor-widget/components/FieldsPanel.tsx:39
+#: nodepkg/editor-widget/component/FieldsPanel.tsx:42
 msgid "Fields"
 msgstr "Поля"
 
-#: nodepkg/editor-widget/components/FieldsPanel.tsx:40
+#: nodepkg/editor-widget/component/FieldsPanel.tsx:43
 msgid "Add absent fields to layer"
 msgstr "Добавить недостающие поля в слой"
 
-#: nodepkg/editor-widget/components/SelectedInputProperties.tsx:19
+#: nodepkg/editor-widget/component/PropertiesPanel.tsx:19
 msgid "Properties"
 msgstr "Свойства"
 
-#: nodepkg/editor-widget/components/TabsCustomModifier.tsx:74
-#: nodepkg/editor-widget/components/TabsFormComponent.tsx:93
-#: nodepkg/editor-widget/elements_data.tsx:188
-#: nodepkg/editor-widget/elements_data.tsx:196
+#: nodepkg/editor-widget/component/TabsCustomModifier.tsx:74
+#: nodepkg/editor-widget/component/TabsFormComponent.tsx:93
+#: nodepkg/editor-widget/element.tsx:207 nodepkg/editor-widget/element.tsx:215
 msgid "Tab {}"
 msgstr "Вкладка {}"
 
-#: nodepkg/editor-widget/elements_data.tsx:21
-msgid "Text"
-msgstr "Текст"
-
-#: nodepkg/editor-widget/elements_data.tsx:27
-#: nodepkg/editor-widget/elements_data.tsx:31
-#: nodepkg/editor-widget/elements_data.tsx:106
+#: nodepkg/editor-widget/element.tsx:30 nodepkg/editor-widget/element.tsx:35
+#: nodepkg/editor-widget/element.tsx:151
 msgid "Label"
 msgstr "Надпись"
 
-#: nodepkg/editor-widget/elements_data.tsx:55
-#: nodepkg/editor-widget/elements_data.tsx:100
-msgid "Field"
-msgstr "Поле"
+#: nodepkg/editor-widget/element.tsx:39 nodepkg/editor-widget/element.tsx:163
+msgid "Text"
+msgstr "Текст"
 
-#: nodepkg/editor-widget/elements_data.tsx:58
-#: nodepkg/editor-widget/elements_data.tsx:103
-msgid "Remember last value"
-msgstr "Запоминать значение"
-
-#: nodepkg/editor-widget/elements_data.tsx:60
-msgid "Max. lines"
-msgstr "Макс. число строк"
-
-#: nodepkg/editor-widget/elements_data.tsx:63
-msgid "Numbers only"
-msgstr "Только цифры"
-
-#: nodepkg/editor-widget/elements_data.tsx:69
-msgid "Text box"
-msgstr "Текстовое поле"
-
-#: nodepkg/editor-widget/elements_data.tsx:105
-msgid "Initial value"
-msgstr "Исходное значение"
-
-#: nodepkg/editor-widget/elements_data.tsx:110
-msgid "Check box"
-msgstr "Флажок"
-
-#: nodepkg/editor-widget/elements_data.tsx:144
-#: nodepkg/editor-widget/elements_data.tsx:184
+#: nodepkg/editor-widget/element.tsx:62 nodepkg/editor-widget/element.tsx:203
 msgid "Tabs"
 msgstr "Вкладки"
 
-#: nodepkg/form-widget/FormWidget.tsx:26
+#: nodepkg/editor-widget/element.tsx:88 nodepkg/editor-widget/element.tsx:139
+msgid "Field"
+msgstr "Поле"
+
+#: nodepkg/editor-widget/element.tsx:91 nodepkg/editor-widget/element.tsx:143
+msgid "Remember last value"
+msgstr "Запоминать значение"
+
+#: nodepkg/editor-widget/element.tsx:95
+msgid "Max. lines"
+msgstr "Макс. число строк"
+
+#: nodepkg/editor-widget/element.tsx:99
+msgid "Numbers only"
+msgstr "Только цифры"
+
+#: nodepkg/editor-widget/element.tsx:105
+msgid "Text box"
+msgstr "Текстовое поле"
+
+#: nodepkg/editor-widget/element.tsx:147
+msgid "Initial value"
+msgstr "Исходное значение"
+
+#: nodepkg/editor-widget/element.tsx:156
+msgid "Check box"
+msgstr "Флажок"
+
+#: nodepkg/form-widget/FormWidget.tsx:24
 msgid "Select a form file"
 msgstr "Выберите файл формы"
 
-#: nodepkg/form-widget/FormWidget.tsx:27
+#: nodepkg/form-widget/FormWidget.tsx:25
 msgid "It should be in NGFP format."
 msgstr "Он должен быть в формате NGFP."
 
-#: nodepkg/form-widget/FormWidget.tsx:37
+#: nodepkg/form-widget/FormWidget.tsx:35
 msgid "Upload form"
 msgstr "Загрузить форму"
 
-#: nodepkg/form-widget/FormWidget.tsx:43
+#: nodepkg/form-widget/FormWidget.tsx:41
 msgid "Design form"
 msgstr "Редактировать форму"
 

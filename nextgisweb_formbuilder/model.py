@@ -38,6 +38,58 @@ class FormbuilderFormValue(Struct, kw_only=True):
     fields: List[FormbuilderField]
     items: List[FormbuilderFormItemUnion]
 
+    def validate(self):
+        fields_mapping: dict[str, FormbuilderField] = {}
+        seen_kn: set[str] = set()
+        seen_dn: set[str] = set()
+
+        for field in self.fields:
+            if (kn := field.keyname) in seen_kn:
+                msg = gettextf("Duplicate keyname '{}' found in fields.").format(kn)
+                raise ValidationError(msg)
+            seen_kn.add(kn)
+
+            if (dn := field.display_name) in seen_dn:
+                msg = gettextf("Duplicate display name '{}' found in fields.").format(dn)
+                raise ValidationError(msg)
+            seen_dn.add(dn)
+
+            fields_mapping[kn] = field
+
+        fields_unbound = set(fields_mapping.keys())
+        fields_bound = set()
+
+        def bind_field(keyname: str) -> None:
+            if (field := fields_mapping.get(keyname)) is None:
+                raise ValidationError(gettextf("Unknown field '{}'.").format(keyname))
+
+            if keyname in fields_bound:
+                raise ValidationError(
+                    gettextf(
+                        "The '{dn}' field (keyname '{kn}') is bound to two or "
+                        "more form elements. Each field can only be bound to "
+                        "a single element."
+                    ).format(
+                        kn=keyname,
+                        dn=field.display_name,
+                    )
+                )
+            fields_unbound.remove(keyname)
+            fields_bound.add(keyname)
+
+        for elem in self.items:
+            elem.validate(bind_field=bind_field)
+
+        if len(fields_unbound) > 0:
+            kn = tuple(fields_unbound)[0]
+            dn = fields_mapping[kn].display_name
+            raise ValidationError(
+                gettextf(
+                    "The '{dn}' field (keyname '{kn}') is not bound to any "
+                    "element and must be removed from the form."
+                ).format(kn=kn, dn=dn)
+            )
+
 
 NGFP_MAX_SIZE = 10 * 1 << 20
 NGFP_FILE_SCHEMA: Dict[str, Any] = {
@@ -105,6 +157,7 @@ class ValueAttr(SAttribute):
         return super().get(srlzr)
 
     def set(self, srlzr: Serializer, value: FormbuilderFormValue, *, create: bool):
+        value.validate()
         srlzr.obj.value = value
         srlzr.obj.ngfp_fileobj = None
 

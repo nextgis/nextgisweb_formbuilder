@@ -102,12 +102,23 @@ def test_struct(vector_layer, ngw_webtest_app):
     value = {
         "geometry_type": "POINT",
         "fields": [
-            {"keyname": "f1", "datatype": "STRING", "display_name": "dnf1"},
-            {"keyname": "f2", "datatype": "INTEGER", "display_name": "dnf2"},
+            {"keyname": "f1", "datatype": "STRING", "display_name": "F1"},
+            {"keyname": "f2", "datatype": "INTEGER", "display_name": "F2"},
+            {"keyname": "f3", "datatype": "INTEGER", "display_name": "F3"},
+            {"keyname": "f4", "datatype": "DATE", "display_name": "F4"},
+            {"keyname": "f5", "datatype": "TIME", "display_name": "F5"},
+            {"keyname": "f6", "datatype": "DATETIME", "display_name": "F6"},
+            {"keyname": "f7", "datatype": "DATETIME", "display_name": "F7"},
         ],
         "items": [
             {"type": "label", "label": "Field 1"},
-            {"type": "textbox", "field": "f1", "remember": False, "max_lines": 1, "numbers_only": True},
+            {
+                "type": "textbox",
+                "field": "f1",
+                "remember": False,
+                "max_lines": 1,
+                "numbers_only": True,
+            },
             {
                 "type": "tabs",
                 "tabs": [
@@ -122,10 +133,38 @@ def test_struct(vector_layer, ngw_webtest_app):
                         "title": "Tab 2",
                         "active": True,
                         "items": [
-                            {"type": "checkbox", "field": "f2", "label": "F2", "remember": False},
+                            {"type": "checkbox", "field": "f3", "label": "F3", "remember": False},
                         ],
                     },
                 ],
+            },
+            {
+                "type": "datetime",
+                "field": "f4",
+                "remember": False,
+                "datetime": "date",
+                "initial": "2025-04-26",
+            },
+            {
+                "type": "datetime",
+                "field": "f5",
+                "remember": False,
+                "datetime": "time",
+                "initial": "16:21:45",
+            },
+            {
+                "type": "datetime",
+                "field": "f6",
+                "remember": False,
+                "datetime": "datetime",
+                "initial": "2025-04-26T16:21:45",
+            },
+            {
+                "type": "datetime",
+                "field": "f7",
+                "remember": False,
+                "datetime": "datetime",
+                "initial": "CURRENT",
             },
         ],
     }
@@ -151,13 +190,28 @@ def test_struct(vector_layer, ngw_webtest_app):
 
 def test_fields_update(vector_layer, ngw_webtest_app):
     form_fields = [
-        {"keyname": "f1", "datatype": "STRING", "display_name": "dnf1"},
-        {"keyname": "f2", "datatype": "INTEGER", "display_name": "dnf2"},
+        {"keyname": "f1", "datatype": "STRING", "display_name": "F1"},
+        {"keyname": "f2", "datatype": "INTEGER", "display_name": "F2"},
     ]
     value = {
         "geometry_type": "POINT",
         "fields": form_fields,
-        "items": [],
+        "items": [
+            {
+                "type": "textbox",
+                "field": "f1",
+                "remember": False,
+                "max_lines": 1,
+                "numbers_only": True,
+            },
+            {
+                "type": "textbox",
+                "field": "f2",
+                "remember": False,
+                "max_lines": 1,
+                "numbers_only": True,
+            },
+        ],
     }
 
     ngw_webtest_app.post_json(

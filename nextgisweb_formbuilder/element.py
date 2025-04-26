@@ -1,8 +1,10 @@
+import re
 from datetime import datetime
 from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
+    Callable,
     ClassVar,
     Dict,
     List,
@@ -10,23 +12,31 @@ from typing import (
     Type,
     TypeVar,
     Union,
+    cast,
 )
 
 from msgspec import UNSET, Meta, Struct, UnsetType
 
+from nextgisweb.env import gettextf
+
+from nextgisweb.core.exception import ValidationError
 from nextgisweb.jsrealm import TSExport
 
 T = TypeVar("T", bound=Type["FormbuilderItem"])
+BindFieldCallback = Callable[[str], None]
 
 
 class FormbuilderItem(Struct, kw_only=True):
-    registry: ClassVar[List[Type["FormbuilderItem"]]] = list()
+    registry: ClassVar[list[Type["FormbuilderItem"]]] = list()
     legacy_type: ClassVar[str]
 
     @classmethod
     def register(cls, item: T) -> T:
         cls.registry.append(item)
         return item
+
+    def validate(self, *, bind_field: BindFieldCallback) -> None:
+        pass
 
     def to_legacy(self) -> Dict[str, Any]:
         return dict(type=self.legacy_type, attributes=dict())
@@ -49,6 +59,10 @@ class FormbuilderTab(Struct):
     active: bool
     items: List["FormbuilderFormItemUnion"]
 
+    def validate(self, *, bind_field: BindFieldCallback) -> None:
+        for item in self.items:
+            item.validate(bind_field=bind_field)
+
     def to_legacy(self) -> Dict[str, Any]:
         result: Dict[str, Any] = dict(caption=self.title)
         if self.active:
@@ -63,6 +77,11 @@ class FormbuilderTabsItem(FormbuilderItem, tag="tabs"):
 
     tabs: List[FormbuilderTab]
 
+    def validate(self, *, bind_field: BindFieldCallback) -> None:
+        super().validate(bind_field=bind_field)
+        for tab in self.tabs:
+            tab.validate(bind_field=bind_field)
+
     def to_legacy(self) -> Dict[str, Any]:
         result = super().to_legacy()
         result["pages"] = [t.to_legacy() for t in self.tabs]
@@ -76,8 +95,11 @@ class FormbuilderSpacerItem(FormbuilderItem, tag="spacer"):
 
 class FormbuilderFieldItem(FormbuilderItem):
     field: str
-
     remember: bool
+
+    def validate(self, *, bind_field: BindFieldCallback) -> None:
+        super().validate(bind_field=bind_field)
+        bind_field(self.field)
 
     def to_legacy(self) -> Dict[str, Any]:
         result = super().to_legacy()
@@ -137,6 +159,10 @@ class FormbuilderSystemItem(FormbuilderItem, tag="system", kw_only=True):
     field: str
     system: Literal["ngid_username", "ngw_username"]
 
+    def validate(self, *, bind_field: BindFieldCallback) -> None:
+        super().validate(bind_field=bind_field)
+        bind_field(self.field)
+
     def to_legacy(self) -> Dict[str, Any]:
         result = super().to_legacy()
         result["attributes"].update(
@@ -153,7 +179,7 @@ class FormbuilderSystemItem(FormbuilderItem, tag="system", kw_only=True):
                     ("ngid_login", "ngid_username"),
                     ("ngw_login", "ngw_username"),
                 )
-            }
+            },
         )
         return result
 
@@ -161,9 +187,27 @@ class FormbuilderSystemItem(FormbuilderItem, tag="system", kw_only=True):
 @FormbuilderItem.register
 class FormbuilderDatetimeItem(FormbuilderFieldItem, tag="datetime", kw_only=True):
     legacy_type = "date_time"
+    pat_date = r"[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|2[0-9]|3[0-1])"
+    pat_time = r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]"
+    pat_datetime = pat_date + "T" + pat_time
+    pat_current = "CURRENT"
 
-    initial: Union[str, UnsetType] = UNSET
     datetime: Literal["date", "time", "datetime"]
+    initial: Annotated[
+        str, Meta(pattern=rf"^(?:{pat_date}|{pat_time}|{pat_datetime}|{pat_current})")
+    ] | UnsetType = UNSET
+
+    def validate(self, *, bind_field: BindFieldCallback) -> None:
+        super().validate(bind_field=bind_field)
+        if self.initial is not UNSET and self.initial != "CURRENT":
+            pat = cast(str, getattr(self, f"pat_{self.datetime}"))
+            if not re.fullmatch(pat, self.initial):
+                raise ValidationError(
+                    gettextf(
+                        "Invalid initial value: '{i}'. Expected a value "
+                        "matching the pattern for '{t}'."
+                    ).format(i=self.initial, t=self.datetime)
+                )
 
     def to_legacy(self) -> Dict[str, Any]:
         result = super().to_legacy()
@@ -177,7 +221,7 @@ class FormbuilderDatetimeItem(FormbuilderFieldItem, tag="datetime", kw_only=True
         else:
             raise NotImplementedError
 
-        if self.initial is UNSET:
+        if self.initial is UNSET or self.initial == "CURRENT":
             dt = None
         elif self.datetime == "datetime":
             dt = datetime.fromisoformat(self.initial).strftime(r"%Y-%m-%d %H:%M:%S")
@@ -298,6 +342,11 @@ class FormbuilderCascadeItem(FormbuilderItem, tag="cascade", kw_only=True):
     remember: bool
     options: List[CascadeOption]
 
+    def validate(self, *, bind_field: BindFieldCallback) -> None:
+        super().validate(bind_field=bind_field)
+        bind_field(self.field_primary)
+        bind_field(self.field_primary)
+
     def to_legacy(self) -> Dict[str, Any]:
         result = super().to_legacy()
         result["attributes"].update(
@@ -319,6 +368,11 @@ class FormbuilderCoordinatesItem(FormbuilderItem, tag="coordinates", kw_only=Tru
     field_lat: str
     hidden: bool
 
+    def validate(self, *, bind_field: BindFieldCallback) -> None:
+        super().validate(bind_field=bind_field)
+        bind_field(self.field_lon)
+        bind_field(self.field_lat)
+
     def to_legacy(self) -> Dict[str, Any]:
         result = super().to_legacy()
         result["attributes"].update(
@@ -339,6 +393,10 @@ class FormbuilderDistanceItem(FormbuilderItem, tag="distance", kw_only=True):
 
     field: str
 
+    def validate(self, *, bind_field: BindFieldCallback) -> None:
+        super().validate(bind_field=bind_field)
+        bind_field(self.field)
+
     def to_legacy(self) -> Dict[str, Any]:
         result = super().to_legacy()
         result["attributes"].update(
@@ -355,6 +413,10 @@ class FormbuilderAverageItem(FormbuilderItem, tag="average", kw_only=True):
 
     field: str
     samples: Annotated[int, Meta(ge=2, lt=10)]
+
+    def validate(self, *, bind_field: BindFieldCallback) -> None:
+        super().validate(bind_field=bind_field)
+        bind_field(self.field)
 
     def to_legacy(self) -> Dict[str, Any]:
         result = super().to_legacy()
