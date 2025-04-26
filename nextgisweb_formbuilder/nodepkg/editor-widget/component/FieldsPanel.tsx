@@ -67,6 +67,43 @@ export const FieldsPanel = observer(
             if (store.setDirty) store.setDirty(true);
         };
 
+        const deleteField = (field: FormbuilderEditorField) => {
+            const updatedFieldsList = store.fields.filter(
+                (onDeleteField) => onDeleteField.keyname !== field.keyname
+            );
+
+            if (isFieldOccupied(field.keyname, store.inputsTree)) {
+                const elIdtoCleanField = getElementIdByField(
+                    field.keyname,
+                    store.inputsTree
+                );
+
+                if (elIdtoCleanField >= 0) {
+                    const elementToClean =
+                        store.getElementById(elIdtoCleanField);
+
+                    const dataEntries = Object.entries(elementToClean?.data);
+
+                    const updatedDataEntries = dataEntries.map(
+                        ([key, value]) => {
+                            if (value === field.keyname) {
+                                return [key, "-"];
+                            } else {
+                                return [key, value];
+                            }
+                        }
+                    );
+                    const updatedData = Object.fromEntries(updatedDataEntries);
+
+                    store.setNewElementData(elIdtoCleanField, {
+                        ...updatedData,
+                    });
+                }
+            }
+
+            store.setFields(updatedFieldsList);
+        };
+
         const getStatusIcon = (field: FormbuilderEditorField) => {
             const isUsed = isFieldOccupied(field.keyname, store.inputsTree);
             if (field.existing) {
@@ -191,42 +228,7 @@ export const FieldsPanel = observer(
                                                 ? { cursor: "default" }
                                                 : undefined
                                         }
-                                        onClick={() => {
-                                            const updatedFieldsList =
-                                                store.fields.filter(
-                                                    (onDeleteField) =>
-                                                        onDeleteField.keyname !==
-                                                        field.keyname
-                                                );
-
-                                            if (
-                                                isFieldOccupied(
-                                                    field.keyname,
-                                                    store.inputsTree
-                                                )
-                                            ) {
-                                                const elIdtoCleanField =
-                                                    getElementIdByField(
-                                                        field.keyname,
-                                                        store.inputsTree
-                                                    );
-                                                if (elIdtoCleanField >= 0) {
-                                                    const elementToClean =
-                                                        store.getElementById(
-                                                            elIdtoCleanField
-                                                        );
-                                                    store.setNewElementData(
-                                                        elIdtoCleanField,
-                                                        {
-                                                            ...elementToClean?.data,
-                                                            field: "-",
-                                                        }
-                                                    );
-                                                }
-                                            }
-
-                                            store.setFields(updatedFieldsList);
-                                        }}
+                                        onClick={() => deleteField(field)}
                                     />
                                 </div>
                             </div>

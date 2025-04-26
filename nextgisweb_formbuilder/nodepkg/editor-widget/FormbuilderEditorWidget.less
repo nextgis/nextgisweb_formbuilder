@@ -85,7 +85,7 @@
     > .fields-and-properties {
         display: flex;
         flex-direction: column;
-        width: 300px;
+        width: 340px;
 
         > .fields {
             flex-grow: 1;
@@ -168,6 +168,7 @@
     display: flex;
     align-items: start;
     gap: 4px;
+    cursor: default !important;
     margin: 0px 4px;
     border: 1px solid var(--theme-color-border);
     border-radius: var(--theme-border-radius);
@@ -195,4 +196,8 @@
     > .ant-btn {
         flex-shrink: 0;
     }
+}
+
+.ngw-formbuilder-editor-widget-mockup-element-wrapper > *:hover {
+    cursor: default !important;
 }

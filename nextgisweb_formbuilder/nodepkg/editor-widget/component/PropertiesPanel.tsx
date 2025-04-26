@@ -1,17 +1,21 @@
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
+import type { FormbuilderDatetimeItem } from "@nextgisweb/formbuilder/type/api";
 import {
     Checkbox,
+    DatePicker,
+    DateTimePicker,
     Form,
     Input,
     InputNumber,
     Select,
+    TimePicker,
 } from "@nextgisweb/gui/antd";
 import { gettext } from "@nextgisweb/pyramid/i18n";
 
 import type { FormbuilderEditorStore } from "../FormbuilderEditorStore";
-import { elementsData } from "../element";
+import { allFieldProps, elementsData } from "../element";
 import { isFieldOccupied } from "../util/fieldRelatedOperations";
 
 import { TabsCustomModifier } from "./TabsCustomModifier";
@@ -31,21 +35,33 @@ export const PropertiesPanel = observer(
         }, [form, store.selectedInput]);
 
         useEffect(() => {
-            const currentInputField = form.getFieldValue("field");
-            if (
-                !store.fields.find(
-                    (field) => field.keyname === currentInputField
-                )
-            ) {
-                const currentSelectedInput = store.selectedInput;
-                if (currentSelectedInput) {
-                    const updatedSelectedInput = {
-                        id: currentSelectedInput?.id,
-                        value: currentSelectedInput?.value,
-                        data: { ...currentSelectedInput?.data, field: "-" },
-                    };
-                    store.setSelectedInput(updatedSelectedInput);
+            const selectedInputProps = Object.keys(store.selectedInput?.data);
+
+            const fieldPropsToCleanIfFieldDeleted = allFieldProps.filter(
+                (prop: string) => selectedInputProps.includes(prop)
+            );
+            const fieldPropsPartDataEntries: [string, string][] = [];
+
+            fieldPropsToCleanIfFieldDeleted.forEach((propName: string) => {
+                const fieldVal = form.getFieldValue(propName);
+
+                if (!store.fields.find(({ keyname }) => keyname === fieldVal)) {
+                    fieldPropsPartDataEntries.push([propName, "-"]);
                 }
+            });
+
+            const fieldsPartData = Object.fromEntries(
+                fieldPropsPartDataEntries
+            );
+
+            const currentSelectedInput = store.selectedInput;
+            if (currentSelectedInput) {
+                const updatedSelectedInput = {
+                    id: currentSelectedInput?.id,
+                    value: currentSelectedInput?.value,
+                    data: { ...currentSelectedInput?.data, ...fieldsPartData },
+                };
+                store.setSelectedInput(updatedSelectedInput);
             }
         }, [form, store, store.fields]);
 
@@ -70,11 +86,13 @@ export const PropertiesPanel = observer(
             elementsData.find((el) => el.elementId === currentInputType)
                 ?.schema || {};
 
+        // MAKE TYPES FOR THIS
         const fieldsFromScheme = Object.entries(currentInputSchema).map(
             ([key, value]) => ({
                 keyname: key,
                 label: value.formLabel,
                 type: value.type,
+                ...value,
             })
         );
 
@@ -84,18 +102,59 @@ export const PropertiesPanel = observer(
                     ...form.getFieldsValue(),
                 });
 
+                store.setSelectedInput({
+                    ...store.selectedInput,
+                    data: { ...form.getFieldsValue() },
+                });
+
                 if (store.setDirty) store.setDirty(true);
             }
         };
 
-        const getPropertiesFormInput = (type: string) => {
-            switch (type) {
+        const timeSelectMapping = useMemo(
+            () => ({
+                date: (
+                    <DatePicker
+                        style={{ width: "100%" }}
+                        placeholder={gettext("Current date")}
+                    />
+                ),
+                time: (
+                    <TimePicker
+                        style={{ width: "100%" }}
+                        placeholder={gettext("Current time")}
+                    />
+                ),
+                datetime: (
+                    <DateTimePicker
+                        style={{ width: "100%" }}
+                        placeholder={gettext("Current date & time")}
+                    />
+                ),
+            }),
+            []
+        );
+
+        // MAKE TYPES FOR THIS
+        const getPropertiesFormInput = (field: any, input?: any) => {
+            const { min, max, selectOptions } = field;
+            const datetimeType = input?.data?.datetime || "datetime";
+
+            switch (field.type) {
                 case "string":
                     return <Input />;
+                case "field":
+                    return <Select options={fieldOptions} />;
                 case "boolean":
                     return <Checkbox />;
                 case "number":
-                    return <InputNumber />;
+                    return <InputNumber min={min} max={max} />;
+                case "select":
+                    return <Select options={selectOptions} />;
+                case "datetime":
+                    return timeSelectMapping[
+                        datetimeType as FormbuilderDatetimeItem["datetime"]
+                    ];
                 default:
                     return <Input />;
             }
@@ -118,34 +177,24 @@ export const PropertiesPanel = observer(
                             form={form}
                             onFieldsChange={onFormChange}
                         >
-                            {fieldsFromScheme.map(
-                                ({ keyname, type, label }, i) => (
-                                    <Form.Item
-                                        style={{ marginBottom: "6px" }}
-                                        key={i}
-                                        label={label}
-                                        name={keyname}
-                                        valuePropName={
-                                            type === "boolean"
-                                                ? "checked"
-                                                : "value"
-                                        }
-                                    >
-                                        {keyname === "field" ? (
-                                            <Select
-                                                value={form.getFieldValue(
-                                                    "field"
-                                                )}
-                                                options={fieldOptions}
-                                            />
-                                        ) : (
-                                            getPropertiesFormInput(
-                                                type as string
-                                            )
-                                        )}
-                                    </Form.Item>
-                                )
-                            )}
+                            {fieldsFromScheme.map((field, i) => (
+                                <Form.Item
+                                    style={{ marginBottom: "6px" }}
+                                    key={i}
+                                    label={field.label}
+                                    name={field.keyname}
+                                    valuePropName={
+                                        field.type === "boolean"
+                                            ? "checked"
+                                            : "value"
+                                    }
+                                >
+                                    {getPropertiesFormInput(
+                                        field,
+                                        store.selectedInput
+                                    )}
+                                </Form.Item>
+                            ))}
                         </Form>
                         <div>
                             {store.selectedInput?.value?.type === "tabs" &&

@@ -1,18 +1,64 @@
+import AverageIcon from "@nextgisweb/formbuilder/editor-widget/icon/average.svg";
 import CheckboxIcon from "@nextgisweb/formbuilder/editor-widget/icon/checkbox.svg";
+import CoordsIcon from "@nextgisweb/formbuilder/editor-widget/icon/coords.svg";
+import DateTimeIcon from "@nextgisweb/formbuilder/editor-widget/icon/date_time.svg";
+import DistanceIcon from "@nextgisweb/formbuilder/editor-widget/icon/distance.svg";
 import LabelIcon from "@nextgisweb/formbuilder/editor-widget/icon/label.svg";
+import PhotoIcon from "@nextgisweb/formbuilder/editor-widget/icon/photo.svg";
+import SpacerIcon from "@nextgisweb/formbuilder/editor-widget/icon/spacer.svg";
 import TabsIcon from "@nextgisweb/formbuilder/editor-widget/icon/tabs.svg";
 import TextboxIcon from "@nextgisweb/formbuilder/editor-widget/icon/textbox.svg";
-import { Checkbox, Input } from "@nextgisweb/gui/antd";
+import type {
+    FormbuilderAverageItem,
+    FormbuilderCheckboxItem,
+    FormbuilderCoordinatesItem,
+    FormbuilderDatetimeItem,
+    FormbuilderDistanceItem,
+    FormbuilderLabelItem,
+    FormbuilderPhotoItem,
+    FormbuilderSystemItem,
+    FormbuilderTextboxItem,
+} from "@nextgisweb/formbuilder/type/api";
+import { Button, Checkbox, Input } from "@nextgisweb/gui/antd";
+import type { InputProps } from "@nextgisweb/gui/antd";
 import { gettext, gettextf } from "@nextgisweb/pyramid/i18n";
 
 import type { FormbuilderEditorStore } from "./FormbuilderEditorStore";
 import { TabsFormComponent } from "./component/TabsFormComponent";
 import type { GrabbedInputComposite, UIListItem } from "./type";
 
+const msgDatetimePlaceholder: {
+    [V in FormbuilderDatetimeItem["datetime"]]: string;
+} = {
+    date: gettext("Current date"),
+    time: gettext("Current time"),
+    datetime: gettext("Current date & time"),
+};
+
+const systemItemTypes: [FormbuilderSystemItem["system"], string][] = [
+    ["ngid_username", gettext("NextGIS ID username")],
+    ["ngw_username", gettext("NextGIS Web username")],
+];
+
 export type FormElementData = {
     value: { name: string; type: string };
     data: any;
 };
+
+interface StubProps
+    extends Pick<InputProps, "style" | "placeholder" | "suffix"> {}
+
+function Stub({ style, ...props }: StubProps) {
+    return (
+        <Input
+            size="small"
+            variant="borderless"
+            style={{ padding: 0, pointerEvents: "none", ...(style ?? {}) }}
+            value={""}
+            {...props}
+        />
+    );
+}
 
 interface ElementWrapperProps {
     input: UIListItem;
@@ -37,7 +83,7 @@ export const elementsData = [
             },
             data: {
                 label: gettext("Text"),
-            },
+            } satisfies Omit<FormbuilderLabelItem, "type">,
         },
         render: ({ input, store }: ElementWrapperProps) => {
             return (
@@ -50,6 +96,29 @@ export const elementsData = [
                 >
                     {input?.data?.label ?? <>&nbsp;</>}
                 </div>
+            );
+        },
+    },
+    {
+        elementId: "spacer",
+        icon: <SpacerIcon />,
+        schema: {},
+        storeData: {
+            value: {
+                name: gettext("Spacer"),
+                type: "spacer",
+            },
+            data: {},
+        },
+        render: ({ input, store }: ElementWrapperProps) => {
+            return (
+                <div
+                    className="ngw-formbuilder-editor-widget-element"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        store.setSelectedInput(input);
+                    }}
+                />
             );
         },
     },
@@ -85,18 +154,22 @@ export const elementsData = [
         elementId: "textbox",
         icon: <TextboxIcon />,
         schema: {
-            field: { type: "string", formLabel: gettext("Field") },
-            remember: {
-                type: "boolean",
-                formLabel: gettext("Remember last value"),
+            field: {
+                type: "field",
+                formLabel: gettext("Field"),
             },
             max_lines: {
                 type: "number",
                 formLabel: gettext("Max. lines"),
+                min: 1,
             },
             numbers_only: {
                 type: "boolean",
                 formLabel: gettext("Numbers only"),
+            },
+            remember: {
+                type: "boolean",
+                formLabel: gettext("Remember last value"),
             },
         },
         storeData: {
@@ -109,7 +182,7 @@ export const elementsData = [
                 remember: false,
                 max_lines: 1,
                 numbers_only: false,
-            },
+            } satisfies Omit<FormbuilderTextboxItem, "type">,
         },
         render: ({ store, input }: ElementWrapperProps) => {
             return (
@@ -120,12 +193,7 @@ export const elementsData = [
                         store.setSelectedInput(input);
                     }}
                 >
-                    <Input
-                        size="small"
-                        variant="borderless"
-                        style={{ padding: 0 }}
-                        value={""}
-                    />
+                    <Stub />
                 </div>
             );
         },
@@ -134,21 +202,21 @@ export const elementsData = [
         elementId: "checkbox",
         icon: <CheckboxIcon />,
         schema: {
-            field: {
+            label: {
                 type: "string",
-                formLabel: gettext("Field"),
+                formLabel: gettext("Label"),
             },
-            remember: {
-                type: "boolean",
-                formLabel: gettext("Remember last value"),
+            field: {
+                type: "field",
+                formLabel: gettext("Field"),
             },
             initial: {
                 type: "boolean",
                 formLabel: gettext("Initial value"),
             },
-            label: {
-                type: "string",
-                formLabel: gettext("Label"),
+            remember: {
+                type: "boolean",
+                formLabel: gettext("Remember last value"),
             },
         },
         storeData: {
@@ -157,11 +225,11 @@ export const elementsData = [
                 type: "checkbox",
             },
             data: {
-                field: "",
-                remember: false,
-                initial: false,
                 label: gettext("Text"),
-            },
+                field: "",
+                initial: false,
+                remember: false,
+            } satisfies Omit<FormbuilderCheckboxItem, "type">,
         },
         render: ({ input, store }: ElementWrapperProps) => {
             return (
@@ -182,6 +250,290 @@ export const elementsData = [
             );
         },
     },
+    {
+        elementId: "datetime",
+        icon: <DateTimeIcon />,
+        schema: {
+            field: {
+                type: "field",
+                formLabel: gettext("Field"),
+            },
+            // Maybe depending on type, inital should be changed, not partly hidden
+            datetime: {
+                type: "select",
+                formLabel: gettext("Type"),
+                selectOptions: [
+                    { value: "date", label: gettext("Date") },
+                    { value: "time", label: gettext("Time") },
+                    { value: "datetime", label: gettext("Date & time") },
+                ],
+            },
+            initial: {
+                type: "datetime",
+                formLabel: gettext("Initial value"),
+            },
+            remember: {
+                type: "boolean",
+                formLabel: gettext("Remember last value"),
+            },
+        },
+        storeData: {
+            value: {
+                name: gettext("Date & time"),
+                type: "datetime",
+            },
+            data: {
+                field: "",
+                datetime: "date",
+                initial: undefined,
+                remember: false,
+            } satisfies Omit<FormbuilderDatetimeItem, "type">,
+        },
+        render: ({ input, store }: ElementWrapperProps) => {
+            type Datetime = FormbuilderDatetimeItem["datetime"];
+            const datetime = input.data?.datetime as Datetime;
+            return (
+                <div
+                    className="ngw-formbuilder-editor-widget-element"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        store.setSelectedInput(input);
+                    }}
+                >
+                    <Stub placeholder={msgDatetimePlaceholder[datetime]} />
+                </div>
+            );
+        },
+    },
+    {
+        elementId: "coordinates",
+        icon: <CoordsIcon />,
+        schema: {
+            field_lon: {
+                type: "field",
+                formLabel: gettext("Longitude field"),
+            },
+            field_lat: {
+                type: "field",
+                formLabel: gettext("Lattitude field"),
+            },
+            hidden: {
+                type: "boolean",
+                formLabel: gettext("Hide"),
+            },
+        },
+        storeData: {
+            value: {
+                name: gettext("Coordinates"),
+                type: "coordinates",
+            },
+            data: {
+                field_lon: "",
+                field_lat: "",
+                hidden: false,
+            } satisfies Omit<FormbuilderCoordinatesItem, "type">,
+        },
+        render: ({ input, store }: ElementWrapperProps) => {
+            return (
+                <div
+                    className="ngw-formbuilder-editor-widget-element"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        store.setSelectedInput(input);
+                    }}
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "4px",
+                    }}
+                >
+                    <Stub placeholder={"22.35871"} />
+                    <Stub placeholder={"40.08579"} />
+                </div>
+            );
+        },
+    },
+    {
+        elementId: "distance",
+        icon: <DistanceIcon />,
+        schema: {
+            field: {
+                type: "field",
+                formLabel: gettext("Field"),
+            },
+        },
+        storeData: {
+            value: {
+                name: gettext("Distance meter"),
+                type: "distance",
+            },
+            data: {
+                field: "",
+            } satisfies Omit<FormbuilderDistanceItem, "type">,
+        },
+        render: ({ input, store }: ElementWrapperProps) => {
+            return (
+                <div
+                    className="ngw-formbuilder-editor-widget-element"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        store.setSelectedInput(input);
+                    }}
+                >
+                    <Stub placeholder={"0 " + gettext("m")} />
+                </div>
+            );
+        },
+    },
+    {
+        elementId: "average",
+        icon: <AverageIcon />,
+        schema: {
+            field: {
+                type: "field",
+                formLabel: gettext("Field"),
+            },
+            samples: {
+                type: "number",
+                formLabel: gettext("Number of samples"),
+                min: 2,
+            },
+        },
+        storeData: {
+            value: {
+                name: gettext("Average calculator"),
+                type: "average",
+            },
+            data: {
+                field: "",
+                samples: 2,
+            } satisfies Omit<FormbuilderAverageItem, "type">,
+        },
+        render: ({ input, store }: ElementWrapperProps) => {
+            return (
+                <div
+                    className="ngw-formbuilder-editor-widget-element"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        store.setSelectedInput(input);
+                    }}
+                    style={{ display: "flex", gap: "8px" }}
+                >
+                    <Button
+                        type="primary"
+                        size="small"
+                        style={{ pointerEvents: "none" }}
+                    >
+                        {gettext("Count")}
+                    </Button>
+                    <Stub style={{ flexGrow: "1" }} placeholder={"0"} />
+                </div>
+            );
+        },
+    },
+    {
+        elementId: "photo",
+        icon: <PhotoIcon />,
+        schema: {
+            max_count: {
+                type: "number",
+                formLabel: gettext("Max number"),
+                min: 1,
+            },
+            comment: {
+                type: "string",
+                formLabel: gettext("Comment"),
+            },
+        },
+        storeData: {
+            value: {
+                name: gettext("Photo"),
+                type: "photo",
+            },
+            data: {
+                max_count: 1,
+                comment: "",
+            } satisfies Omit<FormbuilderPhotoItem, "type">,
+        },
+        render: ({ input, store }: ElementWrapperProps) => {
+            return (
+                <div
+                    className="ngw-formbuilder-editor-widget-element"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        store.setSelectedInput(input);
+                    }}
+                >
+                    <PhotoIcon
+                        style={{
+                            fontSize: "48px",
+                            color: "var(--theme-color-primary)",
+                        }}
+                    />
+                </div>
+            );
+        },
+    },
+    {
+        elementId: "system",
+        icon: <TextboxIcon />, // Should have own icon
+        schema: {
+            field: {
+                type: "field",
+                formLabel: gettext("Field"),
+            },
+            system: {
+                type: "select",
+                formLabel: gettext("Type"),
+                selectOptions: systemItemTypes.map(([value, label]) => ({
+                    value,
+                    label,
+                })),
+            },
+        },
+        storeData: {
+            value: {
+                name: gettext("System field"),
+                type: "system",
+            },
+            data: {
+                field: "",
+                system: "ngid_username",
+            } satisfies Omit<FormbuilderSystemItem, "type">,
+        },
+        render: ({ input, store }: ElementWrapperProps) => {
+            const placeholder = (systemItemTypes.find(
+                ([v]) => v === input.data.system
+            ) ?? [undefined, undefined])[1];
+            return (
+                <div
+                    className="ngw-formbuilder-editor-widget-element"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        store.setSelectedInput(input);
+                    }}
+                >
+                    <Stub placeholder={placeholder} />
+                </div>
+            );
+        },
+    },
+];
+
+export const allFieldProps = [
+    ...new Set(
+        elementsData
+            .filter((el) =>
+                Object.values(el.schema).find((prop) => prop.type === "field")
+            )
+            .flatMap((el) => {
+                const res = Object.entries(el.schema)
+                    .filter(([_key, val]) => val.type === "field")
+                    .flatMap(([key]) => key);
+
+                return res;
+            })
+    ),
 ];
 
 const nonFieldTypes = elementsData

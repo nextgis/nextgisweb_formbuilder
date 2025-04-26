@@ -1,3 +1,4 @@
+import { allFieldProps } from "../element";
 import type { FormBuilderUIData } from "../type";
 
 export function isFieldOccupied(
@@ -5,7 +6,7 @@ export function isFieldOccupied(
     inputsTree: FormBuilderUIData
 ) {
     const isFieldOccupiedInner = (tree: any, keyname: string): boolean => {
-        if (tree.data && tree.data.field && tree.data.field === keyname) {
+        if (allFieldProps.some((prop) => tree?.data?.[prop] === keyname)) {
             return true;
         }
 
@@ -37,7 +38,7 @@ export function getElementIdByField(
     inputsTree: FormBuilderUIData
 ): number {
     const getElementIdByFieldInner = (tree: any, keyname: string): number => {
-        if (tree.data && tree.data.field && tree.data.field === keyname) {
+        if (allFieldProps.some((prop) => tree?.data?.[prop] === keyname)) {
             return tree.id;
         }
 

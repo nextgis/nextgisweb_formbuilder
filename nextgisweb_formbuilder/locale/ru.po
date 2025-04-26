@@ -61,56 +61,154 @@ msgstr "Поля"
 msgid "Add absent fields to layer"
 msgstr "Добавить недостающие поля в слой"
 
-#: nodepkg/editor-widget/component/PropertiesPanel.tsx:19
+#: nodepkg/editor-widget/component/PropertiesPanel.tsx:23
 msgid "Properties"
 msgstr "Свойства"
 
+#: nodepkg/editor-widget/component/PropertiesPanel.tsx:119
+#: nodepkg/editor-widget/element.tsx:33
+msgid "Current date"
+msgstr "Текущая дата"
+
+#: nodepkg/editor-widget/component/PropertiesPanel.tsx:125
+#: nodepkg/editor-widget/element.tsx:34
+msgid "Current time"
+msgstr "Текущее время"
+
+#: nodepkg/editor-widget/component/PropertiesPanel.tsx:131
+#: nodepkg/editor-widget/element.tsx:35
+msgid "Current date & time"
+msgstr "Текущая дата и время"
+
 #: nodepkg/editor-widget/component/TabsCustomModifier.tsx:74
 #: nodepkg/editor-widget/component/TabsFormComponent.tsx:93
-#: nodepkg/editor-widget/element.tsx:207 nodepkg/editor-widget/element.tsx:215
+#: nodepkg/editor-widget/element.tsx:559 nodepkg/editor-widget/element.tsx:567
 msgid "Tab {}"
 msgstr "Вкладка {}"
 
-#: nodepkg/editor-widget/element.tsx:30 nodepkg/editor-widget/element.tsx:35
-#: nodepkg/editor-widget/element.tsx:151
+#: nodepkg/editor-widget/element.tsx:39
+msgid "NextGIS ID username"
+msgstr "Имя пользователя NextGIS ID"
+
+#: nodepkg/editor-widget/element.tsx:40
+msgid "NextGIS Web username"
+msgstr "Имя пользователя NextGIS Web"
+
+#: nodepkg/editor-widget/element.tsx:76 nodepkg/editor-widget/element.tsx:81
+#: nodepkg/editor-widget/element.tsx:207
 msgid "Label"
 msgstr "Надпись"
 
-#: nodepkg/editor-widget/element.tsx:39 nodepkg/editor-widget/element.tsx:163
+#: nodepkg/editor-widget/element.tsx:85 nodepkg/editor-widget/element.tsx:228
 msgid "Text"
 msgstr "Текст"
 
-#: nodepkg/editor-widget/element.tsx:62 nodepkg/editor-widget/element.tsx:203
+#: nodepkg/editor-widget/element.tsx:108
+msgid "Spacer"
+msgstr "Пробел"
+
+#: nodepkg/editor-widget/element.tsx:131 nodepkg/editor-widget/element.tsx:555
 msgid "Tabs"
 msgstr "Вкладки"
 
-#: nodepkg/editor-widget/element.tsx:88 nodepkg/editor-widget/element.tsx:139
+#: nodepkg/editor-widget/element.tsx:159 nodepkg/editor-widget/element.tsx:211
+#: nodepkg/editor-widget/element.tsx:259 nodepkg/editor-widget/element.tsx:362
+#: nodepkg/editor-widget/element.tsx:394 nodepkg/editor-widget/element.tsx:483
 msgid "Field"
 msgstr "Поле"
 
-#: nodepkg/editor-widget/element.tsx:91 nodepkg/editor-widget/element.tsx:143
-msgid "Remember last value"
-msgstr "Запоминать значение"
-
-#: nodepkg/editor-widget/element.tsx:95
+#: nodepkg/editor-widget/element.tsx:163
 msgid "Max. lines"
 msgstr "Макс. число строк"
 
-#: nodepkg/editor-widget/element.tsx:99
+#: nodepkg/editor-widget/element.tsx:168
 msgid "Numbers only"
 msgstr "Только цифры"
 
-#: nodepkg/editor-widget/element.tsx:105
+#: nodepkg/editor-widget/element.tsx:172 nodepkg/editor-widget/element.tsx:219
+#: nodepkg/editor-widget/element.tsx:277
+msgid "Remember last value"
+msgstr "Запоминать значение"
+
+#: nodepkg/editor-widget/element.tsx:178
 msgid "Text box"
 msgstr "Текстовое поле"
 
-#: nodepkg/editor-widget/element.tsx:147
+#: nodepkg/editor-widget/element.tsx:215 nodepkg/editor-widget/element.tsx:273
 msgid "Initial value"
 msgstr "Исходное значение"
 
-#: nodepkg/editor-widget/element.tsx:156
+#: nodepkg/editor-widget/element.tsx:224
 msgid "Check box"
 msgstr "Флажок"
+
+#: nodepkg/editor-widget/element.tsx:264 nodepkg/editor-widget/element.tsx:487
+msgid "Type"
+msgstr "Тип"
+
+#: nodepkg/editor-widget/element.tsx:266
+msgid "Date"
+msgstr "Дата"
+
+#: nodepkg/editor-widget/element.tsx:267
+msgid "Time"
+msgstr "Время"
+
+#: nodepkg/editor-widget/element.tsx:268 nodepkg/editor-widget/element.tsx:282
+msgid "Date & time"
+msgstr "Дата и время"
+
+#: nodepkg/editor-widget/element.tsx:314
+msgid "Longitude field"
+msgstr "Поле долготы"
+
+#: nodepkg/editor-widget/element.tsx:318
+msgid "Lattitude field"
+msgstr "Поле широты"
+
+#: nodepkg/editor-widget/element.tsx:322
+msgid "Hide"
+msgstr "Скрыть"
+
+#: nodepkg/editor-widget/element.tsx:327
+msgid "Coordinates"
+msgstr "Координаты"
+
+#: nodepkg/editor-widget/element.tsx:367
+msgid "Distance meter"
+msgstr "Дистанция"
+
+#: nodepkg/editor-widget/element.tsx:383
+msgid "m"
+msgstr "м"
+
+#: nodepkg/editor-widget/element.tsx:398
+msgid "Number of samples"
+msgstr "Количество измерений"
+
+#: nodepkg/editor-widget/element.tsx:404
+msgid "Average calculator"
+msgstr "Счётчик среднего"
+
+#: nodepkg/editor-widget/element.tsx:427
+msgid "Count"
+msgstr "Посчитать"
+
+#: nodepkg/editor-widget/element.tsx:440
+msgid "Max number"
+msgstr "Макс. число фото"
+
+#: nodepkg/editor-widget/element.tsx:445
+msgid "Comment"
+msgstr "Комментарий"
+
+#: nodepkg/editor-widget/element.tsx:450
+msgid "Photo"
+msgstr "Фото"
+
+#: nodepkg/editor-widget/element.tsx:496
+msgid "System field"
+msgstr "Системное поле"
 
 #: nodepkg/form-widget/FormWidget.tsx:24
 msgid "Select a form file"

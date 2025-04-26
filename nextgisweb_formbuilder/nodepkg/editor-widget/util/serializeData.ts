@@ -1,13 +1,48 @@
+import { isNull } from "lodash-es";
+
 import type {
+    FormbuilderDatetimeItem,
     FormbuilderFormItem,
     FormbuilderTabsItem,
 } from "@nextgisweb/formbuilder/type/api";
+import dayjs from "@nextgisweb/gui/dayjs";
 
 import type { FormBuilderUIData, UIListItem } from "../type";
 
 export type SerializedResult = Array<FormbuilderTabsItem | FormbuilderFormItem>;
 
-// made by DeepSeek, may be funky
+const processDateTimeInitial = (elementData: FormbuilderDatetimeItem) => {
+    const value = elementData.initial;
+
+    if (isNull(value)) return "CURRENT";
+
+    switch (elementData.datetime) {
+        case "date":
+            return dayjs(value).format("YYYY-MM-DD");
+        case "time":
+            return dayjs(value).format("HH:mm:ss");
+        case "datetime":
+            return dayjs(value).format("YYYY-MM-DDTHH:mm:ss");
+    }
+};
+
+const getDateTimeParseFormat = (elementData: FormbuilderDatetimeItem) => {
+    switch (elementData.datetime) {
+        case "date":
+            return "YYYY-MM-DD";
+        case "time":
+            return "HH:mm:ss";
+        case "datetime":
+            return "YYYY-MM-DDTHH:mm:ss";
+    }
+};
+
+const convertDateTimeInitialtoUI = (elementData: FormbuilderDatetimeItem) => {
+    if (elementData.initial === "CURRENT") return null;
+
+    return dayjs(elementData.initial, getDateTimeParseFormat(elementData));
+};
+
 export function serializeData(
     input: FormBuilderUIData
 ): Array<FormbuilderTabsItem | FormbuilderFormItem> {
@@ -25,12 +60,21 @@ export function serializeData(
                             items: processList(tab.items.list),
                         })),
                     } as unknown as FormbuilderTabsItem; // fix me
+                } else if (item.value.type === "datetime") {
+                    const processedData = {
+                        ...item.data,
+                        initial: processDateTimeInitial(item.data),
+                    };
+                    return {
+                        type: item.value.type,
+                        ...(processedData || {}),
+                    } as FormbuilderFormItem;
+                } else {
+                    return {
+                        type: item.value.type,
+                        ...(item.data || {}),
+                    } as FormbuilderFormItem;
                 }
-
-                return {
-                    type: item.value.type,
-                    ...(item.data || {}),
-                } as FormbuilderFormItem;
             })
             .filter((item) => item !== null) as FormbuilderFormItem[];
     }
@@ -69,6 +113,19 @@ export function convertToUIData(
                         })),
                     },
                     data: {},
+                    id: getNewId(),
+                };
+            } else if (item.type === "datetime") {
+                return {
+                    value: {
+                        type: item.type,
+                        name: item.type,
+                        image: item.type,
+                    },
+                    data: {
+                        ...item,
+                        initial: convertDateTimeInitialtoUI(item),
+                    },
                     id: getNewId(),
                 };
             } else {
