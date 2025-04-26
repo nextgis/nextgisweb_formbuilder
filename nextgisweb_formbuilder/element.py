@@ -131,27 +131,30 @@ class FormbuilderCheckboxItem(FormbuilderFieldItem, tag="checkbox", kw_only=True
 
 
 @FormbuilderItem.register
-class FormbuilderSystemItem(FormbuilderFieldItem, tag="system", kw_only=True):
+class FormbuilderSystemItem(FormbuilderItem, tag="system", kw_only=True):
     legacy_type = "text_edit"
 
+    field: str
     system: Literal["ngid_username", "ngw_username"]
 
     def to_legacy(self) -> Dict[str, Any]:
         result = super().to_legacy()
-        type_attrs = dict(
-            ngid_username="ngid_login",
-            ngw_username="ngw_login",
-        )
         result["attributes"].update(
             {
+                "field": self.field,
+                "last": False,
                 "text": "",
                 "max_string_count": 1,
                 "only_figures": False,
+            },
+            **{
+                a: self.system == b
+                for a, b in (
+                    ("ngid_login", "ngid_username"),
+                    ("ngw_login", "ngw_username"),
+                )
             }
         )
-        result["attributes"][type_attrs.pop(self.system)] = True
-        for v in type_attrs.values():
-            result["attributes"][v] = False
         return result
 
 
