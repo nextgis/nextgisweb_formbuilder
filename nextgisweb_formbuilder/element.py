@@ -345,7 +345,7 @@ class FormbuilderCascadeItem(FormbuilderItem, tag="cascade", kw_only=True):
     def validate(self, *, bind_field: BindFieldCallback) -> None:
         super().validate(bind_field=bind_field)
         bind_field(self.field_primary)
-        bind_field(self.field_primary)
+        bind_field(self.field_secondary)
 
     def to_legacy(self) -> Dict[str, Any]:
         result = super().to_legacy()
