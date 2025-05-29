@@ -33,7 +33,7 @@ msgstr ""
 "удалено из формы."
 
 #: model.py:106 nodepkg/editor-widget/FormbuilderEditorWidget.tsx:291
-#: nodepkg/form-widget/FormWidget.tsx:110 view.py:20
+#: nodepkg/form-widget/FormWidget.tsx:113 view.py:20
 msgid "Form"
 msgstr "Форма"
 
@@ -293,6 +293,14 @@ msgstr "Зависимое поле"
 msgid "Dependent dropdowns"
 msgstr "Зависимые списки"
 
+#: nodepkg/form-widget/FormWidget.tsx:20
+msgid "Upload form"
+msgstr "Загрузить форму"
+
+#: nodepkg/form-widget/FormWidget.tsx:21
+msgid "Design form"
+msgstr "Редактировать форму"
+
 #: nodepkg/form-widget/FormWidget.tsx:24
 msgid "Select a form file"
 msgstr "Выберите файл формы"
@@ -301,13 +309,9 @@ msgstr "Выберите файл формы"
 msgid "It should be in NGFP format."
 msgstr "Он должен быть в формате NGFP."
 
-#: nodepkg/form-widget/FormWidget.tsx:35
-msgid "Upload form"
-msgstr "Загрузить форму"
-
-#: nodepkg/form-widget/FormWidget.tsx:41
-msgid "Design form"
-msgstr "Редактировать форму"
+#: nodepkg/form-widget/FormWidget.tsx:28
+msgid "Form designer is currently in an early beta stage. Use it with caution!"
+msgstr "Конструктор форм находится на ранней стадии бета-тестирования. Используйте с осторожностью!"
 
 #: view.py:24
 msgid "Download as NGFP"

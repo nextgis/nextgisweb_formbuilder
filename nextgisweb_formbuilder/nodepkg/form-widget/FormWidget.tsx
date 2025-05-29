@@ -3,47 +3,52 @@ import { observer } from "mobx-react-lite";
 import { useMemo } from "react";
 
 import { FileUploader } from "@nextgisweb/file-upload/file-uploader";
-import { Select } from "@nextgisweb/gui/antd";
-import type { SelectProps } from "@nextgisweb/gui/antd";
+import { Select, Tooltip } from "@nextgisweb/gui/antd";
 import { gettext } from "@nextgisweb/pyramid/i18n";
 import type { EditorWidget } from "@nextgisweb/resource/type";
 
-import clientSettings from "../client-settings";
 import FormbuilderEditorWidget from "../editor-widget/FormbuilderEditorWidget";
 import { isFieldOccupied } from "../editor-widget/util/fieldRelatedOperations";
 import { serializeData } from "../editor-widget/util/serializeData";
 
-import type { FormStore, Mode } from "./FormStore";
+import type { FormStore } from "./FormStore";
+
+import ExperimentalIcon from "@nextgisweb/icon/material/science";
 
 import "./FormWidget.less";
 
-type Option = NonNullable<SelectProps["options"]>[0] & {
-    value: Mode;
-};
-const uploaderMessages = {
+const msgUploadForm = gettext("Upload form");
+const msgDesingForm = gettext("Design form");
+
+const msgUploader = {
     uploadText: gettext("Select a form file"),
     helpText: gettext("It should be in NGFP format."),
 };
 
+const msgExperimental = gettext(
+    "Form designer is currently in an early beta stage. Use it with caution!"
+);
+
+const modeOptions = [
+    {
+        value: "file",
+        label: msgUploadForm,
+    },
+    {
+        value: "input",
+        label: (
+            <>
+                {msgDesingForm + " "}
+                <Tooltip title={msgExperimental}>
+                    <ExperimentalIcon />
+                </Tooltip>
+            </>
+        ),
+    },
+];
+
 export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
     const { mode } = store;
-
-    const modeOpts = useMemo(() => {
-        const result: Option[] = [
-            {
-                value: "file",
-                label: gettext("Upload form"),
-            },
-        ];
-        if (clientSettings.designer || mode === "input") {
-            result.push({
-                value: "input",
-                label: gettext("Design form"),
-            });
-        }
-
-        return result;
-    }, [mode]);
 
     const modeComponent = useMemo(() => {
         switch (mode) {
@@ -61,7 +66,7 @@ export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
                                 store.uploading = value;
                             });
                         }}
-                        {...uploaderMessages}
+                        {...msgUploader}
                     />
                 );
             case "input":
@@ -92,15 +97,13 @@ export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
 
     return (
         <div className="ngw-formbuilder-form-widget">
-            {modeOpts.length > 1 && (
-                <Select
-                    className="mode"
-                    style={{ width: "100%" }}
-                    options={modeOpts}
-                    value={store.mode}
-                    onChange={store.setMode}
-                />
-            )}
+            <Select
+                className="mode"
+                style={{ width: "100%" }}
+                options={modeOptions}
+                value={store.mode}
+                onChange={store.setMode}
+            />
             <div className="container">{modeComponent}</div>
         </div>
     );
