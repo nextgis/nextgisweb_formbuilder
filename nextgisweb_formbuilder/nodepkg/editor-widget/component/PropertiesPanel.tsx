@@ -18,6 +18,8 @@ import type { FormbuilderEditorStore } from "../FormbuilderEditorStore";
 import { allFieldProps, elementsData } from "../element";
 import { isFieldOccupied } from "../util/fieldRelatedOperations";
 
+import { CascadeOptionsInput } from "./CascadeOptionsInput";
+import { OptionsInput } from "./OptionsInput";
 import { TabsCustomModifier } from "./TabsCustomModifier";
 
 const msgPropertiesHeader = gettext("Properties");
@@ -155,6 +157,15 @@ export const PropertiesPanel = observer(
                     return timeSelectMapping[
                         datetimeType as FormbuilderDatetimeItem["datetime"]
                     ];
+                case "options":
+                    return <OptionsInput columns={field.optionsColumns} />;
+                case "cascade_options":
+                    return (
+                        <CascadeOptionsInput
+                            columns={field.optionsColumns}
+                            depColumns={field.dependentOptionsCoulmns}
+                        />
+                    );
                 default:
                     return <Input />;
             }

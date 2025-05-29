@@ -1,30 +1,45 @@
 import AverageIcon from "@nextgisweb/formbuilder/editor-widget/icon/average.svg";
+import CascadeIcon from "@nextgisweb/formbuilder/editor-widget/icon/cascade.svg";
 import CheckboxIcon from "@nextgisweb/formbuilder/editor-widget/icon/checkbox.svg";
 import CoordsIcon from "@nextgisweb/formbuilder/editor-widget/icon/coords.svg";
 import DateTimeIcon from "@nextgisweb/formbuilder/editor-widget/icon/date_time.svg";
 import DistanceIcon from "@nextgisweb/formbuilder/editor-widget/icon/distance.svg";
+import DropDownIcon from "@nextgisweb/formbuilder/editor-widget/icon/dropdown.svg";
+import DualDropDownIcon from "@nextgisweb/formbuilder/editor-widget/icon/dropdown_dual.svg";
 import LabelIcon from "@nextgisweb/formbuilder/editor-widget/icon/label.svg";
 import PhotoIcon from "@nextgisweb/formbuilder/editor-widget/icon/photo.svg";
+import RadioIcon from "@nextgisweb/formbuilder/editor-widget/icon/radio.svg";
 import SpacerIcon from "@nextgisweb/formbuilder/editor-widget/icon/spacer.svg";
 import TabsIcon from "@nextgisweb/formbuilder/editor-widget/icon/tabs.svg";
 import TextboxIcon from "@nextgisweb/formbuilder/editor-widget/icon/textbox.svg";
 import type {
     FormbuilderAverageItem,
+    FormbuilderCascadeItem,
     FormbuilderCheckboxItem,
     FormbuilderCoordinatesItem,
     FormbuilderDatetimeItem,
     FormbuilderDistanceItem,
+    FormbuilderDropdownDualItem,
+    FormbuilderDropdownItem,
     FormbuilderLabelItem,
     FormbuilderPhotoItem,
+    FormbuilderRadioItem,
     FormbuilderSystemItem,
     FormbuilderTextboxItem,
+    OptionSingle,
 } from "@nextgisweb/formbuilder/type/api";
-import { Button, Checkbox, Input } from "@nextgisweb/gui/antd";
+import { Button, Checkbox, Input, Radio } from "@nextgisweb/gui/antd";
 import type { InputProps } from "@nextgisweb/gui/antd";
 import { gettext, gettextf } from "@nextgisweb/pyramid/i18n";
 
 import type { FormbuilderEditorStore } from "./FormbuilderEditorStore";
+import type { OptionsRow } from "./component/SimpleTableStores";
 import { TabsFormComponent } from "./component/TabsFormComponent";
+import {
+    OptionsInputInitialValue,
+    OptionsInputValueStringProp,
+    OptionsInputValueValue,
+} from "./component/valueInputs";
 import type { GrabbedInputComposite, UIListItem } from "./type";
 
 const msgDatetimePlaceholder: {
@@ -258,7 +273,6 @@ export const elementsData = [
                 type: "field",
                 formLabel: gettext("Field"),
             },
-            // Maybe depending on type, inital should be changed, not partly hidden
             datetime: {
                 type: "select",
                 formLabel: gettext("Type"),
@@ -514,6 +528,351 @@ export const elementsData = [
                     }}
                 >
                     <Stub placeholder={placeholder} />
+                </div>
+            );
+        },
+    },
+    {
+        elementId: "dropdown",
+        icon: <DropDownIcon />,
+        schema: {
+            field: {
+                type: "field",
+                formLabel: gettext("Field"),
+            },
+            remember: {
+                type: "boolean",
+                formLabel: gettext("Remember last value"),
+            },
+            search: {
+                type: "boolean",
+                formLabel: gettext("Enable search"),
+            },
+            free_input: {
+                type: "boolean",
+                formLabel: gettext("Allow free input"),
+            },
+            options: {
+                type: "options",
+                formLabel: gettext("Options"),
+                optionsColumns: [
+                    {
+                        key: "value",
+                        title: gettext("Value"),
+                        width: "45%",
+                        component: OptionsInputValueValue,
+                    },
+                    {
+                        key: "label",
+                        title: gettext("Label"),
+                        width: "45%",
+                        component: ({ row }: { row: OptionsRow }) => (
+                            <OptionsInputValueStringProp
+                                row={row}
+                                columnKey={"label"}
+                            />
+                        ),
+                    },
+                    {
+                        key: "initial",
+                        title: gettext("Initial"),
+                        width: "10%",
+                        component: OptionsInputInitialValue,
+                    },
+                ],
+            },
+        },
+        storeData: {
+            value: {
+                name: gettext("Dropdown"),
+                type: "dropdown",
+            },
+            data: {
+                field: "",
+                remember: false,
+                // search: false, // should be, somehow not in type now
+                free_input: false,
+                options: [],
+            } satisfies Omit<FormbuilderDropdownItem, "type">,
+        },
+        render: ({ input, store }: ElementWrapperProps) => {
+            return (
+                <div
+                    className="ngw-formbuilder-editor-widget-element"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        store.setSelectedInput(input);
+                    }}
+                >
+                    <Stub placeholder={gettext("Dropdown")} />
+                </div>
+            );
+        },
+    },
+    {
+        elementId: "dropdown_dual",
+        icon: <DualDropDownIcon />,
+        schema: {
+            field: {
+                type: "field",
+                formLabel: gettext("Field"),
+            },
+            remember: {
+                type: "boolean",
+                formLabel: gettext("Remember last value"),
+            },
+            label_first: {
+                type: "string",
+                formLabel: gettext("First label"),
+            },
+            label_second: {
+                type: "string",
+                formLabel: gettext("Second label"),
+            },
+            options: {
+                type: "options",
+                formLabel: gettext("Options"),
+                optionsColumns: [
+                    {
+                        key: "value",
+                        title: gettext("Value"),
+                        width: "30%",
+                        component: OptionsInputValueValue,
+                    },
+                    {
+                        key: "first",
+                        title: gettext("First label"),
+                        width: "30%",
+                        component: ({ row }: { row: OptionsRow }) => (
+                            <OptionsInputValueStringProp
+                                row={row}
+                                columnKey={"first"}
+                            />
+                        ),
+                    },
+                    {
+                        key: "second",
+                        title: gettext("Second label"),
+                        width: "30%",
+                        component: ({ row }: { row: OptionsRow }) => (
+                            <OptionsInputValueStringProp
+                                row={row}
+                                columnKey={"second"}
+                            />
+                        ),
+                    },
+                    {
+                        key: "initial",
+                        title: gettext("Initial"),
+                        width: "10%",
+                        component: OptionsInputInitialValue,
+                    },
+                ],
+            },
+        },
+        storeData: {
+            value: {
+                name: gettext("Dual dropdown"),
+                type: "dropdown_dual",
+            },
+            data: {
+                field: "",
+                remember: false,
+                label_first: "",
+                label_second: "",
+                options: [],
+            } satisfies Omit<FormbuilderDropdownDualItem, "type">,
+        },
+        render: ({ input, store }: ElementWrapperProps) => {
+            return (
+                <div
+                    className="ngw-formbuilder-editor-widget-element"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        store.setSelectedInput(input);
+                    }}
+                >
+                    <Stub placeholder={gettext("Dual dropdown")} />
+                </div>
+            );
+        },
+    },
+    {
+        elementId: "radio",
+        icon: <RadioIcon />,
+        schema: {
+            field: {
+                type: "field",
+                formLabel: gettext("Field"),
+            },
+            remember: {
+                type: "boolean",
+                formLabel: gettext("Remember last value"),
+            },
+
+            options: {
+                type: "options",
+                formLabel: gettext("Options"),
+                optionsColumns: [
+                    {
+                        key: "value",
+                        title: gettext("Value"),
+                        width: "45%",
+                        component: OptionsInputValueValue,
+                    },
+                    {
+                        key: "label",
+                        title: gettext("Label"),
+                        width: "45%",
+                        component: ({ row }: { row: OptionsRow }) => (
+                            <OptionsInputValueStringProp
+                                row={row}
+                                columnKey={"label"}
+                            />
+                        ),
+                    },
+                    {
+                        key: "initial",
+                        title: gettext("Initial"),
+                        width: "10%",
+                        component: OptionsInputInitialValue,
+                    },
+                ],
+            },
+        },
+        storeData: {
+            value: {
+                name: gettext("Radio group"),
+                type: "radio",
+            },
+            data: {
+                field: "",
+                remember: false,
+                options: [],
+            } satisfies Omit<FormbuilderRadioItem, "type">,
+        },
+        render: ({ input, store }: ElementWrapperProps) => {
+            return (
+                <div
+                    className="ngw-formbuilder-editor-widget-element"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        store.setSelectedInput(input);
+                    }}
+                >
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                        {input.data.options.map(
+                            (option: OptionSingle, i: number) => (
+                                <Radio
+                                    checked={option.initial === true}
+                                    key={option.value + i}
+                                >
+                                    {option.label || option.value}
+                                </Radio>
+                            )
+                        )}
+                    </div>
+                    {input.data.options.length === 0 && (
+                        <Stub placeholder={gettext("Radio group")} />
+                    )}
+                </div>
+            );
+        },
+    },
+    {
+        elementId: "cascade",
+        icon: <CascadeIcon />,
+        schema: {
+            field_primary: {
+                type: "field",
+                formLabel: gettext("Primary field"),
+            },
+            field_secondary: {
+                type: "field",
+                formLabel: gettext("Secondary field"),
+            },
+            remember: {
+                type: "boolean",
+                formLabel: gettext("Remember last value"),
+            },
+
+            options: {
+                type: "cascade_options",
+                formLabel: gettext("Options"),
+                optionsColumns: [
+                    {
+                        key: "value",
+                        title: gettext("Value"),
+                        width: "45%",
+                        component: OptionsInputValueValue,
+                    },
+                    {
+                        key: "label",
+                        title: gettext("Label"),
+                        width: "45%",
+                        component: ({ row }: { row: OptionsRow }) => (
+                            <OptionsInputValueStringProp
+                                row={row}
+                                columnKey={"label"}
+                            />
+                        ),
+                    },
+                    {
+                        key: "initial",
+                        title: gettext("Initial"),
+                        width: "10%",
+                        component: OptionsInputInitialValue,
+                    },
+                ],
+                dependentOptionsCoulmns: [
+                    {
+                        key: "value",
+                        title: gettext("Value"),
+                        width: "45%",
+                        component: OptionsInputValueValue,
+                    },
+                    {
+                        key: "label",
+                        title: gettext("Label"),
+                        width: "45%",
+                        component: ({ row }: { row: OptionsRow }) => (
+                            <OptionsInputValueStringProp
+                                row={row}
+                                columnKey={"label"}
+                            />
+                        ),
+                    },
+                    {
+                        key: "initial",
+                        title: gettext("Initial"),
+                        width: "10%",
+                        component: OptionsInputInitialValue,
+                    },
+                ],
+            },
+        },
+        storeData: {
+            value: {
+                name: gettext("Dependent dropdowns"),
+                type: "cascade",
+            },
+            data: {
+                field_primary: "",
+                field_secondary: "",
+                remember: false,
+                options: [],
+            } satisfies Omit<FormbuilderCascadeItem, "type">,
+        },
+        render: ({ input, store }: ElementWrapperProps) => {
+            return (
+                <div
+                    className="ngw-formbuilder-editor-widget-element"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        store.setSelectedInput(input);
+                    }}
+                >
+                    <Stub placeholder={gettext("Dependent dropdowns")} />
                 </div>
             );
         },

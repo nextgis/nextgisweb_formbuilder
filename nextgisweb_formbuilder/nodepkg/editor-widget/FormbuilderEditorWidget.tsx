@@ -166,7 +166,9 @@ export const FormbuilderEditorWidget = observer(
                 })}
                 style={themeVariables}
             >
-                <ElementsPanel store={store} />
+                <div className="elements-panel">
+                    <ElementsPanel store={store} />
+                </div>
                 <div className="mockup-container">
                     <div
                         className={"mockup"}
