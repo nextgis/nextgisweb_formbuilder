@@ -44,7 +44,7 @@ class FormbuilderItem(Struct, kw_only=True):
 
 @FormbuilderItem.register
 class FormbuilderLabelItem(FormbuilderItem, tag="label"):
-    legacy_type = "text"
+    legacy_type = "text_label"
 
     label: str
 
