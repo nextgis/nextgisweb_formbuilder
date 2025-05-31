@@ -14,17 +14,14 @@ class FormbuilderFormWidget(Widget):
 
 
 def setup_pyramid(comp, config):
-    class LayerMenuExt(dm.DynItem):
-        def build(self, args):
-            if isinstance(args.obj, FormbuilderForm):
-                yield dm.Label("formbuilder_form", gettext("Form"))
-
-                yield dm.Link(
-                    "formbuilder_form/ngfp",
-                    gettext("Download as NGFP"),
-                    lambda args: args.request.route_url(
-                        "formbuilder.formbuilder_form_ngfp", id=args.obj.id
-                    ),
-                )
-
-    Resource.__dynmenu__.add(LayerMenuExt())
+    @Resource.__dynmenu__.add
+    def _resource_dynmenu(args):
+        if isinstance(args.obj, FormbuilderForm):
+            yield dm.Label("formbuilder_form", gettext("Form"))
+            yield dm.Link(
+                "formbuilder_form/ngfp",
+                label=gettext("Download as NGFP"),
+                url=lambda args: args.request.route_url(
+                    "formbuilder.formbuilder_form_ngfp", id=args.obj.id
+                ),
+            )
