@@ -306,7 +306,7 @@ class OptionDual(Struct, kw_only=True):
 
 @FormbuilderItem.register
 class FormbuilderDropdownDualItem(FormbuilderFieldItem, tag="dropdown_dual", kw_only=True):
-    legacy_type = "split_compobox"
+    legacy_type = "split_combobox"
 
     options: List[OptionDual]
     label_first: str
