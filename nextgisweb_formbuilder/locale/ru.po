@@ -1,4 +1,4 @@
-#: element.py:206
+#: element.py:251
 msgid "Invalid initial value: '{i}'. Expected a value matching the pattern for '{t}'."
 msgstr ""
 "Недопустимое начальное значение: '{i}'. Ожидалось значение, соответствующее "
@@ -12,11 +12,11 @@ msgstr "Обнаружено дублирование ключа '{}' в пол�
 msgid "Duplicate display name '{}' found in fields."
 msgstr "Обнаружено дублирование наименования '{}' в полях."
 
-#: model.py:64
+#: model.py:68
 msgid "Unknown field '{}'."
 msgstr "Неизвестное поле '{}'."
 
-#: model.py:68
+#: model.py:72
 msgid ""
 "The '{dn}' field (keyname '{kn}') is bound to two or more form elements. Each"
 " field can only be bound to a single element."
@@ -24,7 +24,20 @@ msgstr ""
 "Поле '{dn}' (ключ '{kn}') связано с двумя или более элементами формы. Каждое "
 "поле может быть связано только с одним элементом."
 
-#: model.py:87
+#: model.py:83
+msgid ""
+"The {dt} data type of the '{dn}' field (keyname '{kn}') is not compatible "
+"with the element."
+msgstr "Тип данных {dt} поля '{dn}' (ключ '{kn}') не совместим с элементом."
+
+#: model.py:90
+msgid "The element requires a field of type {}."
+msgid_plural "The element requires a field of one of these types: {}."
+msgstr[0] "Элемент требует поле типа {}."
+msgstr[1] "Элемент требует поле одного из следующих типов: {}."
+msgstr[2] "Элемент требует поле одного из следующих типов: {}."
+
+#: model.py:104
 msgid ""
 "The '{dn}' field (keyname '{kn}') is not bound to any element and must be "
 "removed from the form."
@@ -32,16 +45,16 @@ msgstr ""
 "Поле '{dn}' (ключ '{kn}') не связано ни с одним элементом и должно быть "
 "удалено из формы."
 
-#: model.py:106 nodepkg/editor-widget/FormbuilderEditorWidget.tsx:291
+#: model.py:123 nodepkg/editor-widget/FormbuilderEditorWidget.tsx:291
 #: nodepkg/form-widget/FormWidget.tsx:113 view.py:20
 msgid "Form"
 msgstr "Форма"
 
-#: model.py:132
+#: model.py:149
 msgid "Invalid NGFP file."
 msgstr "Некорректный файл NGFP"
 
-#: model.py:133
+#: model.py:150
 msgid "NGFP file size exceeds {} bytes."
 msgstr "Размер файла NGFP превышает {} байт."
 
@@ -311,8 +324,10 @@ msgstr "Он должен быть в формате NGFP."
 
 #: nodepkg/form-widget/FormWidget.tsx:28
 msgid "Form designer is currently in an early beta stage. Use it with caution!"
-msgstr "Конструктор форм находится на ранней стадии бета-тестирования. Используйте с осторожностью!"
+msgstr ""
+"Конструктор форм находится на ранней стадии бета-тестирования. Используйте с "
+"осторожностью!"
 
-#: view.py:24
+#: view.py:23
 msgid "Download as NGFP"
 msgstr "Скачать NGFP"

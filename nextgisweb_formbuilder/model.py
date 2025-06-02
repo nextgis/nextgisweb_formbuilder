@@ -9,7 +9,7 @@ from msgspec import DecodeError as MsgspecDecodeErrror
 from msgspec import ValidationError as MsgspecValidationError
 from msgspec.json import decode as msgspec_json_decode
 
-from nextgisweb.env import Base, gettext, gettextf
+from nextgisweb.env import Base, gettext, gettextf, ngettextf
 from nextgisweb.lib.saext import Msgspec
 
 from nextgisweb.core.exception import InsufficientPermissions, ValidationError
@@ -24,11 +24,11 @@ from nextgisweb.file_upload import FileUploadRef
 from nextgisweb.resource import DataScope, Resource, ResourceScope, SAttribute, Serializer
 from nextgisweb.resource.category import FieldDataCollectionCategory
 
-from .element import FormbuilderFormItemUnion
+from .element import FieldKeyname, FormbuilderFormItemUnion
 
 
 class FormbuilderField(Struct):
-    keyname: str
+    keyname: FieldKeyname
     display_name: str
     datatype: FeatureLayerFieldDatatype
 
@@ -59,8 +59,12 @@ class FormbuilderFormValue(Struct, kw_only=True):
         fields_unbound = set(fields_mapping.keys())
         fields_bound = set()
 
-        def bind_field(keyname: str) -> None:
-            if (field := fields_mapping.get(keyname)) is None:
+        def bind_field(
+            keyname: FieldKeyname,
+            datatypes: tuple[FeatureLayerFieldDatatype, ...],
+        ) -> None:
+            field = fields_mapping.get(keyname)
+            if field is None:
                 raise ValidationError(gettextf("Unknown field '{}'.").format(keyname))
 
             if keyname in fields_bound:
@@ -74,6 +78,19 @@ class FormbuilderFormValue(Struct, kw_only=True):
                         dn=field.display_name,
                     )
                 )
+
+            if field.datatype not in datatypes:
+                msg = gettextf(
+                    "The {dt} data type of the '{dn}' field (keyname '{kn}') "
+                    "is not compatible with the element."
+                ).format(kn=keyname, dn=field.display_name, dt=field.datatype)
+                msg += ngettextf(
+                    "The element requires a field of type {}.",
+                    "The element requires a field of one of these types: {}.",
+                    len(datatypes),
+                ).format(", ".join(datatypes))
+                raise ValidationError(msg)
+
             fields_unbound.remove(keyname)
             fields_bound.add(keyname)
 

@@ -191,7 +191,7 @@ def test_struct(vector_layer, ngw_webtest_app):
 def test_fields_update(vector_layer, ngw_webtest_app):
     form_fields = [
         {"keyname": "f1", "datatype": "STRING", "display_name": "F1"},
-        {"keyname": "f2", "datatype": "INTEGER", "display_name": "F2"},
+        {"keyname": "f2", "datatype": "STRING", "display_name": "F2"},
     ]
     value = {
         "geometry_type": "POINT",
