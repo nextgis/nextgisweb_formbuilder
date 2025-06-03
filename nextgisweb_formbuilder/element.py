@@ -12,7 +12,6 @@ from typing import (
     Literal,
     Tuple,
     Type,
-    TypeVar,
     Union,
     cast,
 )
@@ -26,7 +25,6 @@ from nextgisweb.core.exception import ValidationError
 from nextgisweb.feature_layer import FIELD_TYPE, FeatureLayerFieldDatatype
 from nextgisweb.jsrealm import TSExport
 
-T = TypeVar("T", bound=Type["FormbuilderItem"])
 DatatypeTuple = Tuple[FeatureLayerFieldDatatype, ...]
 BindFieldCallback = Callable[[str, DatatypeTuple], None]
 
@@ -44,13 +42,9 @@ class FormbuilderItem(Struct, kw_only=True):
     field_specs: ClassVar[Tuple[Tuple[str, FieldSpec], ...]]
     legacy_type: ClassVar[str]
 
-    @classmethod
-    def register(cls, item: T) -> T:
-        cls.registry.append(item)
-        return item
-
     def __init_subclass__(cls, **kw):
         super().__init_subclass__(**kw)
+        cls.registry.append(cls)
         cls.field_specs = tuple(
             chain.from_iterable(
                 ((attr, extra) for extra in disannotate(tdef)[1] if isinstance(extra, FieldSpec))
@@ -72,7 +66,6 @@ class FormbuilderItem(Struct, kw_only=True):
         return data
 
 
-@FormbuilderItem.register
 class FormbuilderLabelItem(FormbuilderItem, tag="label"):
     legacy_type = "text_label"
 
@@ -101,7 +94,6 @@ class FormbuilderTab(Struct):
         return result
 
 
-@FormbuilderItem.register
 class FormbuilderTabsItem(FormbuilderItem, tag="tabs"):
     legacy_type = "tabs"
 
@@ -118,12 +110,10 @@ class FormbuilderTabsItem(FormbuilderItem, tag="tabs"):
         return result
 
 
-@FormbuilderItem.register
 class FormbuilderSpacerItem(FormbuilderItem, tag="spacer"):
     legacy_type = "space"
 
 
-@FormbuilderItem.register
 class FormbuilderTextboxItem(FormbuilderItem, tag="textbox", kw_only=True):
     legacy_type = "text_edit"
 
@@ -151,7 +141,6 @@ class FormbuilderTextboxItem(FormbuilderItem, tag="textbox", kw_only=True):
         return result
 
 
-@FormbuilderItem.register
 class FormbuilderCheckboxItem(FormbuilderItem, tag="checkbox", kw_only=True):
     legacy_type = "checkbox"
 
@@ -182,7 +171,6 @@ class FormbuilderCheckboxItem(FormbuilderItem, tag="checkbox", kw_only=True):
         return result
 
 
-@FormbuilderItem.register
 class FormbuilderSystemItem(FormbuilderItem, tag="system", kw_only=True):
     legacy_type = "text_edit"
 
@@ -215,7 +203,6 @@ class FormbuilderSystemItem(FormbuilderItem, tag="system", kw_only=True):
         return result
 
 
-@FormbuilderItem.register
 class FormbuilderDatetimeItem(FormbuilderItem, tag="datetime", kw_only=True):
     legacy_type = "date_time"
 
@@ -298,7 +285,6 @@ class OptionSingle(Struct, kw_only=True):
         return result
 
 
-@FormbuilderItem.register
 class FormbuilderRadioItem(FormbuilderItem, tag="radio", kw_only=True):
     legacy_type = "radio_group"
 
@@ -320,7 +306,6 @@ class FormbuilderRadioItem(FormbuilderItem, tag="radio", kw_only=True):
         return result
 
 
-@FormbuilderItem.register
 class FormbuilderDropdownItem(FormbuilderItem, tag="dropdown", kw_only=True):
     legacy_type = "combobox"
 
@@ -362,7 +347,6 @@ class OptionDual(Struct, kw_only=True):
         return result
 
 
-@FormbuilderItem.register
 class FormbuilderDropdownDualItem(FormbuilderItem, tag="dropdown_dual", kw_only=True):
     legacy_type = "split_combobox"
 
@@ -397,7 +381,6 @@ class CascadeOption(OptionSingle, kw_only=True):
         return result
 
 
-@FormbuilderItem.register
 class FormbuilderCascadeItem(FormbuilderItem, tag="cascade", kw_only=True):
     legacy_type = "double_combobox"
 
@@ -429,7 +412,6 @@ class FormbuilderCascadeItem(FormbuilderItem, tag="cascade", kw_only=True):
         return result
 
 
-@FormbuilderItem.register
 class FormbuilderCoordinatesItem(FormbuilderItem, tag="coordinates", kw_only=True):
     legacy_type = "coordinates"
 
@@ -461,7 +443,6 @@ class FormbuilderCoordinatesItem(FormbuilderItem, tag="coordinates", kw_only=Tru
         return result
 
 
-@FormbuilderItem.register
 class FormbuilderDistanceItem(FormbuilderItem, tag="distance", kw_only=True):
     legacy_type = "distance"
 
@@ -478,7 +459,6 @@ class FormbuilderDistanceItem(FormbuilderItem, tag="distance", kw_only=True):
     ]
 
 
-@FormbuilderItem.register
 class FormbuilderAverageItem(FormbuilderItem, tag="average", kw_only=True):
     legacy_type = "average_counter"
 
@@ -505,7 +485,6 @@ class FormbuilderAverageItem(FormbuilderItem, tag="average", kw_only=True):
         return result
 
 
-@FormbuilderItem.register
 class FormbuilderPhotoItem(FormbuilderItem, tag="photo", kw_only=True):
     legacy_type = "photo"
 
