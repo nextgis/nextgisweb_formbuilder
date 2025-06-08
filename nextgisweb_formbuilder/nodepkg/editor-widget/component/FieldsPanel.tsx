@@ -151,7 +151,7 @@ export const FieldsPanel = observer(
 
         return (
             <div
-                className="ngw-formbuilder-editor-widget-fields-panel"
+                className="ngw-formbuilder-editor-widget-panel ngw-formbuilder-editor-widget-panel-fields"
                 style={themeVariables}
             >
                 <div className="panel-header">
@@ -164,78 +164,71 @@ export const FieldsPanel = observer(
                         {msgAdd}
                     </Button>
                 </div>
-                <div className="fields-container">
-                    <div className="fields">
-                        {store.fields.map((field, i) => (
-                            <div key={field.keyname + i} className="field-row">
-                                <div className="status">
-                                    {getStatusIcon(field)}
-                                </div>
-                                <InputValue
-                                    className="display-name"
-                                    variant="borderless"
+                <div className="panel-body">
+                    {store.fields.map((field, i) => (
+                        <div key={field.keyname + i} className="field-row">
+                            <div className="status">{getStatusIcon(field)}</div>
+                            <InputValue
+                                className="display-name"
+                                variant="borderless"
+                                size="small"
+                                value={field.display_name}
+                                readOnly={field.existing}
+                                onChange={(value) => {
+                                    handleFieldChange(field.keyname, {
+                                        display_name: value,
+                                    });
+                                }}
+                            />
+                            <Select
+                                className="datatype"
+                                variant="borderless"
+                                options={typeOptions}
+                                suffixIcon={field.existing ? <></> : undefined}
+                                open={field.existing ? false : undefined}
+                                style={
+                                    field.existing
+                                        ? { cursor: "default" }
+                                        : undefined
+                                }
+                                defaultValue={
+                                    typeOptions[0]
+                                        .value as FeatureLayerFieldDatatype
+                                }
+                                value={field.datatype}
+                                onChange={(
+                                    value: FeatureLayerFieldDatatype
+                                ) => {
+                                    if (field.existing) return;
+                                    handleFieldChange(field.keyname, {
+                                        datatype: value,
+                                    });
+                                }}
+                            />
+
+                            <div className="action">
+                                <Button
                                     size="small"
-                                    value={field.display_name}
-                                    readOnly={field.existing}
-                                    onChange={(value) => {
-                                        handleFieldChange(field.keyname, {
-                                            display_name: value,
-                                        });
-                                    }}
-                                />
-                                <Select
-                                    className="datatype"
-                                    variant="borderless"
-                                    options={typeOptions}
-                                    suffixIcon={
-                                        field.existing ? <></> : undefined
+                                    type="text"
+                                    icon={
+                                        field.existing ? (
+                                            <ExistingFieldLockIcon />
+                                        ) : (
+                                            <RemoveIcon />
+                                        )
                                     }
-                                    open={field.existing ? false : undefined}
+                                    disabled={field.existing}
                                     style={
                                         field.existing
                                             ? { cursor: "default" }
                                             : undefined
                                     }
-                                    defaultValue={
-                                        typeOptions[0]
-                                            .value as FeatureLayerFieldDatatype
-                                    }
-                                    value={field.datatype}
-                                    onChange={(
-                                        value: FeatureLayerFieldDatatype
-                                    ) => {
-                                        if (field.existing) return;
-                                        handleFieldChange(field.keyname, {
-                                            datatype: value,
-                                        });
-                                    }}
+                                    onClick={() => deleteField(field)}
                                 />
-
-                                <div className="action">
-                                    <Button
-                                        size="small"
-                                        type="text"
-                                        icon={
-                                            field.existing ? (
-                                                <ExistingFieldLockIcon />
-                                            ) : (
-                                                <RemoveIcon />
-                                            )
-                                        }
-                                        disabled={field.existing}
-                                        style={
-                                            field.existing
-                                                ? { cursor: "default" }
-                                                : undefined
-                                        }
-                                        onClick={() => deleteField(field)}
-                                    />
-                                </div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
-
                 {store.fields.find((field) => !field.existing) &&
                     store.canUpdateFields && (
                         <div className="update-fields">

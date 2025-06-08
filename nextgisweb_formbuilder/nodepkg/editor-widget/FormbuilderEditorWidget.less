@@ -1,8 +1,50 @@
 .ngw-formbuilder-editor-widget {
-    display: flex;
+    display: inline-flex;
+    box-sizing: border-box;
     border: 1px solid var(--theme-color-border);
     border-radius: var(--theme-border-radius);
-    min-height: 300px;
+    min-width: 100%;
+    min-height: 350px;
+
+    &-panel {
+        display: flex;
+        flex-direction: column;
+
+        &-elements {
+            flex: 0 0 auto;
+            min-width: max-content;
+            min-height: 0;
+        }
+
+        &-fields {
+            flex: 1;
+            min-height: 0;
+        }
+
+        &-properties {
+            border-top: 1px solid var(--theme-color-border);
+            min-height: min-content;
+
+            .ant-input-number {
+                width: unset;
+            }
+        }
+
+        > .panel-header {
+            display: flex;
+            border-bottom: 1px solid var(--theme-color-border);
+            background-color: var(--theme-color-fill-alter);
+            padding: 6px 6px 6px 12px;
+            user-select: none;
+        }
+
+        > .panel-body {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+    }
 
     > .mockup-container {
         display: flex;
@@ -85,26 +127,8 @@
     > .fields-and-properties {
         display: flex;
         flex-direction: column;
-        width: 340px;
-
-        > .fields {
-            flex-grow: 1;
-            min-height: 0;
-
-            > .ngw-formbuilder-editor-widget-fields-panel {
-                max-height: 100%;
-            }
-        }
-
-        > .properties {
-            border-top: 1px solid var(--theme-color-border);
-        }
-    }
-
-    > .elements-panel {
-        min-width: 190px;
-        overflow-y: auto;
-        scrollbar-width: thin;
+        min-width: 250px;
+        max-width: 400px;
     }
 
     > .grabbed-input {
@@ -140,34 +164,27 @@
     }
 }
 
-.panel-header {
-    display: flex;
-    border-bottom: 1px solid var(--theme-color-border);
-    background-color: var(--theme-color-fill-alter);
-    padding: 6px 6px 6px 12px;
-}
-
-.form_element_fbwidget {
+.ngw-formbuilder-editor-widget-form-element {
     display: flex;
     align-items: center;
     gap: 6px;
     cursor: grab;
     border-radius: var(--theme-border-radius);
     background-color: white;
-    padding: 4px;
-    width: 180px;
+    padding-inline: 4px 8px;
+    padding-block: 4px;
     color: black;
     font-size: 14px;
     user-select: none;
-}
 
-.form_element_fbwidget:hover {
-    background-color: var(--theme-color-primary-bg);
-}
+    &:hover {
+        background-color: var(--theme-color-primary-bg);
+    }
 
-.form_element_fbwidget > img {
-    width: auto;
-    height: 25px;
+    > img {
+        width: auto;
+        height: 25px;
+    }
 }
 
 .ngw-formbuilder-editor-widget-mockup-element-wrapper {

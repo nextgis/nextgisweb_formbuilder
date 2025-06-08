@@ -166,9 +166,8 @@ export const FormbuilderEditorWidget = observer(
                 })}
                 style={themeVariables}
             >
-                <div className="elements-panel">
-                    <ElementsPanel store={store} />
-                </div>
+                <ElementsPanel store={store} />
+
                 <div className="mockup-container">
                     <div
                         className={"mockup"}
@@ -261,14 +260,8 @@ export const FormbuilderEditorWidget = observer(
                 </div>
 
                 <div className="fields-and-properties">
-                    <div className="fields">
-                        <FieldsPanel store={store} />
-                    </div>
-                    {store.selectedInput && (
-                        <div className="properties">
-                            <PropertiesPanel store={store} />
-                        </div>
-                    )}
+                    <FieldsPanel store={store} />
+                    {store.selectedInput && <PropertiesPanel store={store} />}
                 </div>
 
                 {dragging && grabbedInput && dragPos && (

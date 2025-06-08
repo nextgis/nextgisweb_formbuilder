@@ -104,7 +104,7 @@ export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
                 value={store.mode}
                 onChange={store.setMode}
             />
-            <div className="container">{modeComponent}</div>
+            {modeComponent}
         </div>
     );
 });

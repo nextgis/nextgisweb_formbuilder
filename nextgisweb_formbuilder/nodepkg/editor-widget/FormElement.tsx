@@ -14,7 +14,7 @@ export const FormElement: FC<FormElementProps> = observer(
     ({ data, icon, grabCallback }) => {
         return (
             <div
-                className={"form_element_fbwidget"}
+                className={"ngw-formbuilder-editor-widget-form-element"}
                 data-name={data.value.type}
                 onMouseDown={(e) => {
                     const name = e.currentTarget.dataset.name;

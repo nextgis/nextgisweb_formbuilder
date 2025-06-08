@@ -172,49 +172,51 @@ export const PropertiesPanel = observer(
         };
 
         return (
-            <div className="ngw-formbuilder-editor-widget-properties-panel">
+            <div className="ngw-formbuilder-editor-widget-panel ngw-formbuilder-editor-widget-panel-properties">
                 <div className="panel-header">{msgPropertiesHeader}</div>
-                {store.selectedInput && (
-                    <>
-                        <Form
-                            size="small"
-                            style={{ padding: "8px" }}
-                            layout="horizontal"
-                            labelAlign="left"
-                            labelCol={{ flex: "160px" }}
-                            labelWrap={true}
-                            autoComplete="off"
-                            name="basic"
-                            form={form}
-                            onFieldsChange={onFormChange}
-                        >
-                            {fieldsFromScheme.map((field, i) => (
-                                <Form.Item
-                                    style={{ marginBottom: "6px" }}
-                                    key={i}
-                                    label={field.label}
-                                    name={field.keyname}
-                                    valuePropName={
-                                        field.type === "boolean"
-                                            ? "checked"
-                                            : "value"
-                                    }
-                                >
-                                    {getPropertiesFormInput(
-                                        field,
-                                        store.selectedInput
-                                    )}
-                                </Form.Item>
-                            ))}
-                        </Form>
-                        <div>
-                            {store.selectedInput?.value?.type === "tabs" &&
-                            store.selectedInput ? (
-                                <TabsCustomModifier store={store} />
-                            ) : null}
-                        </div>
-                    </>
-                )}
+                <div className="panel-body">
+                    {store.selectedInput && (
+                        <>
+                            <Form
+                                size="small"
+                                style={{ padding: "8px" }}
+                                layout="horizontal"
+                                labelAlign="left"
+                                labelCol={{ flex: "160px" }}
+                                labelWrap={true}
+                                autoComplete="off"
+                                name="basic"
+                                form={form}
+                                onFieldsChange={onFormChange}
+                            >
+                                {fieldsFromScheme.map((field, i) => (
+                                    <Form.Item
+                                        style={{ marginBottom: "6px" }}
+                                        key={i}
+                                        label={field.label}
+                                        name={field.keyname}
+                                        valuePropName={
+                                            field.type === "boolean"
+                                                ? "checked"
+                                                : "value"
+                                        }
+                                    >
+                                        {getPropertiesFormInput(
+                                            field,
+                                            store.selectedInput
+                                        )}
+                                    </Form.Item>
+                                ))}
+                            </Form>
+                            <div>
+                                {store.selectedInput?.value?.type === "tabs" &&
+                                store.selectedInput ? (
+                                    <TabsCustomModifier store={store} />
+                                ) : null}
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
         );
     }

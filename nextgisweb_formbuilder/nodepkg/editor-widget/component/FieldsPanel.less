@@ -1,46 +1,31 @@
-.ngw-formbuilder-editor-widget-fields-panel {
-    display: flex;
-    flex-direction: column;
+.ngw-formbuilder-editor-widget-panel-fields {
+    > .panel-body {
+        > .field-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 4px;
 
-    > .fields-container {
-        flex-grow: 1;
-        min-height: 0;
-        overflow-y: auto;
-        scrollbar-width: thin;
-
-        &:last-child {
-            border-bottom: 1px solid var(--theme-color-border-secondary);
-        }
-
-        > .fields {
-            > .field-row {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                gap: 4px;
+            &:not(:last-child) {
                 border-bottom: 1px solid var(--theme-color-border-secondary);
-                padding: 2px 4px;
+            }
 
-                &:last-child {
-                    border-bottom: none;
-                }
+            > .status {
+                padding-inline-start: 4px;
+                min-width: 14px;
+            }
 
-                > .status {
-                    padding-inline-start: 4px;
-                    min-width: 14px;
-                }
+            > .display-name {
+                flex-grow: 1;
+            }
 
-                > .display-name {
-                    flex-grow: 1;
-                }
+            > .datatype {
+                min-width: 110px;
+            }
 
-                > .datatype {
-                    min-width: 110px;
-                }
-
-                > .action {
-                    min-width: 24px;
-                }
+            > .action {
+                min-width: 24px;
             }
         }
     }
