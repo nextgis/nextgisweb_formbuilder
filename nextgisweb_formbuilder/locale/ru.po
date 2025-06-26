@@ -1,4 +1,4 @@
-#: element.py:251
+#: element.py:315
 msgid "Invalid initial value: '{i}'. Expected a value matching the pattern for '{t}'."
 msgstr ""
 "Недопустимое начальное значение: '{i}'. Ожидалось значение, соответствующее "
@@ -45,8 +45,8 @@ msgstr ""
 "Поле '{dn}' (ключ '{kn}') не связано ни с одним элементом и должно быть "
 "удалено из формы."
 
-#: model.py:123 nodepkg/editor-widget/FormbuilderEditorWidget.tsx:291
-#: nodepkg/form-widget/FormWidget.tsx:113 view.py:20
+#: model.py:123 nodepkg/editor-widget/FormbuilderEditorWidget.tsx:284
+#: nodepkg/form-widget/FormWidget.tsx:143 view.py:20
 msgid "Form"
 msgstr "Форма"
 
@@ -306,23 +306,23 @@ msgstr "Зависимое поле"
 msgid "Dependent dropdowns"
 msgstr "Зависимые списки"
 
-#: nodepkg/form-widget/FormWidget.tsx:20
+#: nodepkg/form-widget/FormWidget.tsx:22
 msgid "Upload form"
 msgstr "Загрузить форму"
 
-#: nodepkg/form-widget/FormWidget.tsx:21
+#: nodepkg/form-widget/FormWidget.tsx:23
 msgid "Design form"
 msgstr "Редактировать форму"
 
-#: nodepkg/form-widget/FormWidget.tsx:24
+#: nodepkg/form-widget/FormWidget.tsx:26
 msgid "Select a form file"
 msgstr "Выберите файл формы"
 
-#: nodepkg/form-widget/FormWidget.tsx:25
+#: nodepkg/form-widget/FormWidget.tsx:27
 msgid "It should be in NGFP format."
 msgstr "Он должен быть в формате NGFP."
 
-#: nodepkg/form-widget/FormWidget.tsx:28
+#: nodepkg/form-widget/FormWidget.tsx:30
 msgid "Form designer is currently in an early beta stage. Use it with caution!"
 msgstr ""
 "Конструктор форм находится на ранней стадии бета-тестирования. Используйте с "

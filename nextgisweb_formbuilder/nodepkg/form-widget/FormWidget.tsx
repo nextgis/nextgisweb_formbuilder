@@ -1,9 +1,11 @@
 import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { FileUploader } from "@nextgisweb/file-upload/file-uploader";
 import { Select, Tooltip } from "@nextgisweb/gui/antd";
+import { errorModal } from "@nextgisweb/gui/error";
+import { route } from "@nextgisweb/pyramid/api";
 import { gettext } from "@nextgisweb/pyramid/i18n";
 import type { EditorWidget } from "@nextgisweb/resource/type";
 
@@ -49,6 +51,34 @@ const modeOptions = [
 
 export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
     const { mode } = store;
+
+    const [switchModeCounter, setSwitchModeCounter] = useState(0);
+
+    const handleModeChange = async (mode: "file" | "input") => {
+        const resourceId = store.composite.resourceId;
+        const { editorData } = store;
+
+        if (resourceId && switchModeCounter < 1) {
+            try {
+                const resourceData = await route(
+                    "formbuilder.formbuilder_form_convert"
+                ).post({ json: { resource: { id: resourceId } } });
+
+                store.load({ value: resourceData });
+                setSwitchModeCounter(switchModeCounter + 1);
+            } catch (error: any) {
+                errorModal(error);
+                return; // Abort switching mode
+            }
+            setSwitchModeCounter(switchModeCounter + 1);
+        }
+
+        if (switchModeCounter > 0) {
+            store.load({ value: editorData });
+        }
+
+        store.setMode(mode);
+    };
 
     const modeComponent = useMemo(() => {
         switch (mode) {
@@ -102,7 +132,7 @@ export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
                 style={{ width: "100%" }}
                 options={modeOptions}
                 value={store.mode}
-                onChange={store.setMode}
+                onChange={handleModeChange}
             />
             {modeComponent}
         </div>
