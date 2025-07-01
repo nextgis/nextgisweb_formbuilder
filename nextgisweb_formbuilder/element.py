@@ -522,7 +522,7 @@ class FormbuilderAverageItem(FormbuilderItem, tag="average", kw_only=True):
 class FormbuilderPhotoItem(FormbuilderItem, tag="photo", kw_only=True):
     legacy_type = "photo"
 
-    max_count: Annotated[int, Meta(ge=1, lt=20), LegacySpec(attr="gallery_size")]
+    max_count: Annotated[int, Meta(ge=1, le=20), LegacySpec(attr="gallery_size")]
     comment: Annotated[str, LegacySpec(attr="comment")]
 
 
