@@ -253,8 +253,8 @@ class FormbuilderSystemItem(FormbuilderItem, tag="system", kw_only=True):
 class FormbuilderDatetimeItem(FormbuilderItem, tag="datetime", kw_only=True):
     legacy_type = "date_time"
 
-    pat_date = r"[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|2[0-9]|3[0-1])"
-    pat_time = r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]"
+    pat_date = r"[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])"
+    pat_time = r"(?:[0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]"
     pat_datetime = pat_date + "T" + pat_time
     pat_current = "CURRENT"
 
