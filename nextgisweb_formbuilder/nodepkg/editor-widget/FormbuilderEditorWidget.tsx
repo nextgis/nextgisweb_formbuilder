@@ -136,7 +136,31 @@ export const FormbuilderEditorWidget = observer(
         }, [dragging, setDragPos]);
 
         useEffect(() => {
-            const handleMouseUp = () => {
+            const handleMouseUp = (event: MouseEvent) => {
+                const targetEl = event?.target as HTMLElement;
+
+                const regexInModalElements = /(drop-place|ant-select-item)/;
+
+                const isNewElementDrop =
+                    !store.isMoving &&
+                    regexInModalElements.test(targetEl?.className);
+
+                const isInModalDropdown = targetEl?.closest(
+                    ".ant-select-dropdown"
+                );
+
+                const isModalActive = targetEl?.closest(".ant-modal-wrap");
+                const isPopoverActive = targetEl?.closest(".ant-popover");
+
+                if (
+                    isNewElementDrop ||
+                    isModalActive ||
+                    isInModalDropdown ||
+                    isPopoverActive
+                ) {
+                    return;
+                }
+
                 store.setGrabbedInput(null);
                 store.setIsMoving(false);
                 store.setDragging(false);

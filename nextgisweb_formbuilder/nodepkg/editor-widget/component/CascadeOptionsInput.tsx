@@ -113,7 +113,6 @@ class ParentStore implements EdiTableStore<ParentRow> {
     setRowItemsByValue(targetValue: string, newItems: OptionSingle[]) {
         const updatedRows = this.rows.map((row) => {
             if (row.value === targetValue) {
-                // replace method doesnt work somehow, prolly fix needed
                 row.items = observable.array([...newItems]);
                 return row;
             } else {
@@ -128,7 +127,6 @@ class ParentStore implements EdiTableStore<ParentRow> {
     setRowItemsByKey(targetKey: number, newItems: OptionSingle[]) {
         const updatedRows = this.rows.map((row) => {
             if (row.key === targetKey) {
-                // replace method doesnt work somehow, prolly fix needed
                 row.items = observable.array([...newItems]);
                 return row;
             } else {
@@ -286,7 +284,7 @@ export const CascadeOptionsInput = observer(
                     centered={true}
                     title={msgOptions}
                     open={isModalOpen}
-                    destroyOnClose={true}
+                    destroyOnHidden={true}
                     footer={false}
                     onCancel={handleCancel}
                 >

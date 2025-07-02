@@ -15,11 +15,14 @@ import type {
     FormbuilderEditorField,
     FormbuilderEditorStore,
 } from "../FormbuilderEditorStore";
+import { elementsData } from "../element";
+import { fieldDataTypeOptions } from "../fields";
 import {
     getElementIdByField,
     isFieldOccupied,
 } from "../util/fieldRelatedOperations";
-import { getNewFieldKeynamePostfix } from "../util/newFieldKeyname";
+
+import { AddFieldModalButton } from "./AddFieldModalButton";
 
 import NewUsedFieldIcon from "@nextgisweb/icon/material/add_link/outline";
 import ExistingUsedFieldIcon from "@nextgisweb/icon/material/link/outline";
@@ -28,37 +31,11 @@ import ExistingFieldLockIcon from "@nextgisweb/icon/material/lock/outline";
 
 import "./FieldsPanel.less";
 
-const typeOptions: { value: string; label: string }[] = [
-    { value: "STRING", label: "STRING" },
-    { value: "INTEGER", label: "INTEGER" },
-    { value: "BIGINT", label: "BIGINT" },
-    { value: "REAL", label: "REAL" },
-    { value: "DATE", label: "DATE" },
-    { value: "TIME", label: "TIME" },
-    { value: "DATETIME", label: "DATETIME" },
-];
-
-const msgAdd = gettext("Add");
 const msgFieldsPanelHeader = gettext("Fields");
 const msgAddToLayer = gettext("Add absent fields to layer");
 
 export const FieldsPanel = observer(
     ({ store }: { store: FormbuilderEditorStore }) => {
-        const addField = () => {
-            const newFieldPostfix = getNewFieldKeynamePostfix(store.fields);
-
-            const newFieldItem: FormbuilderEditorField = {
-                display_name: `${gettext("Field")} ${newFieldPostfix}`,
-                keyname: `field_${newFieldPostfix}`,
-                datatype: "STRING",
-                existing: false,
-            };
-
-            const fields = store.fields;
-            store.setFields([...fields, newFieldItem]);
-            if (store.setDirty) store.setDirty(true);
-        };
-
         const handleFieldChange = (
             keyname: string,
             newData: Partial<FormbuilderEditorField>
@@ -143,6 +120,33 @@ export const FieldsPanel = observer(
             }
         };
 
+        const getFilteredFieldDataTypeOptions = (fieldKeyname: string) => {
+            const boundElementId = getElementIdByField(
+                fieldKeyname,
+                store.inputsTree
+            );
+            if (boundElementId === -1) {
+                return fieldDataTypeOptions;
+            }
+
+            const boundElement = store.getElementById(boundElementId);
+
+            const boundElementFieldProp = Object.entries(boundElement?.data)
+                .find(([_key, value]) => value === fieldKeyname)
+                ?.at(0);
+
+            const boundPropSchemaEntry = elementsData.find(
+                (el) => el.elementId === boundElement?.value.type
+            )?.schema[boundElementFieldProp as string];
+
+            const propAcceptableDatatypes = boundPropSchemaEntry?.datatypes;
+
+            return fieldDataTypeOptions.map((option) => ({
+                ...option,
+                disabled: !propAcceptableDatatypes?.includes(option.value),
+            }));
+        };
+
         const themeVariables = useThemeVariables({
             "theme-color-disabled": "colorTextDisabled",
             "theme-color-warning": "colorWarning",
@@ -156,78 +160,83 @@ export const FieldsPanel = observer(
             >
                 <div className="panel-header">
                     {msgFieldsPanelHeader}
-                    <Button
-                        size="small"
-                        style={{ marginInlineStart: "auto" }}
-                        onClick={addField}
-                    >
-                        {msgAdd}
-                    </Button>
+                    <AddFieldModalButton store={store} />
                 </div>
                 <div className="panel-body">
-                    {store.fields.map((field, i) => (
-                        <div key={field.keyname + i} className="field-row">
-                            <div className="status">{getStatusIcon(field)}</div>
-                            <InputValue
-                                className="display-name"
-                                variant="borderless"
-                                size="small"
-                                value={field.display_name}
-                                readOnly={field.existing}
-                                onChange={(value) => {
-                                    handleFieldChange(field.keyname, {
-                                        display_name: value,
-                                    });
-                                }}
-                            />
-                            <Select
-                                className="datatype"
-                                variant="borderless"
-                                options={typeOptions}
-                                suffixIcon={field.existing ? <></> : undefined}
-                                open={field.existing ? false : undefined}
-                                style={
-                                    field.existing
-                                        ? { cursor: "default" }
-                                        : undefined
-                                }
-                                defaultValue={
-                                    typeOptions[0]
-                                        .value as FeatureLayerFieldDatatype
-                                }
-                                value={field.datatype}
-                                onChange={(
-                                    value: FeatureLayerFieldDatatype
-                                ) => {
-                                    if (field.existing) return;
-                                    handleFieldChange(field.keyname, {
-                                        datatype: value,
-                                    });
-                                }}
-                            />
+                    {store.fields.map((field, i) => {
+                        const datatypeSelectOptions =
+                            getFilteredFieldDataTypeOptions(field.keyname);
 
-                            <div className="action">
-                                <Button
+                        const defaultValue =
+                            datatypeSelectOptions.find((opt) => !opt.disabled)
+                                ?.value || datatypeSelectOptions[0].value;
+                        return (
+                            <div key={field.keyname + i} className="field-row">
+                                <div className="status">
+                                    {getStatusIcon(field)}
+                                </div>
+                                <InputValue
+                                    className="display-name"
+                                    variant="borderless"
                                     size="small"
-                                    type="text"
-                                    icon={
-                                        field.existing ? (
-                                            <ExistingFieldLockIcon />
-                                        ) : (
-                                            <RemoveIcon />
-                                        )
+                                    value={field.display_name}
+                                    readOnly={field.existing}
+                                    onChange={(value) => {
+                                        handleFieldChange(field.keyname, {
+                                            display_name: value,
+                                        });
+                                    }}
+                                />
+                                <Select
+                                    className="datatype"
+                                    variant="borderless"
+                                    options={datatypeSelectOptions}
+                                    suffixIcon={
+                                        field.existing ? <></> : undefined
                                     }
-                                    disabled={field.existing}
+                                    open={field.existing ? false : undefined}
                                     style={
                                         field.existing
                                             ? { cursor: "default" }
                                             : undefined
                                     }
-                                    onClick={() => deleteField(field)}
+                                    defaultValue={
+                                        defaultValue as FeatureLayerFieldDatatype
+                                    }
+                                    value={field.datatype}
+                                    onChange={(
+                                        value: FeatureLayerFieldDatatype
+                                    ) => {
+                                        if (field.existing) return;
+                                        handleFieldChange(field.keyname, {
+                                            datatype: value,
+                                        });
+                                    }}
                                 />
+
+                                <div className="action">
+                                    <Button
+                                        size="small"
+                                        type="text"
+                                        icon={
+                                            field.existing ? (
+                                                <ExistingFieldLockIcon />
+                                            ) : (
+                                                <RemoveIcon />
+                                            )
+                                        }
+                                        disabled={field.existing}
+                                        style={
+                                            field.existing
+                                                ? { cursor: "default" }
+                                                : undefined
+                                        }
+                                        onClick={() => deleteField(field)}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
                 {store.fields.find((field) => !field.existing) &&
                     store.canUpdateFields && (

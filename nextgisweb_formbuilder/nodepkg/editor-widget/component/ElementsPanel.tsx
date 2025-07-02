@@ -5,7 +5,7 @@ import { gettext } from "@nextgisweb/pyramid/i18n";
 import { FormElement } from "../FormElement";
 import type { FormbuilderEditorStore } from "../FormbuilderEditorStore";
 import { elementsData, getNewTabsElement } from "../element";
-import type { FormElementData } from "../element";
+import type { ElementData, FormElementData } from "../element";
 
 const msgHeader = gettext("Elements");
 
@@ -15,10 +15,10 @@ export const ElementsPanel = observer(
             <div className="ngw-formbuilder-editor-widget-panel ngw-formbuilder-editor-widget-panel-elements">
                 <div className="panel-header">{msgHeader}</div>
                 <div className="panel-body">
-                    {elementsData.map((element) => (
+                    {elementsData.map((element: ElementData) => (
                         <FormElement
                             key={element.elementId}
-                            data={element.storeData}
+                            data={element}
                             icon={element.icon}
                             grabCallback={(input: FormElementData) => {
                                 if (input) {

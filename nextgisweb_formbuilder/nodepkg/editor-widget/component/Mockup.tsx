@@ -1,6 +1,7 @@
-import { Button } from "antd";
+import { Button, Modal } from "antd";
 import classNames from "classnames";
 import { observer } from "mobx-react-lite";
+import { useState } from "react";
 
 import { RemoveIcon } from "@nextgisweb/gui/icon";
 import { gettext } from "@nextgisweb/pyramid/i18n";
@@ -15,11 +16,13 @@ import type {
     GrabbedInputComposite,
     UIListItem,
 } from "../type";
-import { getNewFieldKeynamePostfix } from "../util/newFieldKeyname";
 
 import { DropPlace } from "./DropPlace";
+import { FieldPropertiesModalConent } from "./FieldPropertiesModalConent";
 
 import { HolderOutlined } from "@ant-design/icons";
+
+const msgDataBinging = gettext("Data binging");
 
 interface MockupProps {
     inputsWithId: FormBuilderUIData | null;
@@ -28,47 +31,12 @@ interface MockupProps {
 }
 
 // Utility functions
-
 const resetGrabState = (store: FormbuilderEditorStore) => {
     store.setGrabbedInput(null);
     store.setGrabbedSourceListId(null);
     store.setGrabbedIndex(null);
-};
-
-const addNewField = (store: FormbuilderEditorStore) => {
-    const newFieldPostfix = getNewFieldKeynamePostfix(store.fields);
-
-    const newFieldItem: FormbuilderEditorField = {
-        display_name: `${gettext("Field")} ${newFieldPostfix}`,
-        keyname: `field_${newFieldPostfix}`,
-        datatype: "STRING",
-        existing: false,
-    };
-
-    store.setFields([...store.fields, newFieldItem]);
-    if (store.setDirty) store.setDirty(true);
-};
-
-const createDroppingInput = (
-    store: FormbuilderEditorStore,
-    input: GrabbedInputComposite | undefined,
-    isMoving?: boolean
-): GrabbedInputComposite | undefined => {
-    if (!input) return undefined;
-
-    const getDroppingFieldValue = () => {
-        if (isMoving) return input.data?.field;
-        if (isNonFieldElement(input)) return undefined;
-        return "field_" + getNewFieldKeynamePostfix(store.fields);
-    };
-
-    return {
-        ...input,
-        data: {
-            ...input.data,
-            field: getDroppingFieldValue(),
-        },
-    };
+    store.setIsMoving(false);
+    store.setDragging(false);
 };
 
 // Drop position handlers
@@ -85,6 +53,7 @@ const getInputsForMoveBefore = (
     return [...pre, droppingInput, ...mid, ...post];
 };
 
+// To Do: make options object as argument
 const getInputsForMoveAfter = (
     inputs: UIListItem[],
     dropIndex: number,
@@ -98,6 +67,7 @@ const getInputsForMoveAfter = (
     return [...pre, ...mid, droppingInput, ...post];
 };
 
+// To Do: make options object as argument
 const handleDrop = (
     store: FormbuilderEditorStore,
     listId: number,
@@ -118,6 +88,7 @@ const handleDrop = (
     resetGrabState(store);
 };
 
+// To Do: make options object as argument
 const handleExistingPositionDrop = (
     store: FormbuilderEditorStore,
     listId: number,
@@ -127,7 +98,6 @@ const handleExistingPositionDrop = (
 ) => {
     if (!droppingInput || [0, 1].includes(dropIndex - grabbedIndex)) {
         resetGrabState(store);
-        // BUT SEEMS IN THIS CASE DROP CALLBACK STILL RUNS AND MAYBE ITS BAD
         return;
     }
 
@@ -154,14 +124,15 @@ const handleExistingPositionDrop = (
     resetGrabState(store);
 };
 
+// To Do: make options object as argument
 const handleDropLogic = (
     store: FormbuilderEditorStore,
     listId: number,
-    dropIndex: number
+    dropIndex?: number
 ) => {
     const { grabbedInput, grabbedSourceListId, grabbedIndex, isMoving } = store;
 
-    if (!grabbedInput) return;
+    if (!grabbedInput || dropIndex === undefined) return;
 
     const isExistingList = () => typeof grabbedSourceListId === "number";
     const isSameList = () => isExistingList() && grabbedSourceListId === listId;
@@ -177,44 +148,41 @@ const handleDropLogic = (
         grabbedInput.dropCallback();
     }
 
-    const droppingInputWithField = createDroppingInput(
-        store,
-        grabbedInput,
-        isMoving
-    );
-
-    if (!droppingInputWithField) {
+    if (!grabbedInput) {
         resetGrabState(store);
         return;
     }
 
-    if (!isMoving && !isNonFieldElement(droppingInputWithField)) {
-        addNewField(store);
-    }
-
     if (listId !== grabbedSourceListId) {
-        handleDrop(store, listId, dropIndex, droppingInputWithField);
+        handleDrop(store, listId, dropIndex, grabbedInput);
+
+        // setting new input as selected
+        if (!isMoving) store.setSelectedInput(grabbedInput);
         return;
     }
 
     if (grabbedIndex === null) {
-        handleDrop(store, listId, dropIndex, droppingInputWithField);
+        handleDrop(store, listId, dropIndex, grabbedInput);
     } else {
         handleExistingPositionDrop(
             store,
             listId,
             dropIndex,
             grabbedIndex,
-            droppingInputWithField
+            grabbedInput
         );
     }
 };
 
 // Render functions
+
+// To Do: make options object as argument
 const renderDropPlace = (
     store: FormbuilderEditorStore,
     index: number,
     listId: number,
+    setFieldsModalOpen: (val: boolean) => void,
+    setDropIndex: (val: number) => void,
     parentId?: number
 ) => {
     const handleDrop = () => {
@@ -228,7 +196,15 @@ const renderDropPlace = (
             return;
         }
 
-        handleDropLogic(store, listId, index);
+        // Create modal to setup fields of new dropping component
+        if (!store.isMoving && !isNonFieldElement(store.grabbedInput)) {
+            setFieldsModalOpen(true);
+            setDropIndex(index);
+            // first add element data to some modal related store or props
+            // then reset drag and drop stuff
+        } else {
+            handleDropLogic(store, listId, index);
+        }
     };
 
     return (
@@ -351,14 +327,78 @@ export const Mockup = observer(
     ({ inputsWithId, parentId, store }: MockupProps) => {
         if (!inputsWithId) return null;
 
+        const [isModalOpen, setIsModalOpen] = useState(false);
+        const [modalDataElementType, setModalDataElementType] =
+            useState<string>();
+
+        const [modalDataFieldsReady, setModalDataFieldsReady] = useState(false);
+
+        const [pendingNewFields, setPendingNewFields] = useState<
+            FormbuilderEditorField[]
+        >([]);
+
+        const handleSetPendingFields = (newField: FormbuilderEditorField) => {
+            setPendingNewFields([...pendingNewFields, newField]);
+        };
+
+        const handleSetFieldsInModal = (fields: Record<string, string>) => {
+            if (store.grabbedInput) {
+                const updatedGrabbedInput = {
+                    ...store.grabbedInput,
+                    value: store.grabbedInput.value,
+                    data: { ...store.grabbedInput?.data, ...fields },
+                };
+
+                store.setGrabbedInput(updatedGrabbedInput);
+
+                setModalDataFieldsReady(true);
+            }
+        };
+
+        const [dropIndex, setDropIndex] = useState<number>();
+
         const { list: inputs, listId } = inputsWithId;
 
         const renderList = [
             ...inputs.flatMap((input, i) => [
-                renderDropPlace(store, i, listId, parentId),
+                renderDropPlace(
+                    store,
+                    i,
+                    listId,
+                    setIsModalOpen,
+                    setDropIndex,
+                    parentId
+                ),
                 renderInputElement(store, input, i, listId),
             ]),
         ];
+
+        const filterPendingFieldsOnUsage = (
+            pendinNewFields: FormbuilderEditorField[]
+        ) => {
+            const grabbedInputSchema =
+                elementsData.find(
+                    (el) => el.elementId === store.grabbedInput?.value.type
+                )?.schema || {};
+
+            const fieldsProps = Object.entries(grabbedInputSchema)
+                .filter(([_key, value]) => value.type === "field")
+                .map(([key]) => key);
+
+            const filteredPendingFields = pendinNewFields.filter(
+                ({ keyname }) => {
+                    const grabbedFieldValues = Object.entries(
+                        store.grabbedInput?.data
+                    )
+                        .filter(([key]) => fieldsProps.includes(key))
+                        .map(([_key, value]) => value);
+
+                    return grabbedFieldValues.includes(keyname);
+                }
+            );
+
+            return filteredPendingFields;
+        };
 
         return (
             <>
@@ -367,8 +407,53 @@ export const Mockup = observer(
                     store,
                     renderList.length - 1,
                     listId,
+                    setIsModalOpen,
+                    setDropIndex,
                     parentId
                 )}
+                <Modal
+                    open={isModalOpen}
+                    destroyOnHidden={true}
+                    title={msgDataBinging}
+                    afterOpenChange={() => {
+                        setModalDataElementType(
+                            store?.grabbedInput?.value.type
+                        );
+                        store.setDragging(false);
+                    }}
+                    okButtonProps={{ disabled: !modalDataFieldsReady }}
+                    onOk={() => {
+                        setIsModalOpen(false);
+
+                        const filteredPendingFields =
+                            filterPendingFieldsOnUsage(pendingNewFields);
+
+                        store.setFields([
+                            ...store.fields,
+                            ...filteredPendingFields,
+                        ]);
+
+                        handleDropLogic(store, listId, dropIndex);
+                        resetGrabState(store);
+                        setModalDataFieldsReady(false);
+                        setPendingNewFields([]);
+                    }}
+                    onCancel={() => {
+                        setIsModalOpen(false);
+                        resetGrabState(store);
+                        setModalDataFieldsReady(false);
+                        setPendingNewFields([]);
+                    }}
+                >
+                    {modalDataElementType && (
+                        <FieldPropertiesModalConent
+                            store={store}
+                            type={modalDataElementType}
+                            setFieldsForInput={handleSetFieldsInModal}
+                            dispatchPendingNewField={handleSetPendingFields}
+                        />
+                    )}
+                </Modal>
             </>
         );
     }

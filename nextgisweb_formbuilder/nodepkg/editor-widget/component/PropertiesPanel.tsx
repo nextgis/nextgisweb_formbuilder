@@ -16,13 +16,21 @@ import { gettext } from "@nextgisweb/pyramid/i18n";
 
 import type { FormbuilderEditorStore } from "../FormbuilderEditorStore";
 import { allFieldProps, elementsData } from "../element";
+import type { SchemaEntry } from "../element";
+import type { UIListItem } from "../type";
 import { isFieldOccupied } from "../util/fieldRelatedOperations";
 
 import { CascadeOptionsInput } from "./CascadeOptionsInput";
+import { FieldSelectInput } from "./FieldSelectPropInput";
 import { OptionsInput } from "./OptionsInput";
 import { TabsCustomModifier } from "./TabsCustomModifier";
 
 const msgPropertiesHeader = gettext("Properties");
+
+export type SerializedFieldFromSchema = SchemaEntry & {
+    keyname: string;
+    formLabel: string;
+};
 
 export const PropertiesPanel = observer(
     ({ store }: { store: FormbuilderEditorStore }) => {
@@ -68,6 +76,7 @@ export const PropertiesPanel = observer(
         }, [form, store, store.fields]);
 
         const isFieldDisabled = (keyname: string) => {
+            // probably using data.field is wrong here, maybe other names
             if (keyname === store.selectedInput?.data?.field) {
                 return false;
             } else {
@@ -76,7 +85,6 @@ export const PropertiesPanel = observer(
         };
 
         const fieldOptions = [
-            { value: "-", label: "-" },
             ...store.fields.map((field) => ({
                 value: field.keyname as string,
                 label: field.display_name,
@@ -88,15 +96,13 @@ export const PropertiesPanel = observer(
             elementsData.find((el) => el.elementId === currentInputType)
                 ?.schema || {};
 
-        // MAKE TYPES FOR THIS
-        const fieldsFromScheme = Object.entries(currentInputSchema).map(
-            ([key, value]) => ({
-                keyname: key,
-                label: value.formLabel,
-                type: value.type,
-                ...value,
-            })
-        );
+        const fieldsFromSchema: SerializedFieldFromSchema[] = Object.entries(
+            currentInputSchema
+        ).map(([key, value]) => ({
+            keyname: key,
+            label: value.formLabel,
+            ...value,
+        }));
 
         const onFormChange = () => {
             if (store.selectedInput && store.selectedInput?.id) {
@@ -137,16 +143,53 @@ export const PropertiesPanel = observer(
             []
         );
 
-        // MAKE TYPES FOR THIS
-        const getPropertiesFormInput = (field: any, input?: any) => {
-            const { min, max, selectOptions } = field;
-            const datetimeType = input?.data?.datetime || "datetime";
+        const updateFieldInSelectedInput = (
+            newFieldKeyname: string,
+            propName: string
+        ) => {
+            const currentSelectedInput = store.selectedInput;
 
-            switch (field.type) {
+            if (currentSelectedInput && currentSelectedInput.id) {
+                const updatedSelectedInput = {
+                    id: currentSelectedInput?.id,
+                    value: currentSelectedInput?.value,
+                    data: {
+                        ...currentSelectedInput?.data,
+                        [propName]: newFieldKeyname,
+                    },
+                };
+
+                store.setSelectedInput(updatedSelectedInput);
+                form.validateFields().then((result) => {
+                    store.setNewElementData(
+                        currentSelectedInput.id as number,
+                        result
+                    );
+                });
+            }
+        };
+
+        const getPropertiesFormInput = (
+            prop: SerializedFieldFromSchema,
+            input?: UIListItem
+        ) => {
+            const { min, max, selectOptions } = prop;
+
+            const datetimeType = input?.data?.datetime || "datetime";
+            switch (prop.type) {
                 case "string":
                     return <Input />;
                 case "field":
-                    return <Select options={fieldOptions} />;
+                    return (
+                        <FieldSelectInput
+                            store={store}
+                            prop={prop}
+                            fieldOptions={fieldOptions}
+                            updateFieldInSelectedInput={
+                                updateFieldInSelectedInput
+                            }
+                        />
+                    );
                 case "boolean":
                     return <Checkbox />;
                 case "number":
@@ -158,12 +201,12 @@ export const PropertiesPanel = observer(
                         datetimeType as FormbuilderDatetimeItem["datetime"]
                     ];
                 case "options":
-                    return <OptionsInput columns={field.optionsColumns} />;
+                    return <OptionsInput columns={prop.optionsColumns} />;
                 case "cascade_options":
                     return (
                         <CascadeOptionsInput
-                            columns={field.optionsColumns}
-                            depColumns={field.dependentOptionsCoulmns}
+                            columns={prop.optionsColumns}
+                            depColumns={prop.dependentOptionsCoulmns}
                         />
                     );
                 default:
@@ -189,11 +232,11 @@ export const PropertiesPanel = observer(
                                 form={form}
                                 onFieldsChange={onFormChange}
                             >
-                                {fieldsFromScheme.map((field, i) => (
+                                {fieldsFromSchema.map((field, i) => (
                                     <Form.Item
                                         style={{ marginBottom: "6px" }}
                                         key={i}
-                                        label={field.label}
+                                        label={field.formLabel}
                                         name={field.keyname}
                                         valuePropName={
                                             field.type === "boolean"
@@ -201,10 +244,11 @@ export const PropertiesPanel = observer(
                                                 : "value"
                                         }
                                     >
-                                        {getPropertiesFormInput(
-                                            field,
-                                            store.selectedInput
-                                        )}
+                                        {store.selectedInput &&
+                                            getPropertiesFormInput(
+                                                field,
+                                                store.selectedInput
+                                            )}
                                     </Form.Item>
                                 ))}
                             </Form>

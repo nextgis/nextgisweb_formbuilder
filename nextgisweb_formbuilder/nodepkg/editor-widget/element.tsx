@@ -1,3 +1,5 @@
+import type { FC, ReactElement, ReactNode } from "react";
+
 import AverageIcon from "@nextgisweb/formbuilder/editor-widget/icon/average.svg";
 import CascadeIcon from "@nextgisweb/formbuilder/editor-widget/icon/cascade.svg";
 import CheckboxIcon from "@nextgisweb/formbuilder/editor-widget/icon/checkbox.svg";
@@ -81,7 +83,64 @@ interface ElementWrapperProps {
     onGrabDrop: () => GrabbedInputComposite | null;
 }
 
-export const elementsData = [
+type SelectOption = {
+    value: string;
+    label: string;
+};
+
+type OptionsColumn = {
+    key: string;
+    title: string;
+    width: string;
+    component: FC<any>;
+};
+
+export type SchemaEntry = {
+    type: string;
+    formLabel: string;
+    min?: number;
+    max?: number;
+    datatypes?: string[];
+    selectOptions?: SelectOption[];
+    optionsColumns?: OptionsColumn[];
+    dependentOptionsCoulmns?: OptionsColumn[];
+};
+
+export type Schema = {
+    [key: string]: SchemaEntry;
+};
+
+// Infer default value based on schema entry type
+type InferDefaultValue<T extends SchemaEntry> = T["type"] extends "boolean"
+    ? boolean
+    : T["type"] extends "select"
+      ? string
+      : T["type"] extends "options"
+        ? any[]
+        : T["type"] extends string
+          ? string | number | boolean | any[] | undefined
+          : unknown;
+
+// Infer storeData from a schema
+export type InferStoreData<S extends Schema> = {
+    value: {
+        name: string;
+        type: string;
+    };
+    data: {
+        [K in keyof S]: InferDefaultValue<S[K]>;
+    };
+};
+
+export type ElementData<S extends Schema = Schema> = {
+    elementId: string;
+    icon: ReactElement;
+    schema: S;
+    storeData: InferStoreData<S>;
+    render: FC<ElementWrapperProps>;
+};
+
+export const elementsData: ElementData[] = [
     {
         elementId: "label",
         icon: <LabelIcon />,
@@ -100,7 +159,7 @@ export const elementsData = [
                 label: gettext("Text"),
             } satisfies Omit<FormbuilderLabelItem, "type">,
         },
-        render: ({ input, store }: ElementWrapperProps) => {
+        render: ({ input, store }) => {
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -125,7 +184,7 @@ export const elementsData = [
             },
             data: {},
         },
-        render: ({ input, store }: ElementWrapperProps) => {
+        render: ({ input, store }) => {
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -148,7 +207,7 @@ export const elementsData = [
             },
             data: {},
         },
-        render: ({ input, onGrabDrop, store }: ElementWrapperProps) => {
+        render: ({ input, onGrabDrop, store }) => {
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -172,6 +231,7 @@ export const elementsData = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
+                datatypes: ["STRING"],
             },
             max_lines: {
                 type: "number",
@@ -199,7 +259,7 @@ export const elementsData = [
                 numbers_only: false,
             } satisfies Omit<FormbuilderTextboxItem, "type">,
         },
-        render: ({ store, input }: ElementWrapperProps) => {
+        render: ({ store, input }) => {
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -224,6 +284,7 @@ export const elementsData = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
+                datatypes: ["INTEGER", "BIGINT", "REAL", "STRING"],
             },
             initial: {
                 type: "boolean",
@@ -246,7 +307,7 @@ export const elementsData = [
                 remember: false,
             } satisfies Omit<FormbuilderCheckboxItem, "type">,
         },
-        render: ({ input, store }: ElementWrapperProps) => {
+        render: ({ input, store }) => {
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -272,6 +333,7 @@ export const elementsData = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
+                datatypes: ["STRING", "DATE", "TIME", "DATETIME"],
             },
             datetime: {
                 type: "select",
@@ -303,7 +365,7 @@ export const elementsData = [
                 remember: false,
             } satisfies Omit<FormbuilderDatetimeItem, "type">,
         },
-        render: ({ input, store }: ElementWrapperProps) => {
+        render: ({ input, store }) => {
             type Datetime = FormbuilderDatetimeItem["datetime"];
             const datetime = input.data?.datetime as Datetime;
             return (
@@ -326,10 +388,12 @@ export const elementsData = [
             field_lon: {
                 type: "field",
                 formLabel: gettext("Longitude field"),
+                datatypes: ["STRING", "REAL"],
             },
             field_lat: {
                 type: "field",
                 formLabel: gettext("Lattitude field"),
+                datatypes: ["STRING", "REAL"],
             },
             hidden: {
                 type: "boolean",
@@ -347,7 +411,7 @@ export const elementsData = [
                 hidden: false,
             } satisfies Omit<FormbuilderCoordinatesItem, "type">,
         },
-        render: ({ input, store }: ElementWrapperProps) => {
+        render: ({ input, store }) => {
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -374,6 +438,7 @@ export const elementsData = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
+                datatypes: ["INTEGER", "BIGINT", "REAL", "STRING"],
             },
         },
         storeData: {
@@ -385,7 +450,7 @@ export const elementsData = [
                 field: "",
             } satisfies Omit<FormbuilderDistanceItem, "type">,
         },
-        render: ({ input, store }: ElementWrapperProps) => {
+        render: ({ input, store }) => {
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -406,6 +471,7 @@ export const elementsData = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
+                datatypes: ["INTEGER", "BIGINT", "REAL", "STRING"],
             },
             samples: {
                 type: "number",
@@ -423,7 +489,7 @@ export const elementsData = [
                 samples: 2,
             } satisfies Omit<FormbuilderAverageItem, "type">,
         },
-        render: ({ input, store }: ElementWrapperProps) => {
+        render: ({ input, store }) => {
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -453,6 +519,7 @@ export const elementsData = [
                 type: "number",
                 formLabel: gettext("Max number"),
                 min: 1,
+                max: 20,
             },
             comment: {
                 type: "string",
@@ -469,7 +536,7 @@ export const elementsData = [
                 comment: "",
             } satisfies Omit<FormbuilderPhotoItem, "type">,
         },
-        render: ({ input, store }: ElementWrapperProps) => {
+        render: ({ input, store }) => {
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -495,6 +562,7 @@ export const elementsData = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
+                datatypes: ["STRING"],
             },
             system: {
                 type: "select",
@@ -515,7 +583,7 @@ export const elementsData = [
                 system: "ngid_username",
             } satisfies Omit<FormbuilderSystemItem, "type">,
         },
-        render: ({ input, store }: ElementWrapperProps) => {
+        render: ({ input, store }) => {
             const placeholder = (systemItemTypes.find(
                 ([v]) => v === input.data.system
             ) ?? [undefined, undefined])[1];
@@ -539,6 +607,7 @@ export const elementsData = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
+                datatypes: ["STRING"],
             },
             remember: {
                 type: "boolean",
@@ -566,7 +635,11 @@ export const elementsData = [
                         key: "label",
                         title: gettext("Label"),
                         width: "45%",
-                        component: ({ row }: { row: OptionsRow }) => (
+                        component: ({
+                            row,
+                        }: {
+                            row: OptionsRow;
+                        }): ReactNode => (
                             <OptionsInputValueStringProp
                                 row={row}
                                 columnKey={"label"}
@@ -595,7 +668,7 @@ export const elementsData = [
                 options: [],
             } satisfies Omit<FormbuilderDropdownItem, "type">,
         },
-        render: ({ input, store }: ElementWrapperProps) => {
+        render: ({ input, store }) => {
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -616,6 +689,7 @@ export const elementsData = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
+                datatypes: ["STRING"],
             },
             remember: {
                 type: "boolean",
@@ -643,7 +717,11 @@ export const elementsData = [
                         key: "first",
                         title: gettext("First label"),
                         width: "30%",
-                        component: ({ row }: { row: OptionsRow }) => (
+                        component: ({
+                            row,
+                        }: {
+                            row: OptionsRow;
+                        }): ReactNode => (
                             <OptionsInputValueStringProp
                                 row={row}
                                 columnKey={"first"}
@@ -654,7 +732,11 @@ export const elementsData = [
                         key: "second",
                         title: gettext("Second label"),
                         width: "30%",
-                        component: ({ row }: { row: OptionsRow }) => (
+                        component: ({
+                            row,
+                        }: {
+                            row: OptionsRow;
+                        }): ReactNode => (
                             <OptionsInputValueStringProp
                                 row={row}
                                 columnKey={"second"}
@@ -683,7 +765,7 @@ export const elementsData = [
                 options: [],
             } satisfies Omit<FormbuilderDropdownDualItem, "type">,
         },
-        render: ({ input, store }: ElementWrapperProps) => {
+        render: ({ input, store }) => {
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -704,6 +786,7 @@ export const elementsData = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
+                datatypes: ["STRING"],
             },
             remember: {
                 type: "boolean",
@@ -724,7 +807,11 @@ export const elementsData = [
                         key: "label",
                         title: gettext("Label"),
                         width: "45%",
-                        component: ({ row }: { row: OptionsRow }) => (
+                        component: ({
+                            row,
+                        }: {
+                            row: OptionsRow;
+                        }): ReactNode => (
                             <OptionsInputValueStringProp
                                 row={row}
                                 columnKey={"label"}
@@ -751,7 +838,7 @@ export const elementsData = [
                 options: [],
             } satisfies Omit<FormbuilderRadioItem, "type">,
         },
-        render: ({ input, store }: ElementWrapperProps) => {
+        render: ({ input, store }) => {
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -786,10 +873,12 @@ export const elementsData = [
             field_primary: {
                 type: "field",
                 formLabel: gettext("Primary field"),
+                datatypes: ["STRING"],
             },
             field_secondary: {
                 type: "field",
                 formLabel: gettext("Secondary field"),
+                datatypes: ["STRING"],
             },
             remember: {
                 type: "boolean",
@@ -863,7 +952,7 @@ export const elementsData = [
                 options: [],
             } satisfies Omit<FormbuilderCascadeItem, "type">,
         },
-        render: ({ input, store }: ElementWrapperProps) => {
+        render: ({ input, store }) => {
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -896,7 +985,12 @@ export const allFieldProps = [
 ];
 
 const nonFieldTypes = elementsData
-    .filter((element) => element.storeData.data?.field === undefined)
+    .filter(
+        (element) =>
+            !Object.keys(element.storeData.data).find((key) =>
+                allFieldProps.includes(key)
+            )
+    )
     .map((element) => element.storeData.value.type);
 
 export const isNonFieldElement = (input: GrabbedInputComposite | null) => {

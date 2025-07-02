@@ -1,4 +1,3 @@
-// types for new widget
 export type UIListItem = {
     value: {
         type: string;

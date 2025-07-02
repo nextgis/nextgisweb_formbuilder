@@ -1,5 +1,3 @@
-import { isNull } from "lodash-es";
-
 import type {
     FormbuilderDatetimeItem,
     FormbuilderFormItem,
@@ -14,7 +12,7 @@ export type SerializedResult = Array<FormbuilderTabsItem | FormbuilderFormItem>;
 const processDateTimeInitial = (elementData: FormbuilderDatetimeItem) => {
     const value = elementData.initial;
 
-    if (isNull(value)) return "CURRENT";
+    if (!value) return undefined;
 
     switch (elementData.datetime) {
         case "date":
@@ -38,7 +36,8 @@ const getDateTimeParseFormat = (elementData: FormbuilderDatetimeItem) => {
 };
 
 const convertDateTimeInitialtoUI = (elementData: FormbuilderDatetimeItem) => {
-    if (elementData.initial === "CURRENT") return null;
+    if (elementData.initial === "CURRENT") return undefined;
+    if (!elementData.initial) return undefined;
 
     return dayjs(elementData.initial, getDateTimeParseFormat(elementData));
 };

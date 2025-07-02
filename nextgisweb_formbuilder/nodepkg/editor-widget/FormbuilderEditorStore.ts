@@ -351,6 +351,7 @@ export class FormbuilderEditorStore {
         });
     }
 
+    @action.bound
     setNewElementData(id: number, newData: any) {
         const newInputsTree = updateElementById(
             this.inputsTree,
@@ -370,6 +371,7 @@ export class FormbuilderEditorStore {
         });
     }
 
+    @action.bound
     setNewElementValue(id: number, newValue: any) {
         const newInputsTree = updateElementById(
             this.inputsTree,
