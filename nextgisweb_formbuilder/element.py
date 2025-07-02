@@ -73,8 +73,13 @@ class FormbuilderItem(Struct, kw_only=True):
         for attr, spec, collection_cls in cls.legacy_specs:
             obj = li["attributes"][spec.attr]
             if collection_cls is not None:
-                obj = [collection_cls.from_legacy(i) for i in obj]
-            attrs[attr] = obj
+                if obj is not None:
+                    value = [collection_cls.from_legacy(i) for i in obj]
+                else:
+                    value = []
+            else:
+                value = obj
+            attrs[attr] = value
         return attrs
 
     @classmethod
@@ -108,8 +113,12 @@ class FormbuilderItem(Struct, kw_only=True):
             if value is UNSET:
                 if spec.default is UNSET:
                     continue
-                value = spec.default
-            attributes[spec.attr] = value
+                legacy_value = spec.default
+            elif collection_cls is not None:
+                legacy_value = [i.to_legacy() for i in value]
+            else:
+                legacy_value = value
+            attributes[spec.attr] = legacy_value
         return data
 
 
@@ -160,6 +169,11 @@ class FormbuilderTabsItem(FormbuilderItem, tag="tabs"):
         super().validate(bind_field=bind_field)
         for tab in self.tabs:
             tab.validate(bind_field=bind_field)
+
+    def to_legacy(self) -> Dict[str, Any]:
+        result = super().to_legacy()
+        result["pages"] = [i.to_legacy() for i in self.tabs]
+        return result
 
 
 class FormbuilderSpacerItem(FormbuilderItem, tag="spacer"):

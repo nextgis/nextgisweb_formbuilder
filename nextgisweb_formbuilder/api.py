@@ -15,7 +15,7 @@ from nextgisweb.resource import (
     resource_factory,
 )
 
-from .element import FormbuilderItem
+from .element import FormbuilderItem, FormbuilderLabelItem
 from .model import FormbuilderForm, FormbuilderFormValue
 
 
@@ -73,8 +73,10 @@ def formbuilder_form_convert(request, *, body: NGFPConvertBody) -> FormbuilderFo
     items = []
     for fi in form:
         if fi["type"] in ("counter", "signature"):
-            continue
-        items.append(FormbuilderItem.from_legacy(fi))
+            item = FormbuilderLabelItem(label="UNSUPPORTED")
+        else:
+            item = FormbuilderItem.from_legacy(fi)
+        items.append(item)
 
     return FormbuilderFormValue(
         geometry_type=meta["geometry_type"],
