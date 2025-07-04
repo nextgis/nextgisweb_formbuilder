@@ -170,6 +170,11 @@ export const FieldsPanel = observer(
                         const defaultValue =
                             datatypeSelectOptions.find((opt) => !opt.disabled)
                                 ?.value || datatypeSelectOptions[0].value;
+
+                        const deletable =
+                            !field.existing &&
+                            !isFieldOccupied(field.keyname, store.inputsTree);
+
                         return (
                             <div key={field.keyname + i} className="field-row">
                                 <div className="status">
@@ -219,17 +224,17 @@ export const FieldsPanel = observer(
                                         size="small"
                                         type="text"
                                         icon={
-                                            field.existing ? (
-                                                <ExistingFieldLockIcon />
-                                            ) : (
+                                            deletable ? (
                                                 <RemoveIcon />
+                                            ) : (
+                                                <ExistingFieldLockIcon />
                                             )
                                         }
-                                        disabled={field.existing}
+                                        disabled={!deletable}
                                         style={
-                                            field.existing
-                                                ? { cursor: "default" }
-                                                : undefined
+                                            deletable
+                                                ? undefined
+                                                : { cursor: "default" }
                                         }
                                         onClick={() => deleteField(field)}
                                     />
