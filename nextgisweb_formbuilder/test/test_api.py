@@ -117,7 +117,6 @@ def test_struct(vector_layer, ngw_webtest_app):
                 "field": "f1",
                 "remember": False,
                 "max_lines": 1,
-                "numbers_only": True,
             },
             {
                 "type": "tabs",
@@ -202,14 +201,12 @@ def test_fields_update(vector_layer, ngw_webtest_app):
                 "field": "f1",
                 "remember": False,
                 "max_lines": 1,
-                "numbers_only": True,
             },
             {
                 "type": "textbox",
                 "field": "f2",
                 "remember": False,
                 "max_lines": 1,
-                "numbers_only": True,
             },
         ],
     }

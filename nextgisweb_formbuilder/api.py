@@ -1,11 +1,6 @@
-from io import BytesIO
-from zipfile import ZIP_DEFLATED, ZipFile
-
 from msgspec import Struct
 from pyramid.response import FileResponse, Response
 from sqlalchemy.orm.exc import NoResultFound
-
-from nextgisweb.lib.json import dumpb, loadb
 
 from nextgisweb.resource import (
     DataScope,
@@ -15,7 +10,6 @@ from nextgisweb.resource import (
     resource_factory,
 )
 
-from .element import FormbuilderItem, FormbuilderLabelItem
 from .model import FormbuilderForm, FormbuilderFormValue
 
 
@@ -23,30 +17,12 @@ def formbuilder_form_ngfp(resource, request):
     request.resource_permission(ResourceScope.read)
 
     if ngfp := resource.value:
-        buf = BytesIO()
-        with ZipFile(buf, "w", ZIP_DEFLATED) as zf:
-            meta = dict(
-                version="2.2",
-                name=resource.display_name,
-                geometry_type=ngfp.geometry_type,
-                fields=ngfp.fields,
-                translations=[],
-                srs=dict(id=4326),
-                ngw_connection=None,
-                lists=None,
-                key_list=None,
-            )
-            zf.writestr("meta.json", dumpb(meta))
-            items = [i.to_legacy() for i in ngfp.items]
-            zf.writestr("form.json", dumpb(items))
-            zf.writestr("data.geojson", "")
-        response = Response(buf.getvalue())
-
+        data = ngfp.to_legacy(resource.display_name)
+        response = Response(data)
     else:
         response = FileResponse(resource.ngfp_fileobj.filename(), request=request)
 
     response.content_disposition = "attachment; filename=%d.ngfp" % resource.id
-
     return response
 
 
@@ -66,23 +42,7 @@ def formbuilder_form_convert(request, *, body: NGFPConvertBody) -> FormbuilderFo
         return res.value
 
     fn = res.ngfp_fileobj.filename()
-    with ZipFile(fn, "r") as z:
-        meta = loadb(z.read("meta.json"))
-        form = loadb(z.read("form.json"))
-
-    items = []
-    for fi in form:
-        if fi["type"] in ("counter", "signature"):
-            item = FormbuilderLabelItem(label="UNSUPPORTED")
-        else:
-            item = FormbuilderItem.from_legacy(fi)
-        items.append(item)
-
-    return FormbuilderFormValue(
-        geometry_type=meta["geometry_type"],
-        fields=meta["fields"],
-        items=items,
-    )
+    return FormbuilderFormValue.from_legacy(fn)
 
 
 def setup_pyramid(comp, config):

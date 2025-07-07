@@ -230,16 +230,12 @@ export const elementsData: ElementData[] = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
-                datatypes: ["STRING"],
+                datatypes: ["INTEGER", "BIGINT", "REAL", "STRING"],
             },
             max_lines: {
                 type: "number",
                 formLabel: gettext("Max. lines"),
                 min: 1,
-            },
-            numbers_only: {
-                type: "boolean",
-                formLabel: gettext("Numbers only"),
             },
             remember: {
                 type: "boolean",
@@ -255,7 +251,6 @@ export const elementsData: ElementData[] = [
                 field: "",
                 remember: false,
                 max_lines: 1,
-                numbers_only: false,
             } satisfies Omit<FormbuilderTextboxItem, "type">,
         },
         render: ({ store, input }) => {

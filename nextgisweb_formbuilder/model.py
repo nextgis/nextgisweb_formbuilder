@@ -1,6 +1,7 @@
+from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, List, Union
-from zipfile import BadZipFile, ZipFile
+from zipfile import ZIP_DEFLATED, BadZipFile, ZipFile
 
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
@@ -10,10 +11,12 @@ from msgspec import ValidationError as MsgspecValidationError
 from msgspec.json import decode as msgspec_json_decode
 
 from nextgisweb.env import Base, gettext, gettextf, ngettextf
+from nextgisweb.lib.json import dumpb, loadb
 from nextgisweb.lib.saext import Msgspec
 
 from nextgisweb.core.exception import InsufficientPermissions, ValidationError
 from nextgisweb.feature_layer import (
+    FIELD_TYPE,
     FeatureLayerFieldDatatype,
     FeaureLayerGeometryType,
     IFeatureLayer,
@@ -24,7 +27,13 @@ from nextgisweb.file_upload import FileUploadRef
 from nextgisweb.resource import DataScope, Resource, ResourceScope, SAttribute, Serializer
 from nextgisweb.resource.category import FieldDataCollectionCategory
 
-from .element import FieldKeyname, FormbuilderFormItemUnion
+from .element import (
+    FieldKeyname,
+    FormbuilderFormItemUnion,
+    FormbuilderItem,
+    FormbuilderLabelItem,
+    FormbuilderTextboxItem,
+)
 
 
 class FormbuilderField(Struct):
@@ -106,6 +115,66 @@ class FormbuilderFormValue(Struct, kw_only=True):
                     "element and must be removed from the form."
                 ).format(kn=kn, dn=dn)
             )
+
+    def field_by_keyname(self, keyname):
+        for f in self.fields:
+            if f.keyname == keyname:
+                return f
+        raise KeyError
+
+    @classmethod
+    def from_legacy(cls, filename) -> "FormbuilderFormValue":
+        with ZipFile(filename, "r") as z:
+            meta = loadb(z.read("meta.json"))
+            form = loadb(z.read("form.json"))
+
+        items = []
+        for fi in form:
+            if fi["type"] in ("counter", "signature"):
+                item = FormbuilderLabelItem(label="UNSUPPORTED")
+            else:
+                item = FormbuilderItem.from_legacy(fi)
+            items.append(item)
+
+        return cls(
+            geometry_type=meta["geometry_type"],
+            fields=meta["fields"],
+            items=items,
+        )
+
+    def to_legacy(self, name: str) -> bytes:
+        buf = BytesIO()
+        with ZipFile(buf, "w", ZIP_DEFLATED) as zf:
+            meta = dict(
+                version="2.2",
+                name=name,
+                geometry_type=self.geometry_type,
+                fields=self.fields,
+                translations=[],
+                srs=dict(id=4326),
+                ngw_connection=None,
+                lists=None,
+                key_list=None,
+            )
+            zf.writestr("meta.json", dumpb(meta))
+
+            legacy_items = []
+            for i in self.items:
+                li = i.to_legacy()
+                if isinstance(i, FormbuilderTextboxItem):
+                    field = self.field_by_keyname(i.field)
+                    is_number = field.datatype in (
+                        FIELD_TYPE.INTEGER,
+                        FIELD_TYPE.BIGINT,
+                        FIELD_TYPE.REAL,
+                    )
+                    li["attributes"]["only_figures"] = is_number
+                legacy_items.append(li)
+            zf.writestr("form.json", dumpb(legacy_items))
+
+            zf.writestr("data.geojson", "")
+
+        return buf.getvalue()
 
 
 NGFP_MAX_SIZE = 10 * 1 << 20

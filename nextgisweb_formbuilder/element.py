@@ -185,13 +185,19 @@ class FormbuilderTextboxItem(FormbuilderItem, tag="textbox", kw_only=True):
 
     field: Annotated[
         FieldKeyname,
-        FieldSpec(datatypes=(FIELD_TYPE.STRING,)),
+        FieldSpec(
+            datatypes=(
+                FIELD_TYPE.INTEGER,
+                FIELD_TYPE.BIGINT,
+                FIELD_TYPE.REAL,
+                FIELD_TYPE.STRING,
+            ),
+        ),
         LegacySpec(attr="field"),
     ]
     remember: Remember
     initial: Annotated[Union[str, UnsetType], LegacySpec(attr="text", default="")] = UNSET
     max_lines: Annotated[int, Meta(ge=1, lt=256), LegacySpec(attr="max_string_count")]
-    numbers_only: Annotated[bool, LegacySpec(attr="only_figures")]
 
     def to_legacy(self) -> Dict[str, Any]:
         result = super().to_legacy()
@@ -251,7 +257,6 @@ class FormbuilderSystemItem(FormbuilderItem, tag="system", kw_only=True):
                 "last": False,
                 "text": "",
                 "max_string_count": 1,
-                "only_figures": False,
             },
             **{
                 a: self.system == b
