@@ -62,8 +62,7 @@ export type FormElementData = {
     data: any;
 };
 
-interface StubProps
-    extends Pick<InputProps, "style" | "placeholder" | "suffix"> {}
+type StubProps = Pick<InputProps, "style" | "placeholder" | "suffix">;
 
 function Stub({ style, ...props }: StubProps) {
     return (
