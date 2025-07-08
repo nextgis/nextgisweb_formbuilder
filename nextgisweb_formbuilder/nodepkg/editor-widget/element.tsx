@@ -237,6 +237,10 @@ export const elementsData: ElementData[] = [
                 formLabel: gettext("Max. lines"),
                 min: 1,
             },
+            initial: {
+                type: "string",
+                formLabel: gettext("Initial value"),
+            },
             remember: {
                 type: "boolean",
                 formLabel: gettext("Remember last value"),
@@ -249,6 +253,7 @@ export const elementsData: ElementData[] = [
             },
             data: {
                 field: "",
+                initial: "",
                 remember: false,
                 max_lines: 1,
             } satisfies Omit<FormbuilderTextboxItem, "type">,

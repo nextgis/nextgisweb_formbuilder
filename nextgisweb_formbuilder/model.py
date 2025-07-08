@@ -1,3 +1,4 @@
+import math
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, List, Union
@@ -162,6 +163,16 @@ class FormbuilderFormValue(Struct, kw_only=True):
                         FIELD_TYPE.REAL,
                     )
                     li["attributes"]["only_figures"] = is_number
+                    if is_number and i.initial is not UNSET:
+                        try:
+                            if field.datatype == FIELD_TYPE.REAL:
+                                v = float(i.initial)
+                                if math.isnan(v) or math.isinf(v):
+                                    raise ValueError
+                            else:
+                                int(i.initial)
+                        except ValueError:
+                            li["attributes"]["text"] = ""
                 legacy_items.append(li)
             zf.writestr("form.json", dumpb(legacy_items))
 
