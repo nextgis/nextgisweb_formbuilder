@@ -84,18 +84,21 @@ class FormbuilderItem(Struct, kw_only=True):
 
     @classmethod
     def from_legacy(cls, li):
-        if li["type"] == "text_edit":
-            if li["attributes"]["ngid_login"] or li["attributes"]["ngw_login"]:
-                item_cls = FormbuilderSystemItem
-            else:
-                item_cls = FormbuilderTextboxItem
-        else:
-            for c in cls.registry:
-                if c.legacy_type == li["type"]:
-                    item_cls = c
-                    break
-            else:
-                raise ValueError(f"Unknown item type {li['type']}.")
+        match li["type"]:
+            case "counter" | "signature":
+                return FormbuilderLabelItem(label="UNSUPPORTED")
+            case "text_edit":
+                if li["attributes"]["ngid_login"] or li["attributes"]["ngw_login"]:
+                    item_cls = FormbuilderSystemItem
+                else:
+                    item_cls = FormbuilderTextboxItem
+            case _:
+                for c in cls.registry:
+                    if c.legacy_type == li["type"]:
+                        item_cls = c
+                        break
+                else:
+                    raise ValueError(f"Unknown item type {li['type']}.")
 
         attrs = item_cls.attrs_from_legacy(li)
         return item_cls(**attrs)

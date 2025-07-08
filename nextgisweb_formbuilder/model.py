@@ -31,7 +31,6 @@ from .element import (
     FieldKeyname,
     FormbuilderFormItemUnion,
     FormbuilderItem,
-    FormbuilderLabelItem,
     FormbuilderTextboxItem,
 )
 
@@ -128,13 +127,7 @@ class FormbuilderFormValue(Struct, kw_only=True):
             meta = loadb(z.read("meta.json"))
             form = loadb(z.read("form.json"))
 
-        items = []
-        for fi in form:
-            if fi["type"] in ("counter", "signature"):
-                item = FormbuilderLabelItem(label="UNSUPPORTED")
-            else:
-                item = FormbuilderItem.from_legacy(fi)
-            items.append(item)
+        items = [FormbuilderItem.from_legacy(i) for i in form]
 
         return cls(
             geometry_type=meta["geometry_type"],
