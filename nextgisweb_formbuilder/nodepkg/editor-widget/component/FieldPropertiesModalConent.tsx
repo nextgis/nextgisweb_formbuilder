@@ -18,7 +18,6 @@ import type {
     FormbuilderEditorStore,
 } from "../FormbuilderEditorStore";
 import { elementsData } from "../element";
-import { fieldDataTypeOptions } from "../fields";
 import { isFieldOccupied } from "../util/fieldRelatedOperations";
 import { getNewFieldKeynamePostfix } from "../util/newFieldKeyname";
 import { useFieldValidationRules } from "../util/useFieldValidationRules";
@@ -73,19 +72,17 @@ const CreateFieldPopOverContent = observer(
             (el) => el.elementId === store.grabbedInput?.value.type
         );
 
-        const acceptableDataTypes =
-            fullElementData?.schema[fieldPropKeyname].datatypes;
-
-        const filteredFieldDataTypeOptions = fieldDataTypeOptions.filter(
-            (option) => {
-                return acceptableDataTypes?.includes(option.value);
-            }
-        );
+        const acceptableDataTypesOptions = fullElementData?.schema[
+            fieldPropKeyname
+        ].datatypes?.map((opt) => ({
+            value: opt,
+            label: opt,
+        }));
 
         const initialValues = {
             keyname: `field_${newFieldPostfix}`,
             display_name: `${gettext("Field")} ${newFieldPostfix}`,
-            datatype: acceptableDataTypes?.at(0) || "STRING",
+            datatype: acceptableDataTypesOptions?.at(0)?.value || "STRING",
         };
 
         return (
@@ -124,7 +121,7 @@ const CreateFieldPopOverContent = observer(
                     name="datatype"
                     rules={rulesRequired}
                 >
-                    <Select options={filteredFieldDataTypeOptions} />
+                    <Select options={acceptableDataTypesOptions} />
                 </Form.Item>
 
                 <Form.Item label={null} style={{ marginBlock: 0 }}>
