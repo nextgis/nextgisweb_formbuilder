@@ -283,7 +283,7 @@ export const elementsData: ElementData[] = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
-                datatypes: ["STRING", "INTEGER", "BIGINT", "REAL"],
+                datatypes: ["INTEGER", "BIGINT", "REAL", "STRING"],
             },
             initial: {
                 type: "boolean",
@@ -332,7 +332,7 @@ export const elementsData: ElementData[] = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
-                datatypes: ["STRING", "DATE", "TIME", "DATETIME"],
+                datatypes: ["DATETIME", "DATE", "TIME", "STRING"],
             },
             datetime: {
                 type: "select",
@@ -437,7 +437,7 @@ export const elementsData: ElementData[] = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
-                datatypes: ["INTEGER", "BIGINT", "REAL", "STRING"],
+                datatypes: ["REAL", "INTEGER", "BIGINT", "STRING"],
             },
         },
         storeData: {
@@ -470,7 +470,7 @@ export const elementsData: ElementData[] = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
-                datatypes: ["INTEGER", "BIGINT", "REAL", "STRING"],
+                datatypes: ["REAL", "INTEGER", "BIGINT", "STRING"],
             },
             samples: {
                 type: "number",
