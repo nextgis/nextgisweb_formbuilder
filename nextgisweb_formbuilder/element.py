@@ -190,10 +190,10 @@ class FormbuilderTextboxItem(FormbuilderItem, tag="textbox", kw_only=True):
         FieldKeyname,
         FieldSpec(
             datatypes=(
+                FIELD_TYPE.STRING,
                 FIELD_TYPE.INTEGER,
                 FIELD_TYPE.BIGINT,
                 FIELD_TYPE.REAL,
-                FIELD_TYPE.STRING,
             ),
         ),
         LegacySpec(attr="field"),
@@ -284,10 +284,10 @@ class FormbuilderDatetimeItem(FormbuilderItem, tag="datetime", kw_only=True):
         FieldKeyname,
         FieldSpec(
             datatypes=(
-                FIELD_TYPE.STRING,
+                FIELD_TYPE.DATETIME,
                 FIELD_TYPE.DATE,
                 FIELD_TYPE.TIME,
-                FIELD_TYPE.DATETIME,
+                FIELD_TYPE.STRING,
             ),
         ),
         LegacySpec(attr="field"),
@@ -513,9 +513,9 @@ class FormbuilderDistanceItem(FormbuilderItem, tag="distance", kw_only=True):
         FieldKeyname,
         FieldSpec(
             datatypes=(
+                FIELD_TYPE.REAL,
                 FIELD_TYPE.INTEGER,
                 FIELD_TYPE.BIGINT,
-                FIELD_TYPE.REAL,
                 FIELD_TYPE.STRING,
             ),
         ),
@@ -530,9 +530,9 @@ class FormbuilderAverageItem(FormbuilderItem, tag="average", kw_only=True):
         FieldKeyname,
         FieldSpec(
             datatypes=(
+                FIELD_TYPE.REAL,
                 FIELD_TYPE.INTEGER,
                 FIELD_TYPE.BIGINT,
-                FIELD_TYPE.REAL,
                 FIELD_TYPE.STRING,
             ),
         ),
