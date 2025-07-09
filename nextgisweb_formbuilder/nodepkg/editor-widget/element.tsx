@@ -230,7 +230,7 @@ export const elementsData: ElementData[] = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
-                datatypes: ["INTEGER", "BIGINT", "REAL", "STRING"],
+                datatypes: ["STRING", "INTEGER", "BIGINT", "REAL"],
             },
             max_lines: {
                 type: "number",
@@ -283,7 +283,7 @@ export const elementsData: ElementData[] = [
             field: {
                 type: "field",
                 formLabel: gettext("Field"),
-                datatypes: ["INTEGER", "BIGINT", "REAL", "STRING"],
+                datatypes: ["STRING", "INTEGER", "BIGINT", "REAL"],
             },
             initial: {
                 type: "boolean",
@@ -387,12 +387,12 @@ export const elementsData: ElementData[] = [
             field_lon: {
                 type: "field",
                 formLabel: gettext("Longitude field"),
-                datatypes: ["STRING", "REAL"],
+                datatypes: ["REAL", "STRING"],
             },
             field_lat: {
                 type: "field",
                 formLabel: gettext("Lattitude field"),
-                datatypes: ["STRING", "REAL"],
+                datatypes: ["REAL", "STRING"],
             },
             hidden: {
                 type: "boolean",

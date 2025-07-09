@@ -69,12 +69,6 @@ const CreateFieldPopOverContent = observer(
             ...pendingNewFields,
         ]);
 
-        const initialValues = {
-            keyname: `field_${newFieldPostfix}`,
-            display_name: `${gettext("Field")} ${newFieldPostfix}`,
-            datatype: "STRING",
-        };
-
         const fullElementData = elementsData.find(
             (el) => el.elementId === store.grabbedInput?.value.type
         );
@@ -82,12 +76,17 @@ const CreateFieldPopOverContent = observer(
         const acceptableDataTypes =
             fullElementData?.schema[fieldPropKeyname].datatypes;
 
-        // simpler interface with filtered options, not setting disabled for not acceptable datatypes
         const filteredFieldDataTypeOptions = fieldDataTypeOptions.filter(
             (option) => {
                 return acceptableDataTypes?.includes(option.value);
             }
         );
+
+        const initialValues = {
+            keyname: `field_${newFieldPostfix}`,
+            display_name: `${gettext("Field")} ${newFieldPostfix}`,
+            datatype: acceptableDataTypes?.at(0) || "STRING",
+        };
 
         return (
             <Form
