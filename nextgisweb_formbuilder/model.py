@@ -32,7 +32,6 @@ from .element import (
     FieldKeyname,
     FormbuilderFormItemUnion,
     FormbuilderItem,
-    FormbuilderTextboxItem,
 )
 
 
@@ -150,35 +149,34 @@ class FormbuilderFormValue(Struct, kw_only=True):
                 lists=None,
                 key_list=None,
             )
-            zf.writestr("meta.json", dumpb(meta))
+            zf.writestr("meta.json", dumpb(meta, pretty=True))
 
-            legacy_items = []
-            for i in self.items:
-                li = i.to_legacy()
-                if isinstance(i, FormbuilderTextboxItem):
-                    field = self.field_by_keyname(i.field)
-                    is_number = field.datatype in (
-                        FIELD_TYPE.INTEGER,
-                        FIELD_TYPE.BIGINT,
-                        FIELD_TYPE.REAL,
-                    )
-                    li["attributes"]["only_figures"] = is_number
-                    if is_number and i.initial is not UNSET:
-                        try:
-                            if field.datatype == FIELD_TYPE.REAL:
-                                v = float(i.initial)
-                                if math.isnan(v) or math.isinf(v):
-                                    raise ValueError
-                            else:
-                                int(i.initial)
-                        except ValueError:
-                            li["attributes"]["text"] = ""
-                legacy_items.append(li)
-            zf.writestr("form.json", dumpb(legacy_items))
+            legacy_items = [i.to_legacy() for i in self.items]
+            self.legacy_items_extra(legacy_items)
+            zf.writestr("form.json", dumpb(legacy_items, pretty=True))
 
             zf.writestr("data.geojson", "")
 
         return buf.getvalue()
+
+    def legacy_items_extra(self, legacy_items: List[Dict[str, Any]]):
+        for li in legacy_items:
+            if li["type"] == "tabs":
+                for p in li["pages"]:
+                    self.legacy_items_extra(p["elements"])
+            elif li["type"] == "text_edit":
+                attrs = li["attributes"]
+                field = self.field_by_keyname(attrs["field"])
+                is_number = field.datatype in (
+                    FIELD_TYPE.INTEGER,
+                    FIELD_TYPE.BIGINT,
+                    FIELD_TYPE.REAL,
+                )
+                attrs["only_figures"] = is_number
+                if is_number and (text := attrs["text"]) != "":
+                    is_real = field.datatype == FIELD_TYPE.REAL
+                    if not _check_number(text, is_real):
+                        attrs["text"] = ""
 
 
 NGFP_MAX_SIZE = 10 * 1 << 20
@@ -287,3 +285,18 @@ class FormbuilderFormSerializer(Serializer, resource=FormbuilderForm):
         if self.data.value is not UNSET and self.data.file_upload is not UNSET:
             raise ValidationError("'value' and 'file_upload' attributes should not pass together.")
         super().deserialize()
+
+
+def _check_number(text: str, is_real: bool) -> bool:
+    if is_real:
+        try:
+            v = float(text)
+        except ValueError:
+            return False
+        return math.isfinite(v)
+
+    try:
+        int(text)
+    except ValueError:
+        return False
+    return True
