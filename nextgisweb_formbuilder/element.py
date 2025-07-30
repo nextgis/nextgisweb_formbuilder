@@ -401,12 +401,8 @@ class FormbuilderDropdownItem(FormbuilderItem, tag="dropdown", kw_only=True):
     ]
     remember: Remember
     options: Annotated[List[OptionSingle], LegacySpec(attr="values")]
+    search: Annotated[bool, LegacySpec(attr="input_search")]
     free_input: Annotated[bool, LegacySpec(attr="allow_adding_values")]
-
-    def to_legacy(self) -> Dict[str, Any]:
-        result = super().to_legacy()
-        result["attributes"].update({"input_search": True})
-        return result
 
 
 class OptionDual(Struct, kw_only=True):
