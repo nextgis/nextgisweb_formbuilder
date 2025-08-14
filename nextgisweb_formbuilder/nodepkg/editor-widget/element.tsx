@@ -662,7 +662,7 @@ export const elementsData: ElementData[] = [
             data: {
                 field: "",
                 remember: false,
-                // search: false, // should be, somehow not in type now
+                search: false,
                 free_input: false,
                 options: [],
             } satisfies Omit<FormbuilderDropdownItem, "type">,
