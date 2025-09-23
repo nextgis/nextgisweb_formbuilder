@@ -22,7 +22,7 @@ import { FieldPropertiesModalConent } from "./FieldPropertiesModalConent";
 
 import { HolderOutlined } from "@ant-design/icons";
 
-const msgDataBinging = gettext("Data binging");
+const msgDataBinging = gettext("Data binding");
 
 interface MockupProps {
     inputsWithId: FormBuilderUIData | null;

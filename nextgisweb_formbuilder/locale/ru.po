@@ -116,7 +116,7 @@ msgid "Add absent fields to layer"
 msgstr "Добавить недостающие поля в слой"
 
 #: nodepkg/editor-widget/component/Mockup.tsx:25
-msgid "Data binging"
+msgid "Data binding"
 msgstr "Привязка данных"
 
 #: nodepkg/editor-widget/component/PropertiesPanel.tsx:28
