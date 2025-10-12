@@ -1,3 +1,4 @@
+import type { Dayjs } from "dayjs";
 import type { FC, ReactElement, ReactNode } from "react";
 
 import AverageIcon from "@nextgisweb/formbuilder/editor-widget/icon/average.svg";
@@ -32,6 +33,7 @@ import type {
 } from "@nextgisweb/formbuilder/type/api";
 import { Button, Checkbox, Input, Radio } from "@nextgisweb/gui/antd";
 import type { InputProps } from "@nextgisweb/gui/antd";
+import { assert } from "@nextgisweb/jsrealm/error";
 import { gettext, gettextf } from "@nextgisweb/pyramid/i18n";
 
 import type { FormbuilderEditorStore } from "./FormbuilderEditorStore";
@@ -366,7 +368,21 @@ export const elementsData: ElementData[] = [
         },
         render: ({ input, store }) => {
             type Datetime = FormbuilderDatetimeItem["datetime"];
+            const initial = input.data?.initial as Dayjs | null;
             const datetime = input.data?.datetime as Datetime;
+            let placeholder: string | undefined = undefined;
+            if (initial) {
+                if (datetime === "date") {
+                    placeholder = initial.local().format("L");
+                } else if (datetime === "time") {
+                    placeholder = initial.local().format("LTS");
+                } else if (datetime === "datetime") {
+                    placeholder = initial.local().format("L LTS");
+                }
+            } else {
+                placeholder = msgDatetimePlaceholder[datetime];
+            }
+            assert(placeholder !== undefined);
             return (
                 <div
                     className="ngw-formbuilder-editor-widget-element"
@@ -375,7 +391,7 @@ export const elementsData: ElementData[] = [
                         store.setSelectedInput(input);
                     }}
                 >
-                    <Stub placeholder={msgDatetimePlaceholder[datetime]} />
+                    <Stub placeholder={placeholder} />
                 </div>
             );
         },
