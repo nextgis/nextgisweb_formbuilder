@@ -1,9 +1,9 @@
 import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { FileUploader } from "@nextgisweb/file-upload/file-uploader";
-import { Select, Tooltip } from "@nextgisweb/gui/antd";
+import { Select } from "@nextgisweb/gui/antd";
 import { errorModal } from "@nextgisweb/gui/error";
 import { route } from "@nextgisweb/pyramid/api";
 import { gettext } from "@nextgisweb/pyramid/i18n";
@@ -15,8 +15,6 @@ import { serializeData } from "../editor-widget/util/serializeData";
 
 import type { FormStore } from "./FormStore";
 
-import ExperimentalIcon from "@nextgisweb/icon/material/science";
-
 import "./FormWidget.less";
 
 const msgUploadForm = gettext("Upload form");
@@ -27,25 +25,14 @@ const msgUploader = {
     helpText: gettext("It should be in NGFP format."),
 };
 
-const msgExperimental = gettext(
-    "Form designer is currently in an early beta stage. Use it with caution!"
-);
-
 const modeOptions = [
+    {
+        value: "input",
+        label: msgDesingForm,
+    },
     {
         value: "file",
         label: msgUploadForm,
-    },
-    {
-        value: "input",
-        label: (
-            <>
-                {msgDesingForm + " "}
-                <Tooltip title={msgExperimental}>
-                    <ExperimentalIcon />
-                </Tooltip>
-            </>
-        ),
     },
 ];
 
@@ -80,7 +67,7 @@ export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
         store.setMode(mode);
     };
 
-    const modeComponent = useMemo(() => {
+    const modeComponent = (() => {
         switch (mode) {
             case "file":
                 return (
@@ -122,8 +109,10 @@ export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
                         }}
                     />
                 );
+            default:
+                return null;
         }
-    }, [store, mode]);
+    })();
 
     return (
         <div className="ngw-formbuilder-form-widget">

@@ -37,7 +37,7 @@ export class FormStore
     readonly identity = "formbuilder_form";
     readonly composite: CompositeStore;
 
-    @observable.ref accessor mode: Mode = "file";
+    @observable.ref accessor mode: Mode = "input";
     @observable.ref accessor file_upload: FileMeta | undefined = undefined;
     @observable.ref accessor uploading: boolean = false;
 
