@@ -1,6 +1,6 @@
 from msgspec import Struct
 from pyramid.response import FileResponse, Response
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from nextgisweb.resource import (
     DataScope,
