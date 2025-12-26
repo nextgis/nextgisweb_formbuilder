@@ -1,7 +1,7 @@
 import { cloneDeep } from "lodash-es";
 import { action, observable } from "mobx";
 
-import type { FeaureLayerGeometryType } from "@nextgisweb/feature-layer/type/api";
+import type { FeatureLayerGeometryType } from "@nextgisweb/feature-layer/type/api";
 import type { FormbuilderField } from "@nextgisweb/formbuilder/type/api";
 
 import type {
@@ -21,7 +21,7 @@ export interface FormbuilderValue {
     fields: FormbuilderEditorField[];
     tree: FormBuilderUIData;
     updateFeatureLayerFields: boolean;
-    geometryType: FeaureLayerGeometryType;
+    geometryType: FeatureLayerGeometryType;
 }
 
 export class FormbuilderEditorStore {
@@ -29,7 +29,7 @@ export class FormbuilderEditorStore {
         listId: 0,
         list: [],
     };
-    @observable.ref accessor geometryType: FeaureLayerGeometryType = "POINT";
+    @observable.ref accessor geometryType: FeatureLayerGeometryType = "POINT";
     @observable.shallow accessor fields: FormbuilderEditorField[] = [];
     @observable.ref accessor canUpdateFields: boolean = false;
     @observable.ref accessor updateFeatureLayerFields: boolean = false;
@@ -141,7 +141,7 @@ export class FormbuilderEditorStore {
     }
 
     @action.bound
-    setGeometryType(value: FeaureLayerGeometryType) {
+    setGeometryType(value: FeatureLayerGeometryType) {
         this.geometryType = value;
 
         this.onChange?.({

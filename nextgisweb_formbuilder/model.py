@@ -19,7 +19,7 @@ from nextgisweb.core.exception import InsufficientPermissions, ValidationError
 from nextgisweb.feature_layer import (
     FIELD_TYPE,
     FeatureLayerFieldDatatype,
-    FeaureLayerGeometryType,
+    FeatureLayerGeometryType,
     IFeatureLayer,
     IFieldEditableFeatureLayer,
 )
@@ -42,7 +42,7 @@ class FormbuilderField(Struct):
 
 
 class FormbuilderFormValue(Struct, kw_only=True):
-    geometry_type: FeaureLayerGeometryType
+    geometry_type: FeatureLayerGeometryType
     fields: List[FormbuilderField]
     items: List[FormbuilderFormItemUnion]
 

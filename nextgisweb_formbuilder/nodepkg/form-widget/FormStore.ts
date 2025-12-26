@@ -1,6 +1,6 @@
 import { action, computed, observable } from "mobx";
 
-import type { FeaureLayerGeometryType } from "@nextgisweb/feature-layer/type/api";
+import type { FeatureLayerGeometryType } from "@nextgisweb/feature-layer/type/api";
 import type { FileMeta } from "@nextgisweb/file-upload/file-uploader";
 import type {
     FormbuilderFormCreate,
@@ -20,7 +20,7 @@ import type { FormbuilderEditorField } from "../editor-widget/FormbuilderEditorS
 export type Mode = "file" | "input";
 
 export type EditorData = {
-    geometryType: FeaureLayerGeometryType;
+    geometryType: FeatureLayerGeometryType;
     fields: FormbuilderEditorField[];
     items: Array<FormbuilderTabsItem | FormbuilderFormItem>;
     updateFeatureLayerFields: boolean;
@@ -66,7 +66,7 @@ export class FormStore
             result.value = {
                 geometry_type:
                     this.editorData?.geometryType ||
-                    ("POINT" as FeaureLayerGeometryType),
+                    ("POINT" as FeatureLayerGeometryType),
                 fields: this.editorData?.fields || [],
                 items: this.editorData?.items || [],
             };
