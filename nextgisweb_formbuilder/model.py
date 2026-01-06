@@ -11,7 +11,7 @@ from msgspec import DecodeError as MsgspecDecodeErrror
 from msgspec import ValidationError as MsgspecValidationError
 from msgspec.json import decode as msgspec_json_decode
 
-from nextgisweb.env import Base, gettext, gettextf, ngettextf
+from nextgisweb.env import gettext, gettextf, ngettextf
 from nextgisweb.lib.json import dumpb, loadb
 from nextgisweb.lib.saext import Msgspec
 
@@ -189,7 +189,7 @@ NGFP_FILE_SCHEMA: Dict[str, Any] = {
 NGFP_FILES = {"meta.json", "form.json", "data.geojson"}
 
 
-class FormbuilderForm(Base, Resource):
+class FormbuilderForm(Resource):
     identity = "formbuilder_form"
     cls_display_name = gettext("Form")
     cls_category = FieldDataCollectionCategory
