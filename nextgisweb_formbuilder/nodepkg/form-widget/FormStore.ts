@@ -26,14 +26,11 @@ export type EditorData = {
     updateFeatureLayerFields: boolean;
 };
 
-export class FormStore
-    implements
-        EditorStore<
-            FormbuilderFormRead,
-            FormbuilderFormUpdate,
-            FormbuilderFormCreate
-        >
-{
+export class FormStore implements EditorStore<
+    FormbuilderFormRead,
+    FormbuilderFormUpdate,
+    FormbuilderFormCreate
+> {
     readonly identity = "formbuilder_form";
     readonly composite: CompositeStore;
 
