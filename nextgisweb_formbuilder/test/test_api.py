@@ -5,6 +5,7 @@ from zipfile import ZipFile
 import pytest
 import transaction
 
+from nextgisweb.resource.test import ResourceAPI
 from nextgisweb.vector_layer import VectorLayer
 
 from ..model import NGFP_FILE_SCHEMA, NGFP_MAX_SIZE
@@ -72,33 +73,28 @@ def ngfp_schema(*, tmp_path, ngw_data_path):
         pytest.param("big", False, id="big"),
     ],
 )
-def test_ngfp(
-    name,
-    valid,
-    vector_layer,
-    ngw_file_upload,
-    ngw_webtest_app,
-    ngw_data_path,
-    tmp_path,
-):
+def test_ngfp(name, valid, vector_layer, ngw_file_upload, ngw_data_path, tmp_path):
+    rapi = ResourceAPI()
     fn = globals()[f"ngfp_{name}"](tmp_path=tmp_path, ngw_data_path=ngw_data_path)
     fu = ngw_file_upload(fn)
-    ngw_webtest_app.post_json(
-        "/api/resource/",
-        dict(
-            resource=dict(cls="formbuilder_form", parent=dict(id=vector_layer), display_name=name),
-            formbuilder_form=dict(file_upload=fu),
-        ),
+
+    rapi.create_request(
+        "formbuilder_form",
+        {
+            "resource": {"parent": {"id": vector_layer}},
+            "formbuilder_form": {"file_upload": fu},
+        },
         status=201 if valid else 422,
     )
 
 
-def get_fields(ngw_webtest_app, flayer_id):
-    resp = ngw_webtest_app.get(f"/api/resource/{flayer_id}", status=200)
-    return resp.json["feature_layer"]["fields"]
+def get_fields(rapi: ResourceAPI, res_id: int):
+    return rapi.read(res_id)["feature_layer"]["fields"]
 
 
-def test_struct(vector_layer, ngw_webtest_app):
+def test_struct(vector_layer):
+    rapi = ResourceAPI()
+
     value = {
         "geometry_type": "POINT",
         "fields": [
@@ -168,26 +164,23 @@ def test_struct(vector_layer, ngw_webtest_app):
         ],
     }
 
-    resp = ngw_webtest_app.post_json(
-        "/api/resource/",
-        dict(
-            resource=dict(
-                cls="formbuilder_form",
-                parent=dict(id=vector_layer),
-                display_name="struct",
-            ),
-            formbuilder_form=dict(value=value),
-        ),
-        status=201,
+    res_id = rapi.create(
+        "formbuilder_form",
+        {
+            "resource": {"parent": {"id": vector_layer}},
+            "formbuilder_form": {"value": value},
+        },
     )
 
-    ngw_webtest_app.get(f"/api/resource/{resp.json['id']}/ngfp", status=200)
+    rapi.client.get(f"{res_id}/ngfp", status=200)
 
-    fields = get_fields(ngw_webtest_app, vector_layer)
+    fields = get_fields(rapi, vector_layer)
     assert len(fields) == 0
 
 
-def test_fields_update(vector_layer, ngw_webtest_app):
+def test_fields_update(vector_layer):
+    rapi = ResourceAPI()
+
     form_fields = [
         {"keyname": "f1", "datatype": "STRING", "display_name": "F1"},
         {"keyname": "f2", "datatype": "STRING", "display_name": "F2"},
@@ -211,23 +204,18 @@ def test_fields_update(vector_layer, ngw_webtest_app):
         ],
     }
 
-    ngw_webtest_app.post_json(
-        "/api/resource/",
-        dict(
-            resource=dict(
-                cls="formbuilder_form",
-                parent=dict(id=vector_layer),
-                display_name="fields",
-            ),
-            formbuilder_form=dict(
-                value=value,
-                update_feature_layer_fields=True,
-            ),
-        ),
-        status=201,
+    rapi.create(
+        "formbuilder_form",
+        {
+            "resource": {"parent": {"id": vector_layer}},
+            "formbuilder_form": {
+                "value": value,
+                "update_feature_layer_fields": True,
+            },
+        },
     )
 
-    fields = get_fields(ngw_webtest_app, vector_layer)
+    fields = get_fields(rapi, vector_layer)
     assert len(fields) == len(form_fields)
     for f1, f2 in zip(fields, form_fields):
         for k in ("keyname", "datatype", "display_name"):

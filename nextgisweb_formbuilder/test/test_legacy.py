@@ -6,6 +6,8 @@ import transaction
 
 from nextgisweb.lib.json import loadb
 
+from nextgisweb.pyramid.test import WebTestApp
+from nextgisweb.resource.test import ResourceAPI
 from nextgisweb.vector_layer import VectorLayer
 
 pytestmark = pytest.mark.usefixtures("ngw_resource_defaults", "ngw_auth_administrator")
@@ -30,26 +32,23 @@ def ngfp_product():
 
 
 @pytest.mark.parametrize("ngfp, meta, form", ngfp_product())
-def test_element(ngfp, meta, form, ngw_file_upload, ngw_webtest_app, vector_layer):
+def test_element(ngfp, meta, form, vector_layer, ngw_file_upload, ngw_webtest_app: WebTestApp):
+    rapi = ResourceAPI()
     fu = ngw_file_upload(ngfp)
-    resp = ngw_webtest_app.post_json(
-        "/api/resource/",
-        dict(
-            resource=dict(
-                cls="formbuilder_form", parent=dict(id=vector_layer), display_name=ngfp.stem
-            ),
-            formbuilder_form=dict(file_upload=fu),
-        ),
-        status=201,
-    )
-    form_id = resp.json["id"]
 
-    resp = ngw_webtest_app.post_json(
-        "/api/component/formbuilder/ngfp_convert",
-        dict(resource=dict(id=form_id)),
-        status=200,
+    form_id = rapi.create(
+        "formbuilder_form",
+        {
+            "resource": {"parent": {"id": vector_layer}},
+            "formbuilder_form": {"file_upload": fu},
+        },
     )
-    data = resp.json
+
+    data = ngw_webtest_app.post(
+        "/api/component/formbuilder/ngfp_convert",
+        json={"resource": {"id": form_id}},
+        status=200,
+    ).json
 
     assert data["geometry_type"] == meta["geometry_type"]
     assert len(data["fields"]) == len(meta["fields"])
