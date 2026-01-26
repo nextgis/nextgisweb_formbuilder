@@ -7,18 +7,14 @@
     height: 80%;
     min-height: 40em;
 
-    > div {
+    .ant-modal-container {
+        display: flex;
+        flex-direction: column;
+        padding: 20px 20px;
         height: 100%;
 
-        > .ant-modal-content {
-            display: flex;
-            flex-direction: column;
-            padding: 20px 20px;
-            height: 100%;
-
-            > .ant-modal-body {
-                flex-grow: 1;
-            }
+        > .ant-modal-body {
+            flex-grow: 1;
         }
     }
 }
