@@ -8,8 +8,8 @@ import { gettext } from "@nextgisweb/pyramid/i18n";
 
 import { FormbuilderEditorStore } from "./FormbuilderEditorStore";
 import type {
-    FormbuilderEditorField,
-    FormbuilderValue,
+  FormbuilderEditorField,
+  FormbuilderValue,
 } from "./FormbuilderEditorStore";
 import { ElementsPanel } from "./component/ElementsPanel";
 import { FieldsPanel } from "./component/FieldsPanel";
@@ -26,283 +26,255 @@ import MoreVertIcon from "@nextgisweb/icon/material/more_vert";
 import "./FormbuilderEditorWidget.less";
 
 export const FormbuilderEditorWidget = observer(
-    ({
-        value,
-        store: storeProp,
-        parent,
-        onChange,
-        setDirty,
-    }: {
-        value?: any;
-        store?: FormbuilderEditorStore;
-        parent?: number | null | undefined;
-        onChange?: (val: FormbuilderValue) => void;
-        setDirty?: (val: boolean) => void;
-    }) => {
-        const [store] = useState(
-            () =>
-                storeProp || new FormbuilderEditorStore({ onChange, setDirty })
+  ({
+    value,
+    store: storeProp,
+    parent,
+    onChange,
+    setDirty,
+  }: {
+    value?: any;
+    store?: FormbuilderEditorStore;
+    parent?: number | null | undefined;
+    onChange?: (val: FormbuilderValue) => void;
+    setDirty?: (val: boolean) => void;
+  }) => {
+    const [store] = useState(
+      () => storeProp || new FormbuilderEditorStore({ onChange, setDirty })
+    );
+
+    const {
+      fields,
+      dragPos,
+      dragging,
+      isMoving,
+      inputsTree,
+      grabbedInput,
+      setDragPos,
+    } = store;
+
+    useEffect(() => {
+      if (parent && typeof parent === "number") {
+        const getParentInfo = async (resourceId: number) => {
+          const resourceInfo = await route("resource.item", resourceId).get({
+            cache: true,
+          });
+
+          if (resourceInfo.vector_layer?.geometry_type) {
+            store.setGeometryType(resourceInfo.vector_layer?.geometry_type);
+          }
+
+          const resourceMoreInfo = await route(
+            "resource.permission",
+            resourceId
+          ).get({
+            cache: true,
+          });
+
+          store.setCanUpdateFields(resourceMoreInfo.resource.update);
+
+          const parentFieldsNormalized = (
+            resourceInfo.feature_layer?.fields || []
+          ).map(
+            ({ keyname, display_name, datatype }): FormbuilderEditorField => ({
+              keyname,
+              display_name,
+              datatype,
+              existing: true,
+            })
+          );
+
+          const filteredFormFields = store.fields.filter((field) => {
+            return !parentFieldsNormalized.find(
+              (item) => item.keyname === field.keyname
+            );
+          });
+
+          store.setFields([...parentFieldsNormalized, ...filteredFormFields]);
+        };
+        getParentInfo(parent);
+      }
+    }, [parent, store]);
+
+    useEffect(() => {
+      if (value) {
+        store.setFields(value?.value?.fields || []);
+
+        const tree = convertToUIData(
+          value?.value?.items || [],
+          store.getNewListIndex
         );
+        store.setInputsTree(tree);
+      }
+    }, [store, value]);
 
-        const {
-            fields,
-            dragPos,
-            dragging,
-            isMoving,
-            inputsTree,
-            grabbedInput,
-            setDragPos,
-        } = store;
+    useEffect(() => {
+      if (dragging) {
+        const handleMouseMove = (e: MouseEvent) => {
+          setDragPos({ x: e.clientX, y: e.clientY });
+        };
 
-        useEffect(() => {
-            if (parent && typeof parent === "number") {
-                const getParentInfo = async (resourceId: number) => {
-                    const resourceInfo = await route(
-                        "resource.item",
-                        resourceId
-                    ).get({
-                        cache: true,
-                    });
+        document.addEventListener("mousemove", handleMouseMove);
 
-                    if (resourceInfo.vector_layer?.geometry_type) {
-                        store.setGeometryType(
-                            resourceInfo.vector_layer?.geometry_type
-                        );
-                    }
+        return () => {
+          document.removeEventListener("mousemove", handleMouseMove);
+        };
+      }
+    }, [dragging, setDragPos]);
 
-                    const resourceMoreInfo = await route(
-                        "resource.permission",
-                        resourceId
-                    ).get({
-                        cache: true,
-                    });
+    useEffect(() => {
+      const handleMouseUp = (event: MouseEvent) => {
+        const targetEl = event?.target as HTMLElement;
 
-                    store.setCanUpdateFields(resourceMoreInfo.resource.update);
+        const regexInModalElements = /(drop-place|ant-select-item)/;
 
-                    const parentFieldsNormalized = (
-                        resourceInfo.feature_layer?.fields || []
-                    ).map(
-                        ({
-                            keyname,
-                            display_name,
-                            datatype,
-                        }): FormbuilderEditorField => ({
-                            keyname,
-                            display_name,
-                            datatype,
-                            existing: true,
-                        })
-                    );
+        const isNewElementDrop =
+          !store.isMoving && regexInModalElements.test(targetEl?.className);
 
-                    const filteredFormFields = store.fields.filter((field) => {
-                        return !parentFieldsNormalized.find(
-                            (item) => item.keyname === field.keyname
-                        );
-                    });
+        const isInModalDropdown = targetEl?.closest(".ant-select-dropdown");
 
-                    store.setFields([
-                        ...parentFieldsNormalized,
-                        ...filteredFormFields,
-                    ]);
-                };
-                getParentInfo(parent);
-            }
-        }, [parent, store]);
+        const isModalActive = targetEl?.closest(".ant-modal-wrap");
+        const isPopoverActive = targetEl?.closest(".ant-popover");
 
-        useEffect(() => {
-            if (value) {
-                store.setFields(value?.value?.fields || []);
+        if (
+          isNewElementDrop ||
+          isModalActive ||
+          isInModalDropdown ||
+          isPopoverActive
+        ) {
+          return;
+        }
 
-                const tree = convertToUIData(
-                    value?.value?.items || [],
-                    store.getNewListIndex
-                );
-                store.setInputsTree(tree);
-            }
-        }, [store, value]);
+        store.setGrabbedInput(null);
+        store.setIsMoving(false);
+        store.setDragging(false);
+      };
 
-        useEffect(() => {
-            if (dragging) {
-                const handleMouseMove = (e: MouseEvent) => {
-                    setDragPos({ x: e.clientX, y: e.clientY });
-                };
+      document.addEventListener("mouseup", handleMouseUp);
 
-                document.addEventListener("mousemove", handleMouseMove);
+      return () => {
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
+    }, [store]);
 
-                return () => {
-                    document.removeEventListener("mousemove", handleMouseMove);
-                };
-            }
-        }, [dragging, setDragPos]);
+    const themeVariables = useThemeVariables({
+      "theme-border-radius": "borderRadius",
+      "theme-color-border-secondary": "colorBorderSecondary",
+      "theme-color-border": "colorBorder",
+      "theme-color-fill-alter": "colorFillAlter",
+      "theme-color-icon": "colorIcon",
+      "theme-color-primary-bg": "colorPrimaryBg",
+      "theme-color-primary": "colorPrimary",
+    });
 
-        useEffect(() => {
-            const handleMouseUp = (event: MouseEvent) => {
-                const targetEl = event?.target as HTMLElement;
+    return (
+      <div
+        className={classNames("ngw-formbuilder-editor-widget", {
+          dragging,
+        })}
+        style={themeVariables}
+      >
+        <ElementsPanel store={store} />
 
-                const regexInModalElements = /(drop-place|ant-select-item)/;
-
-                const isNewElementDrop =
-                    !store.isMoving &&
-                    regexInModalElements.test(targetEl?.className);
-
-                const isInModalDropdown = targetEl?.closest(
-                    ".ant-select-dropdown"
-                );
-
-                const isModalActive = targetEl?.closest(".ant-modal-wrap");
-                const isPopoverActive = targetEl?.closest(".ant-popover");
-
-                if (
-                    isNewElementDrop ||
-                    isModalActive ||
-                    isInModalDropdown ||
-                    isPopoverActive
-                ) {
-                    return;
+        <div className="mockup-container">
+          <div
+            className={"mockup"}
+            onMouseUp={(e) => {
+              if (e.currentTarget === e.target && !!grabbedInput) {
+                if (grabbedInput?.value.type) {
+                  if (grabbedInput?.dropCallback && isMoving) {
+                    grabbedInput.dropCallback();
+                  }
                 }
 
-                store.setGrabbedInput(null);
-                store.setIsMoving(false);
-                store.setDragging(false);
-            };
+                // PLS REFACTOR
+                // Prepare dropping input with field linked
+                // and add field to store
 
-            document.addEventListener("mouseup", handleMouseUp);
+                const getDroppingFieldValue = () => {
+                  if (isMoving) {
+                    return grabbedInput?.data?.field;
+                  }
 
-            return () => {
-                document.removeEventListener("mouseup", handleMouseUp);
-            };
-        }, [store]);
+                  if (isNonFieldElement(grabbedInput)) {
+                    return undefined;
+                  }
 
-        const themeVariables = useThemeVariables({
-            "theme-border-radius": "borderRadius",
-            "theme-color-border-secondary": "colorBorderSecondary",
-            "theme-color-border": "colorBorder",
-            "theme-color-fill-alter": "colorFillAlter",
-            "theme-color-icon": "colorIcon",
-            "theme-color-primary-bg": "colorPrimaryBg",
-            "theme-color-primary": "colorPrimary",
-        });
+                  return `field_${fields.length + 1}`;
+                };
 
-        return (
-            <div
-                className={classNames("ngw-formbuilder-editor-widget", {
-                    dragging,
-                })}
-                style={themeVariables}
-            >
-                <ElementsPanel store={store} />
+                const droppingInputWithField = {
+                  ...grabbedInput,
+                  data: {
+                    ...grabbedInput.data,
+                    field: getDroppingFieldValue(),
+                  },
+                };
 
-                <div className="mockup-container">
-                    <div
-                        className={"mockup"}
-                        onMouseUp={(e) => {
-                            if (
-                                e.currentTarget === e.target &&
-                                !!grabbedInput
-                            ) {
-                                if (grabbedInput?.value.type) {
-                                    if (
-                                        grabbedInput?.dropCallback &&
-                                        isMoving
-                                    ) {
-                                        grabbedInput.dropCallback();
-                                    }
-                                }
+                if (!isMoving && !isNonFieldElement(droppingInputWithField)) {
+                  const newFieldPostfix = getNewFieldKeynamePostfix(
+                    store.fields
+                  );
 
-                                // PLS REFACTOR
-                                // Prepare dropping input with field linked
-                                // and add field to store
+                  const newFieldItem: FormbuilderEditorField = {
+                    display_name: `${gettext("Field")} ${newFieldPostfix}`,
+                    keyname: `field_${newFieldPostfix}`,
+                    datatype: "STRING",
+                    existing: false,
+                  };
 
-                                const getDroppingFieldValue = () => {
-                                    if (isMoving) {
-                                        return grabbedInput?.data?.field;
-                                    }
+                  store.setFields([...fields, newFieldItem]);
+                }
 
-                                    if (isNonFieldElement(grabbedInput)) {
-                                        return undefined;
-                                    }
+                // It happens to be unique top level in tree
+                // case, prolly can be recursive like other
+                // cases
+                const updatedInputs = [
+                  ...inputsTree.list,
+                  droppingInputWithField,
+                ];
+                store.setInputsTree({
+                  listId: 0,
+                  list: updatedInputs,
+                });
 
-                                    return `field_${fields.length + 1}`;
-                                };
-
-                                const droppingInputWithField = {
-                                    ...grabbedInput,
-                                    data: {
-                                        ...grabbedInput.data,
-                                        field: getDroppingFieldValue(),
-                                    },
-                                };
-
-                                if (
-                                    !isMoving &&
-                                    !isNonFieldElement(droppingInputWithField)
-                                ) {
-                                    const newFieldPostfix =
-                                        getNewFieldKeynamePostfix(store.fields);
-
-                                    const newFieldItem: FormbuilderEditorField =
-                                        {
-                                            display_name: `${gettext("Field")} ${newFieldPostfix}`,
-                                            keyname: `field_${newFieldPostfix}`,
-                                            datatype: "STRING",
-                                            existing: false,
-                                        };
-
-                                    store.setFields([...fields, newFieldItem]);
-                                }
-
-                                // It happens to be unique top level in tree
-                                // case, prolly can be recursive like other
-                                // cases
-                                const updatedInputs = [
-                                    ...inputsTree.list,
-                                    droppingInputWithField,
-                                ];
-                                store.setInputsTree({
-                                    listId: 0,
-                                    list: updatedInputs,
-                                });
-
-                                if (store.setDirty) store.setDirty(true);
-                            }
-                        }}
-                    >
-                        <div className="mockup-header">
-                            <ArrowIcon />
-                            <DoneIcon />
-                            <MoreVertIcon />
-                        </div>
-                        <div className="mockup-body-container">
-                            <div className="mockup-body">
-                                <Mockup
-                                    inputsWithId={inputsTree}
-                                    store={store}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="fields-and-properties">
-                    <FieldsPanel store={store} />
-                    {store.selectedInput && <PropertiesPanel store={store} />}
-                </div>
-
-                {dragging && grabbedInput && dragPos && (
-                    <div
-                        className="grabbed-input"
-                        style={{ left: dragPos.x, top: dragPos.y }}
-                    >
-                        {getInputElement({
-                            store,
-                            index: -1,
-                            input: grabbedInput,
-                        })}
-                    </div>
-                )}
+                if (store.setDirty) store.setDirty(true);
+              }
+            }}
+          >
+            <div className="mockup-header">
+              <ArrowIcon />
+              <DoneIcon />
+              <MoreVertIcon />
             </div>
-        );
-    }
+            <div className="mockup-body-container">
+              <div className="mockup-body">
+                <Mockup inputsWithId={inputsTree} store={store} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="fields-and-properties">
+          <FieldsPanel store={store} />
+          {store.selectedInput && <PropertiesPanel store={store} />}
+        </div>
+
+        {dragging && grabbedInput && dragPos && (
+          <div
+            className="grabbed-input"
+            style={{ left: dragPos.x, top: dragPos.y }}
+          >
+            {getInputElement({
+              store,
+              index: -1,
+              input: grabbedInput,
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
 );
 
 FormbuilderEditorWidget.displayName = gettext("Form");

@@ -21,111 +21,110 @@ const msgUploadForm = gettext("Upload form");
 const msgDesingForm = gettext("Design form");
 
 const msgUploader = {
-    uploadText: gettext("Select a form file"),
-    helpText: gettext("It should be in NGFP format."),
+  uploadText: gettext("Select a form file"),
+  helpText: gettext("It should be in NGFP format."),
 };
 
 const modeOptions = [
-    {
-        value: "input",
-        label: msgDesingForm,
-    },
-    {
-        value: "file",
-        label: msgUploadForm,
-    },
+  {
+    value: "input",
+    label: msgDesingForm,
+  },
+  {
+    value: "file",
+    label: msgUploadForm,
+  },
 ];
 
 export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
-    const { mode } = store;
+  const { mode } = store;
 
-    const [switchModeCounter, setSwitchModeCounter] = useState(0);
+  const [switchModeCounter, setSwitchModeCounter] = useState(0);
 
-    const handleModeChange = async (mode: "file" | "input") => {
-        const resourceId = store.composite.resourceId;
-        const { editorData } = store;
+  const handleModeChange = async (mode: "file" | "input") => {
+    const resourceId = store.composite.resourceId;
+    const { editorData } = store;
 
-        if (resourceId && switchModeCounter < 1) {
-            try {
-                const resourceData = await route(
-                    "formbuilder.formbuilder_form_convert"
-                ).post({ json: { resource: { id: resourceId } } });
+    if (resourceId && switchModeCounter < 1) {
+      try {
+        const resourceData = await route(
+          "formbuilder.formbuilder_form_convert"
+        ).post({ json: { resource: { id: resourceId } } });
 
-                store.load({ value: resourceData });
-                setSwitchModeCounter(switchModeCounter + 1);
-            } catch (error: any) {
-                errorModal(error);
-                return; // Abort switching mode
-            }
-            setSwitchModeCounter(switchModeCounter + 1);
-        }
+        store.load({ value: resourceData });
+        setSwitchModeCounter(switchModeCounter + 1);
+      } catch (error: any) {
+        errorModal(error);
+        return; // Abort switching mode
+      }
+      setSwitchModeCounter(switchModeCounter + 1);
+    }
 
-        if (switchModeCounter > 0) {
-            store.load({ value: editorData });
-        }
+    if (switchModeCounter > 0) {
+      store.load({ value: editorData });
+    }
 
-        store.setMode(mode);
-    };
+    store.setMode(mode);
+  };
 
-    const modeComponent = (() => {
-        switch (mode) {
-            case "file":
-                return (
-                    <FileUploader
-                        onChange={(value) => {
-                            runInAction(() => {
-                                store.file_upload = value;
-                                store.setDirty(true);
-                            });
-                        }}
-                        onUploading={(value) => {
-                            runInAction(() => {
-                                store.uploading = value;
-                            });
-                        }}
-                        {...msgUploader}
-                    />
+  const modeComponent = (() => {
+    switch (mode) {
+      case "file":
+        return (
+          <FileUploader
+            onChange={(value) => {
+              runInAction(() => {
+                store.file_upload = value;
+                store.setDirty(true);
+              });
+            }}
+            onUploading={(value) => {
+              runInAction(() => {
+                store.uploading = value;
+              });
+            }}
+            {...msgUploader}
+          />
+        );
+      case "input":
+        return (
+          <FormbuilderEditorWidget
+            value={store.initEditorData}
+            parent={store.composite.parent}
+            setDirty={store.setDirty}
+            onChange={(val) => {
+              runInAction(() => {
+                const usedFields = val.fields.filter((field) =>
+                  isFieldOccupied(field.keyname, val.tree)
                 );
-            case "input":
-                return (
-                    <FormbuilderEditorWidget
-                        value={store.initEditorData}
-                        parent={store.composite.parent}
-                        setDirty={store.setDirty}
-                        onChange={(val) => {
-                            runInAction(() => {
-                                const usedFields = val.fields.filter((field) =>
-                                    isFieldOccupied(field.keyname, val.tree)
-                                );
 
-                                store.editorData = {
-                                    geometryType: val.geometryType,
-                                    fields: usedFields,
-                                    items: serializeData(val.tree),
-                                    updateFeatureLayerFields:
-                                        val.updateFeatureLayerFields,
-                                };
-                            });
-                        }}
-                    />
-                );
-            default:
-                return null;
-        }
-    })();
+                store.editorData = {
+                  geometryType: val.geometryType,
+                  fields: usedFields,
+                  items: serializeData(val.tree),
+                  updateFeatureLayerFields: val.updateFeatureLayerFields,
+                };
+              });
+            }}
+          />
+        );
+      default:
+        return null;
+    }
+  })();
 
-    return (
-        <div className="ngw-formbuilder-form-widget">
-            <Select
-                className="mode"
-                style={{ width: "100%" }}
-                options={modeOptions}
-                value={store.mode}
-                onChange={handleModeChange}
-            />
-            {modeComponent}
-        </div>
-    );
+  return (
+    <div className="ngw-formbuilder-form-widget">
+      <Select
+        className="mode"
+        style={{ width: "100%" }}
+        options={modeOptions}
+        value={store.mode}
+        onChange={handleModeChange}
+      />
+      {modeComponent}
+    </div>
+  );
 });
 
 FormWidget.displayName = "FormWidget";
