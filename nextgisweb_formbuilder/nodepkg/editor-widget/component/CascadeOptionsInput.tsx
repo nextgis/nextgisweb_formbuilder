@@ -271,7 +271,12 @@ export const CascadeOptionsInput = observer(
         </Button>
         <Modal
           className="ngw-formbuilder-editor-widget-cascade-options-input-modal"
-          styles={{ body: themeVariables }}
+          styles={{
+            body: {
+              ...themeVariables,
+            },
+            container: { display: "flex", flexDirection: "column" },
+          }}
           width="" // Do not set the default (520px) width
           centered={true}
           title={msgOptions}
@@ -282,6 +287,7 @@ export const CascadeOptionsInput = observer(
         >
           <EdiTable
             size="small"
+            styles={{ root: { flex: "1 0" } }}
             card={true}
             parentHeight={true}
             store={store}
@@ -296,13 +302,16 @@ export const CascadeOptionsInput = observer(
             <EdiTable
               size="small"
               card={true}
+              styles={{ root: { flex: "1 0" } }}
               parentHeight={true}
               store={dependentStore}
               columns={depColumns || []}
               rowKey="key"
             />
           ) : (
-            <div className="dependent-stub">{msgDependentStub}</div>
+            <div className="dependent-stub" style={{ flex: "1 0" }}>
+              {msgDependentStub}
+            </div>
           )}
         </Modal>
       </>

@@ -5,31 +5,30 @@
   min-width: 40em;
   max-width: 60em;
   height: 80%;
+
   min-height: 40em;
 
-  > div {
+  > .ant-modal-container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 20px;
     height: 100%;
 
-    > .ant-modal-content {
+    > .ant-modal-body {
       display: flex;
+      flex-grow: 1;
       flex-direction: column;
-      padding: 20px 20px;
-      height: 100%;
 
-      > .ant-modal-body {
+      height: "100%";
+
+      > .dependent-stub {
         display: flex;
-        flex-grow: 1;
-        flex-direction: column;
-
-        > .dependent-stub {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          border: 1px solid var(--color-border-secondary);
-          border-radius: var(--border-radius);
-          height: 100%;
-          color: var(--color-text-quaternary);
-        }
+        justify-content: center;
+        align-items: center;
+        border: 1px solid var(--color-border-secondary);
+        border-radius: var(--border-radius);
+        height: 100%;
+        color: var(--color-text-quaternary);
       }
     }
   }
