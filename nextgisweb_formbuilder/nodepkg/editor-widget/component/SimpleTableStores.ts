@@ -34,6 +34,13 @@ export class OptionsRow {
 
   @action.bound
   setValue(value: string) {
+    for (const col of this.store.columns) {
+      if (col === "label" || col === "first" || col === "second") {
+        if (this[col] === this.value || this[col] === undefined) {
+          this[col] = value;
+        }
+      }
+    }
     this.value = value;
     if (this === this.store.placeholder) {
       this.store.rotatePlaceholder();
@@ -54,6 +61,7 @@ export class OptionsRow {
 export class OptionsEdiTableStore implements EdiTableStore<OptionsRow> {
   readonly rows = observable.array<OptionsRow>();
 
+  @observable.ref accessor columns: string[] = [];
   @observable.ref accessor placeholder = new OptionsRow(this, {});
 
   @action.bound
@@ -73,29 +81,32 @@ export class OptionsEdiTableStore implements EdiTableStore<OptionsRow> {
   }
 
   @action.bound
+  setColumns(columns: string[]) {
+    this.columns = columns;
+  }
+
+  @action.bound
   setRows(data: Partial<OptionsRow>[]) {
-    if (data) {
-      data.forEach((r: Partial<OptionsRow>) => {
-        this.rows.push(new OptionsRow(this, r));
-      });
-    }
+    this.rows.replace(data.map((r) => new OptionsRow(this, r)));
   }
 
   @action.bound
   cloneRow(row: OptionsRow) {
-    const { value, label } = row;
-    const idx = this.rows.indexOf(row) + 1;
-    this.rows.splice(idx, 0, new OptionsRow(this, { value, label }));
+    this.rows.splice(
+      this.rows.indexOf(row) + 1,
+      0,
+      new OptionsRow(this, {
+        value: row.value,
+        label: row.label,
+        first: row.first,
+        second: row.second,
+      })
+    );
   }
 
   @action.bound
   deleteRow(row: OptionsRow) {
     this.rows.remove(row);
-  }
-
-  @action.bound
-  clear() {
-    this.rows.clear();
   }
 
   @action.bound

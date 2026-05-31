@@ -5,6 +5,8 @@ import { Button, Modal } from "@nextgisweb/gui/antd";
 import { EdiTable } from "@nextgisweb/gui/edi-table";
 import { gettext } from "@nextgisweb/pyramid/i18n";
 
+import type { OptionsColumn } from "../element";
+
 import { OptionsEdiTableStore } from "./SimpleTableStores";
 import type { OptionsRow } from "./SimpleTableStores";
 
@@ -16,7 +18,7 @@ const msgOptions = gettext("Options");
 interface OptionsInputProps {
   value?: OptionsRow[];
   onChange?: (value: Partial<OptionsRow>[]) => void;
-  columns?: any[]; // better typing
+  columns?: OptionsColumn[];
 }
 
 export const OptionsInput = observer(
@@ -25,30 +27,15 @@ export const OptionsInput = observer(
 
     const [store] = useState(() => new OptionsEdiTableStore());
 
-    const showModal = () => {
+    const handleOpen = () => {
       if (value) {
-        store.clear();
-        const rows = value;
-
-        store.setRows(rows);
+        store.setColumns(columns?.map((col) => col.key) || []);
+        store.setRows(value);
       }
       setIsModalOpen(true);
     };
-    const handleOk = () => {
-      if (onChange) {
-        onChange(
-          store.rows.map(({ initial, value, label, first, second }) => ({
-            initial,
-            value,
-            label,
-            first,
-            second,
-          }))
-        );
-      }
-      setIsModalOpen(false);
-    };
-    const handleCancel = () => {
+
+    const handleClose = () => {
       if (onChange) {
         onChange(
           store.rows.map(({ initial, value, label, first, second }) => ({
@@ -65,7 +52,7 @@ export const OptionsInput = observer(
 
     return (
       <>
-        <Button style={{ width: "100%" }} onClick={showModal}>
+        <Button style={{ width: "100%" }} onClick={handleOpen}>
           {msgEdit}
         </Button>
         <Modal
@@ -76,8 +63,8 @@ export const OptionsInput = observer(
           open={isModalOpen}
           destroyOnHidden={true}
           footer={false}
-          onOk={handleOk}
-          onCancel={handleCancel}
+          onOk={handleClose}
+          onCancel={handleClose}
         >
           <EdiTable
             size="small"

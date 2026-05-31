@@ -58,6 +58,9 @@ export class ParentRow {
 
   @action.bound
   setValue(value: string) {
+    if (this.label === this.value) {
+      this.label = value;
+    }
     this.value = value;
     if (this === this.store.placeholder) {
       this.store.rotatePlaceholder();
@@ -204,10 +207,11 @@ export const CascadeOptionsInput = observer(
 
         setActiveRowKey(newActiveRowKey);
 
-        dependentStore.clear();
         const selectedRowItems =
           store.rows.find((row) => row.key === store.selectedRowKey)?.items ||
           [];
+
+        dependentStore.setColumns(["value", "label", "initial"]);
         dependentStore.setRows(selectedRowItems);
       }
     }, [activeRowKey, dependentStore, store, store.rows, store.selectedRowKey]);

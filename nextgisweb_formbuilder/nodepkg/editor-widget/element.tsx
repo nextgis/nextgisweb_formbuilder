@@ -91,12 +91,12 @@ interface ElementWrapperProps {
   onGrabDrop: () => GrabbedInputComposite | null;
 }
 
-type SelectOption = {
+export type SelectOption = {
   value: string;
   label: string;
 };
 
-type OptionsColumn = {
+export type OptionsColumn = {
   key: string;
   title: string;
   width: string;
