@@ -1,5 +1,12 @@
 import type { Dayjs } from "dayjs";
-import type { FC, ReactElement, ReactNode } from "react";
+import { useCallback, useMemo } from "react";
+import type {
+  FC,
+  HTMLAttributes,
+  MouseEventHandler,
+  ReactElement,
+  ReactNode,
+} from "react";
 
 import AverageIcon from "@nextgisweb/formbuilder/editor-widget/icon/average.svg";
 import CascadeIcon from "@nextgisweb/formbuilder/editor-widget/icon/cascade.svg";
@@ -141,6 +148,50 @@ export type ElementData<S extends Schema = Schema> = {
   render: FC<ElementWrapperProps>;
 };
 
+interface ElementMockupProps {
+  input: UIListItem;
+  store: FormbuilderEditorStore;
+  style?: HTMLAttributes<HTMLDivElement>["style"];
+  selectOnClick?: boolean;
+  children?: ReactNode;
+}
+
+function ElementMockup({
+  input,
+  store,
+  style,
+  selectOnClick = true,
+  children,
+}: ElementMockupProps) {
+  const type = input.value.type;
+  const title = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    const elementData = elementsData.find((el) => el.elementId === type);
+    return elementData ? elementData.storeData.value.name : undefined;
+  }, [type]);
+
+  const onClick: MouseEventHandler<HTMLDivElement> = useCallback(
+    (evt) => {
+      evt.stopPropagation();
+      if (selectOnClick) {
+        store.setSelectedInput(input);
+      }
+    },
+    [store, input, selectOnClick]
+  );
+
+  return (
+    <div
+      className="ngw-formbuilder-editor-element-mockup"
+      style={style}
+      title={title}
+      onClick={onClick}
+    >
+      {children}
+    </div>
+  );
+}
+
 export const elementsData: ElementData[] = [
   {
     elementId: "label",
@@ -162,15 +213,9 @@ export const elementsData: ElementData[] = [
     },
     render: ({ input, store }) => {
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
-        >
+        <ElementMockup input={input} store={store}>
           {input?.data?.label ?? <>&nbsp;</>}
-        </div>
+        </ElementMockup>
       );
     },
   },
@@ -186,15 +231,7 @@ export const elementsData: ElementData[] = [
       data: {},
     },
     render: ({ input, store }) => {
-      return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
-        />
-      );
+      return <ElementMockup input={input} store={store} />;
     },
   },
   {
@@ -210,18 +247,13 @@ export const elementsData: ElementData[] = [
     },
     render: ({ input, onGrabDrop, store }) => {
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
+        <ElementMockup input={input} store={store} selectOnClick={false}>
           <TabsFormComponent
             store={store}
             value={input}
             onGrabDrop={onGrabDrop}
           />
-        </div>
+        </ElementMockup>
       );
     },
   },
@@ -262,15 +294,9 @@ export const elementsData: ElementData[] = [
     },
     render: ({ store, input }) => {
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
-        >
+        <ElementMockup input={input} store={store}>
           <Stub />
-        </div>
+        </ElementMockup>
       );
     },
   },
@@ -310,20 +336,14 @@ export const elementsData: ElementData[] = [
     },
     render: ({ input, store }) => {
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
-        >
+        <ElementMockup input={input} store={store}>
           <Checkbox
             style={{ pointerEvents: "none" }}
             checked={input.data?.initial}
           >
             {input?.data?.label}
           </Checkbox>
-        </div>
+        </ElementMockup>
       );
     },
   },
@@ -384,15 +404,9 @@ export const elementsData: ElementData[] = [
       }
       assert(placeholder !== undefined);
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
-        >
+        <ElementMockup input={input} store={store}>
           <Stub placeholder={placeholder} />
-        </div>
+        </ElementMockup>
       );
     },
   },
@@ -428,12 +442,9 @@ export const elementsData: ElementData[] = [
     },
     render: ({ input, store }) => {
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
+        <ElementMockup
+          input={input}
+          store={store}
           style={{
             display: "flex",
             flexDirection: "column",
@@ -442,7 +453,7 @@ export const elementsData: ElementData[] = [
         >
           <Stub placeholder={"22.35871"} />
           <Stub placeholder={"40.08579"} />
-        </div>
+        </ElementMockup>
       );
     },
   },
@@ -467,15 +478,9 @@ export const elementsData: ElementData[] = [
     },
     render: ({ input, store }) => {
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
-        >
+        <ElementMockup input={input} store={store}>
           <Stub placeholder={"0 " + gettext("m")} />
-        </div>
+        </ElementMockup>
       );
     },
   },
@@ -506,19 +511,16 @@ export const elementsData: ElementData[] = [
     },
     render: ({ input, store }) => {
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
+        <ElementMockup
+          input={input}
+          store={store}
           style={{ display: "flex", gap: "8px" }}
         >
           <Button type="primary" size="small" style={{ pointerEvents: "none" }}>
             {gettext("Count")}
           </Button>
           <Stub style={{ flexGrow: "1" }} placeholder={"0"} />
-        </div>
+        </ElementMockup>
       );
     },
   },
@@ -549,20 +551,14 @@ export const elementsData: ElementData[] = [
     },
     render: ({ input, store }) => {
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
-        >
+        <ElementMockup input={input} store={store}>
           <PhotoIcon
             style={{
               fontSize: "48px",
               color: "var(--theme-color-primary)",
             }}
           />
-        </div>
+        </ElementMockup>
       );
     },
   },
@@ -599,15 +595,9 @@ export const elementsData: ElementData[] = [
         ([v]) => v === input.data.system
       ) ?? [undefined, undefined])[1];
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
-        >
+        <ElementMockup input={input} store={store}>
           <Stub placeholder={placeholder} />
-        </div>
+        </ElementMockup>
       );
     },
   },
@@ -674,15 +664,9 @@ export const elementsData: ElementData[] = [
     },
     render: ({ input, store }) => {
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
-        >
+        <ElementMockup input={input} store={store}>
           <Stub placeholder={gettext("Dropdown")} />
-        </div>
+        </ElementMockup>
       );
     },
   },
@@ -757,15 +741,9 @@ export const elementsData: ElementData[] = [
     },
     render: ({ input, store }) => {
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
-        >
+        <ElementMockup input={input} store={store}>
           <Stub placeholder={gettext("Dual dropdown")} />
-        </div>
+        </ElementMockup>
       );
     },
   },
@@ -823,13 +801,7 @@ export const elementsData: ElementData[] = [
     },
     render: ({ input, store }) => {
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
-        >
+        <ElementMockup input={input} store={store}>
           <div style={{ display: "flex", flexDirection: "column" }}>
             {input.data.options.map((option: OptionSingle, i: number) => (
               <Radio checked={option.initial === true} key={option.value + i}>
@@ -840,7 +812,7 @@ export const elementsData: ElementData[] = [
           {input.data.options.length === 0 && (
             <Stub placeholder={gettext("Radio group")} />
           )}
-        </div>
+        </ElementMockup>
       );
     },
   },
@@ -926,15 +898,9 @@ export const elementsData: ElementData[] = [
     },
     render: ({ input, store }) => {
       return (
-        <div
-          className="ngw-formbuilder-editor-widget-element"
-          onClick={(e) => {
-            e.stopPropagation();
-            store.setSelectedInput(input);
-          }}
-        >
+        <ElementMockup input={input} store={store}>
           <Stub placeholder={gettext("Dependent dropdowns")} />
-        </div>
+        </ElementMockup>
       );
     },
   },
