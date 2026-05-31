@@ -7,6 +7,7 @@ import type React from "react";
 import type { FormbuilderEditorStore } from "../FormbuilderEditorStore";
 
 import { AddFieldModalButton } from "./AddFieldModalButton";
+import { FieldLabel } from "./FieldLabel";
 import type { SerializedFieldFromSchema } from "./PropertiesPanel";
 
 interface FieldSelectProps {
@@ -45,24 +46,10 @@ export const FieldSelectInput: React.FC<FieldSelectProps> = observer(
         return {
           ...option,
           label: (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "100%",
-              }}
-            >
-              <span>{option.label}</span>
-              <span
-                style={{
-                  color: "gray",
-                  fontSize: "10px",
-                }}
-              >
-                {fullFieldData?.datatype}
-              </span>
-            </div>
+            <FieldLabel
+              label={option.label}
+              datatype={fullFieldData?.datatype}
+            />
           ),
           disabled: disabledDatatypeChecked,
         };

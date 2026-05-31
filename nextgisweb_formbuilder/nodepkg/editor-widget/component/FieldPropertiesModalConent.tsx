@@ -22,6 +22,8 @@ import { isFieldOccupied } from "../util/fieldRelatedOperations";
 import { getNewFieldKeynamePostfix } from "../util/newFieldKeyname";
 import { useFieldValidationRules } from "../util/useFieldValidationRules";
 
+import { FieldLabel } from "./FieldLabel";
+
 const msgAdd = gettext("Add");
 const msgNewField = gettext("New field");
 
@@ -189,8 +191,8 @@ type FieldPropertiesModalConentProps = {
 
 const FieldSelect = observer<SelectProps & { addButton: ReactNode }>(
   ({ addButton, ...rest }) => (
-    <Space.Compact block>
-      <Select {...rest} />
+    <Space.Compact style={{ width: "100%" }}>
+      <Select styles={{ root: { minWidth: 0 } }} {...rest} />
       {addButton}
     </Space.Compact>
   )
@@ -361,24 +363,10 @@ export const FieldPropertiesModalConent = observer(
                 return {
                   ...field,
                   label: (
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        width: "100%",
-                      }}
-                    >
-                      <span>{field.label}</span>
-                      <span
-                        style={{
-                          color: "gray",
-                          fontSize: "10px",
-                        }}
-                      >
-                        {fullFieldData?.datatype}
-                      </span>
-                    </div>
+                    <FieldLabel
+                      label={field.label}
+                      datatype={fullFieldData?.datatype}
+                    />
                   ),
                   disabled: disabledDatatypeChecked,
                 };

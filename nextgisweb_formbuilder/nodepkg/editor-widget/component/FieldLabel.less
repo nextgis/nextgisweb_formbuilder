@@ -1,0 +1,18 @@
+.ngw-formbuilder-field-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--theme-padding-sm);
+  min-width: 0;
+
+  > span.label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  > span.datatype {
+    color: var(--theme-color-text-quaternary);
+    font-size: var(--theme-font-size-sm);
+  }
+}
