@@ -9,6 +9,7 @@ import {
   Popover,
   Select,
   Space,
+  useToken,
 } from "@nextgisweb/gui/antd";
 import type { FormProps, SelectProps } from "@nextgisweb/gui/antd";
 import { gettext } from "@nextgisweb/pyramid/i18n";
@@ -23,6 +24,8 @@ import { getNewFieldKeynamePostfix } from "../util/newFieldKeyname";
 import { useFieldValidationRules } from "../util/useFieldValidationRules";
 
 import { FieldLabel } from "./FieldLabel";
+
+import LockIcon from "@nextgisweb/icon/material/lock/outline";
 
 const msgAdd = gettext("Add");
 const msgNewField = gettext("New field");
@@ -214,6 +217,7 @@ export const FieldPropertiesModalConent = observer(
     const currentElementStoreData = currentElementData.storeData;
 
     const [form] = Form.useForm();
+    const { token } = useToken();
 
     useEffect(() => {
       if (currentElementData) {
@@ -338,10 +342,20 @@ export const FieldPropertiesModalConent = observer(
         onFieldsChange={onFormChange}
         clearOnDestroy
       >
+        <Form.Item
+          style={{ marginBlock: `0 ${token.margin}px` }}
+          label={gettext("Element type")}
+        >
+          <Input
+            value={store.grabbedInput?.value.name}
+            suffix={<LockIcon style={{ color: token.colorTextDisabled }} />}
+            readOnly={true}
+          />
+        </Form.Item>
         {fieldsFromSchema.map((fieldProp, i) => (
           <Form.Item
             key={i}
-            style={{ marginBlock: "16px" }}
+            style={{ marginBlock: `${token.margin}px` }}
             label={fieldProp.formLabel}
             name={fieldProp.keyname}
           >
