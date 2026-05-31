@@ -1,8 +1,12 @@
 import { cloneDeep } from "lodash-es";
 import { action, observable } from "mobx";
 
-import type { FeatureLayerGeometryType } from "@nextgisweb/feature-layer/type/api";
+import type {
+  FeatureLayerGeometryType,
+  FeatureLayerRead,
+} from "@nextgisweb/feature-layer/type/api";
 import type { FormbuilderField } from "@nextgisweb/formbuilder/type/api";
+import type { EffectivePermissions } from "@nextgisweb/resource/type/api";
 
 import type {
   DragPos,
@@ -70,7 +74,7 @@ export class FormbuilderEditorStore {
   }
 
   @action.bound
-  setInputsTree = (inputs: FormBuilderUIData) => {
+  setInputsTree(inputs: FormBuilderUIData) {
     this.inputsTree = inputs;
     this.onChange?.({
       tree: inputs,
@@ -78,7 +82,7 @@ export class FormbuilderEditorStore {
       updateFeatureLayerFields: this.updateFeatureLayerFields,
       geometryType: this.geometryType,
     });
-  };
+  }
 
   @action.bound
   setIsMoving(value: boolean) {
@@ -112,63 +116,51 @@ export class FormbuilderEditorStore {
   }
 
   @action.bound
-  setFields(fields: FormbuilderEditorField[]) {
-    this.fields = fields;
-    this.onChange?.({
-      fields,
-      tree: this.inputsTree,
-      updateFeatureLayerFields: this.updateFeatureLayerFields,
-      geometryType: this.geometryType,
+  setFeatureLayer(
+    featureLayer: FeatureLayerRead,
+    permissions: EffectivePermissions
+  ) {
+    const existing: FormbuilderEditorField[] = featureLayer.fields.map(
+      ({ keyname, display_name, datatype }) => ({
+        keyname,
+        display_name,
+        datatype,
+        existing: true,
+      })
+    );
+
+    const absent = this.fields.filter((field) => {
+      return !existing.find((item) => item.keyname === field.keyname);
     });
+
+    this.geometryType = featureLayer.geometry_type;
+    this.canUpdateFields = permissions.resource.update;
+    this.updateFeatureLayerFields = this.canUpdateFields && absent.length === 0;
+    this.setFields([...existing, ...absent]); // Will fire onChange event
   }
 
   @action.bound
-  setCanUpdateFields(value: boolean) {
-    this.canUpdateFields = value;
+  setFields(fields: FormbuilderEditorField[]) {
+    this.fields = fields;
+    this.fireOnChange();
   }
 
   @action.bound
   setUpdateFeatureLayerFields(value: boolean) {
     this.updateFeatureLayerFields = value;
-
-    this.onChange?.({
-      tree: this.inputsTree,
-      fields: this.fields,
-      updateFeatureLayerFields: value,
-      geometryType: this.geometryType,
-    });
-  }
-
-  @action.bound
-  setGeometryType(value: FeatureLayerGeometryType) {
-    this.geometryType = value;
-
-    this.onChange?.({
-      tree: this.inputsTree,
-      fields: this.fields,
-      updateFeatureLayerFields: this.updateFeatureLayerFields,
-      geometryType: this.geometryType,
-    });
+    this.fireOnChange();
   }
 
   @action.bound
   updateField(keyname: string, newData: Partial<FormbuilderEditorField>) {
-    const updatedFields = this.fields.map((field) => {
+    this.fields = this.fields.map((field) => {
       if (field.keyname === keyname) {
         return { ...field, ...newData };
       } else {
         return field;
       }
     });
-
-    this.fields = updatedFields;
-
-    this.onChange?.({
-      fields: updatedFields,
-      tree: this.inputsTree,
-      updateFeatureLayerFields: this.updateFeatureLayerFields,
-      geometryType: this.geometryType,
-    });
+    this.fireOnChange();
   }
 
   getElementById(id: number) {
@@ -329,43 +321,29 @@ export class FormbuilderEditorStore {
     }
 
     const treeDeepClone = cloneDeep(this.inputsTree);
-
     setListByIdInner(treeDeepClone, id, newList);
 
-    this.setInputsTree(treeDeepClone);
-
-    this.onChange?.({
-      tree: treeDeepClone,
-      fields: this.fields,
-      updateFeatureLayerFields: this.updateFeatureLayerFields,
-      geometryType: this.geometryType,
-    });
+    this.inputsTree = treeDeepClone;
+    this.fireOnChange();
   }
 
   @action.bound
   setNewElementData(id: number, newData: any) {
-    const newInputsTree = updateElementById(this.inputsTree, id, (element) => {
+    this.inputsTree = updateElementById(this.inputsTree, id, (element) => {
       element.data = newData;
     });
-
-    this.setInputsTree(newInputsTree);
-
-    this.onChange?.({
-      tree: this.inputsTree,
-      fields: this.fields,
-      updateFeatureLayerFields: this.updateFeatureLayerFields,
-      geometryType: this.geometryType,
-    });
+    this.fireOnChange();
   }
 
   @action.bound
   setNewElementValue(id: number, newValue: any) {
-    const newInputsTree = updateElementById(this.inputsTree, id, (element) => {
+    this.inputsTree = updateElementById(this.inputsTree, id, (element) => {
       element.value = newValue;
     });
+    this.fireOnChange();
+  }
 
-    this.setInputsTree(newInputsTree);
-
+  private fireOnChange() {
     this.onChange?.({
       tree: this.inputsTree,
       fields: this.fields,

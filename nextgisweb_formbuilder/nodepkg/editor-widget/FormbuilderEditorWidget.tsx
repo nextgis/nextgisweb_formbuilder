@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 
 import { useThemeVariables } from "@nextgisweb/gui/hook";
+import { assert } from "@nextgisweb/jsrealm/error";
 import { route } from "@nextgisweb/pyramid/api/route";
 import { gettext } from "@nextgisweb/pyramid/i18n";
 
@@ -25,20 +26,16 @@ import MoreVertIcon from "@nextgisweb/icon/material/more_vert";
 
 import "./FormbuilderEditorWidget.less";
 
-export const FormbuilderEditorWidget = observer(
-  ({
-    value,
-    store: storeProp,
-    parent,
-    onChange,
-    setDirty,
-  }: {
-    value?: any;
-    store?: FormbuilderEditorStore;
-    parent?: number | null | undefined;
-    onChange?: (val: FormbuilderValue) => void;
-    setDirty?: (val: boolean) => void;
-  }) => {
+export interface FormbuilderEditorWidgetProps {
+  value?: any;
+  store?: FormbuilderEditorStore;
+  parent?: number | null | undefined;
+  onChange?: (val: FormbuilderValue) => void;
+  setDirty?: (val: boolean) => void;
+}
+
+export const FormbuilderEditorWidget = observer<FormbuilderEditorWidgetProps>(
+  ({ value, store: storeProp, parent, onChange, setDirty }) => {
     const [store] = useState(
       () => storeProp || new FormbuilderEditorStore({ onChange, setDirty })
     );
@@ -56,41 +53,15 @@ export const FormbuilderEditorWidget = observer(
     useEffect(() => {
       if (parent && typeof parent === "number") {
         const getParentInfo = async (resourceId: number) => {
-          const resourceInfo = await route("resource.item", resourceId).get({
-            cache: true,
-          });
+          const [parentData, parentPermission] = await Promise.all([
+            route("resource.item", resourceId).get({ cache: true }),
+            route("resource.permission", resourceId).get({ cache: true }),
+          ]);
 
-          if (resourceInfo.vector_layer?.geometry_type) {
-            store.setGeometryType(resourceInfo.vector_layer?.geometry_type);
-          }
+          const featureLayer = parentData.feature_layer;
+          assert(featureLayer, "Parent resource must be a feature layer");
 
-          const resourceMoreInfo = await route(
-            "resource.permission",
-            resourceId
-          ).get({
-            cache: true,
-          });
-
-          store.setCanUpdateFields(resourceMoreInfo.resource.update);
-
-          const parentFieldsNormalized = (
-            resourceInfo.feature_layer?.fields || []
-          ).map(
-            ({ keyname, display_name, datatype }): FormbuilderEditorField => ({
-              keyname,
-              display_name,
-              datatype,
-              existing: true,
-            })
-          );
-
-          const filteredFormFields = store.fields.filter((field) => {
-            return !parentFieldsNormalized.find(
-              (item) => item.keyname === field.keyname
-            );
-          });
-
-          store.setFields([...parentFieldsNormalized, ...filteredFormFields]);
+          store.setFeatureLayer(featureLayer, parentPermission);
         };
         getParentInfo(parent);
       }
