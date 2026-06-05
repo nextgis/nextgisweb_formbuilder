@@ -1,18 +1,28 @@
-.ngw-formbuilder-editor-widget-cascade-options-input-modal {
+.ngw-formbuilder-editor-widget-cascade-options-input-modal > .ant-modal {
   margin: 1em;
   padding: 0;
   width: 50%;
   min-width: 40em;
   max-width: 60em;
   height: 80%;
-
   min-height: 40em;
+
+  .ngw-formbuilder-editor-widget-cascade-options-input-modal-title {
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+    gap: var(--ant-padding);
+  }
 
   > .ant-modal-container {
     display: flex;
     flex-direction: column;
-    padding: 20px 20px;
+    padding: var(--ant-padding);
     height: 100%;
+
+    > .ant-modal-header {
+      margin-block-end: var(--ant-padding);
+    }
 
     > .ant-modal-body {
       display: flex;

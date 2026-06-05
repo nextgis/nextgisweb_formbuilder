@@ -7,20 +7,30 @@ import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 
 import type { OptionSingle } from "@nextgisweb/formbuilder/type/api";
-import { Button, Modal } from "@nextgisweb/gui/antd";
+import { Button, ConfigProvider, Modal, Space } from "@nextgisweb/gui/antd";
+import { CsvImporterModal } from "@nextgisweb/gui/csv-importer";
 import { EdiTable } from "@nextgisweb/gui/edi-table";
 import type { EdiTableColumn, EdiTableStore } from "@nextgisweb/gui/edi-table";
 import { useThemeVariables } from "@nextgisweb/gui/hook";
+import { ExportIcon, ImportIcon } from "@nextgisweb/gui/icon";
 import { gettext } from "@nextgisweb/pyramid/i18n";
+
+import {
+  csvRowsToCascadeOptions,
+  exportCascadeOptionsToCsv,
+  targetColumnsForCascadeOptions,
+} from "../util/csvOptions";
+import { useImportFlow } from "../util/useImportFlow";
 
 import { OptionsEdiTableStore } from "./SimpleTableStores";
 import type { OptionsRow } from "./SimpleTableStores";
 
-const msgEdit = gettext("Edit");
-const msgOptions = gettext("Options");
-const msgDependentStub = gettext(
-  "Select or add an option in the table above to see dependent options"
-);
+/* prettier-ignore */ const
+msgEdit = gettext("Edit"),
+msgOptions = gettext("Options"),
+msgExport = gettext("Export"),
+msgImport = gettext("Import"),
+msgDependentStub = gettext("Select or add an option in the table above to see dependent options");
 
 type ParentRowStringKeys = {
   [K in keyof ParentRow]: ParentRow[K] extends string | undefined
@@ -212,7 +222,13 @@ export const CascadeOptionsInput = observer(
           [];
 
         dependentStore.setColumns(["value", "label", "initial"]);
-        dependentStore.setRows(selectedRowItems);
+        dependentStore.setRows(
+          selectedRowItems.map((i) => ({ ...i, initial: false }))
+        );
+        const initialDepIdx = selectedRowItems.findIndex((i) => i.initial);
+        if (initialDepIdx >= 0) {
+          dependentStore.rows[initialDepIdx]?.setInitial(true);
+        }
       }
     }, [activeRowKey, dependentStore, store, store.rows, store.selectedRowKey]);
 
@@ -227,16 +243,19 @@ export const CascadeOptionsInput = observer(
       setIsModalOpen(true);
     };
 
-    const handleCancel = () => {
+    const syncDependentToStore = useCallback(() => {
       if (store.selectedRowKey) {
         const items = dependentStore.rows.map(({ initial, value, label }) => ({
           initial,
           value,
           label: label || "",
         }));
-
         store.setRowItemsByKey(store.selectedRowKey, items);
       }
+    }, [store, dependentStore]);
+
+    const handleCancel = () => {
+      syncDependentToStore();
 
       if (onChange) {
         onChange(
@@ -252,6 +271,49 @@ export const CascadeOptionsInput = observer(
       store.setSelectedRowKey(undefined);
       setIsModalOpen(false);
     };
+
+    const handleExport = useCallback(() => {
+      syncDependentToStore();
+      exportCascadeOptionsToCsv(
+        store.rows.map((row) => ({
+          value: row.value,
+          label: row.label,
+          initial: row.initial,
+          items: row.items.map((i) => ({
+            value: i.value,
+            label: i.label,
+            initial: i.initial ?? false,
+          })),
+        }))
+      );
+    }, [store, syncDependentToStore]);
+
+    const handleImportData = useCallback(
+      (csvRows: Record<string, string>[]) => {
+        const parsed = csvRowsToCascadeOptions(csvRows);
+        store.clear();
+        store.setRows(
+          parsed.map((r) => ({
+            value: r.value,
+            label: r.label,
+            initial: false,
+            items: observable.array<OptionSingle>(r.items),
+          }))
+        );
+        const initialParentIdx = parsed.findIndex((r) => r.initial);
+        if (initialParentIdx >= 0) {
+          store.rows[initialParentIdx]?.setInitial(true);
+        }
+        store.setSelectedRowKey(undefined);
+        setActiveRowKey(undefined);
+        dependentStore.setRows([]);
+      },
+      [store, dependentStore]
+    );
+
+    const importFlow = useImportFlow(store.rows.length, handleImportData);
+
+    const importerTargetColumns = targetColumnsForCascadeOptions();
 
     const { selectedRowKey } = store;
     const getRowClassName = useCallback(
@@ -270,54 +332,80 @@ export const CascadeOptionsInput = observer(
 
     return (
       <>
+        {importFlow.contextHolder}
         <Button style={{ width: "100%" }} onClick={showModal}>
           {msgEdit}
         </Button>
-        <Modal
-          className="ngw-formbuilder-editor-widget-cascade-options-input-modal"
-          styles={{
-            body: {
-              ...themeVariables,
-            },
-            container: { display: "flex", flexDirection: "column" },
-          }}
-          width="" // Do not set the default (520px) width
-          centered={true}
-          title={msgOptions}
-          open={isModalOpen}
-          destroyOnHidden={true}
-          footer={false}
-          onCancel={handleCancel}
-        >
-          <EdiTable
-            size="small"
-            styles={{ root: { flex: "1 0" } }}
-            card={true}
-            parentHeight={true}
-            store={store}
-            columns={columns || []}
-            rowKey="key"
-            rowClassName={getRowClassName}
-          />
-
-          <h3>{gettext("Dependent options")}</h3>
-          {store.selectedRowKey &&
-          store.placeholder.key !== store.selectedRowKey ? (
+        <ConfigProvider componentSize="middle">
+          <Modal
+            classNames={{
+              wrapper:
+                "ngw-formbuilder-editor-widget-cascade-options-input-modal",
+              title:
+                "ngw-formbuilder-editor-widget-cascade-options-input-modal-title",
+            }}
+            styles={{ body: { ...themeVariables } }}
+            width="" // Do not set the default (520px) width
+            centered={true}
+            title={
+              <>
+                {msgOptions}
+                <Space>
+                  <Button
+                    icon={<ImportIcon />}
+                    onClick={importFlow.handleClick}
+                  >
+                    {msgImport}
+                  </Button>
+                  <Button icon={<ExportIcon />} onClick={handleExport}>
+                    {msgExport}
+                  </Button>
+                </Space>
+              </>
+            }
+            open={isModalOpen}
+            destroyOnHidden={true}
+            footer={false}
+            onCancel={handleCancel}
+          >
             <EdiTable
               size="small"
-              card={true}
               styles={{ root: { flex: "1 0" } }}
+              card={true}
               parentHeight={true}
-              store={dependentStore}
-              columns={depColumns || []}
+              store={store}
+              columns={columns || []}
               rowKey="key"
+              rowClassName={getRowClassName}
             />
-          ) : (
-            <div className="dependent-stub" style={{ flex: "1 0" }}>
-              {msgDependentStub}
-            </div>
-          )}
-        </Modal>
+
+            <h3>{gettext("Dependent options")}</h3>
+            {store.selectedRowKey &&
+            store.placeholder.key !== store.selectedRowKey ? (
+              <EdiTable
+                size="small"
+                card={true}
+                styles={{ root: { flex: "1 0" } }}
+                parentHeight={true}
+                store={dependentStore}
+                columns={depColumns || []}
+                rowKey="key"
+              />
+            ) : (
+              <div className="dependent-stub" style={{ flex: "1 0" }}>
+                {msgDependentStub}
+              </div>
+            )}
+            <CsvImporterModal
+              key={importFlow.resetCount}
+              open={importFlow.isOpen}
+              targetColumns={importerTargetColumns}
+              onSubmit={importFlow.handleSubmit}
+              close={importFlow.handleClose}
+              onCancel={importFlow.handleModalOnCancel}
+            />
+          </Modal>
+        </ConfigProvider>
       </>
     );
   }

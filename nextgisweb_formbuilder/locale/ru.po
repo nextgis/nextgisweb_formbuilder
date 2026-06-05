@@ -83,23 +83,33 @@ msgstr "Название"
 msgid "Data type"
 msgstr "Тип данных"
 
-#: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:19
-#: nodepkg/editor-widget/component/OptionsInput.tsx:15
+#: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:29
+#: nodepkg/editor-widget/component/OptionsInput.tsx:23
 msgid "Edit"
 msgstr "Редактировать"
 
-#: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:20
-#: nodepkg/editor-widget/component/OptionsInput.tsx:16
+#: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:30
+#: nodepkg/editor-widget/component/OptionsInput.tsx:24
 #: nodepkg/editor-widget/element.tsx:627 nodepkg/editor-widget/element.tsx:696
 #: nodepkg/editor-widget/element.tsx:766 nodepkg/editor-widget/element.tsx:840
 msgid "Options"
 msgstr "Опции"
 
-#: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:21
+#: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:31
+#: nodepkg/editor-widget/component/OptionsInput.tsx:25
+msgid "Export"
+msgstr "Экспорт"
+
+#: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:32
+#: nodepkg/editor-widget/component/OptionsInput.tsx:26
+msgid "Import"
+msgstr "Импорт"
+
+#: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:33
 msgid "Select or add an option in the table above to see dependent options"
 msgstr "Выберите или добавьте опцию в таблице выше, чтобы увидеть зависимые опции"
 
-#: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:303
+#: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:382
 msgid "Dependent options"
 msgstr "Зависимые опции"
 
@@ -170,6 +180,7 @@ msgstr "Имя пользователя NextGIS Web"
 #: nodepkg/editor-widget/element.tsx:309 nodepkg/editor-widget/element.tsx:637
 #: nodepkg/editor-widget/element.tsx:776 nodepkg/editor-widget/element.tsx:850
 #: nodepkg/editor-widget/element.tsx:872
+#: nodepkg/editor-widget/util/csvOptions.ts:14
 msgid "Label"
 msgstr "Надпись"
 
@@ -291,12 +302,14 @@ msgstr "Свои значения"
 #: nodepkg/editor-widget/element.tsx:631 nodepkg/editor-widget/element.tsx:700
 #: nodepkg/editor-widget/element.tsx:770 nodepkg/editor-widget/element.tsx:844
 #: nodepkg/editor-widget/element.tsx:866
+#: nodepkg/editor-widget/util/csvOptions.ts:13
 msgid "Value"
 msgstr "Значение"
 
 #: nodepkg/editor-widget/element.tsx:645 nodepkg/editor-widget/element.tsx:722
 #: nodepkg/editor-widget/element.tsx:784 nodepkg/editor-widget/element.tsx:858
 #: nodepkg/editor-widget/element.tsx:880
+#: nodepkg/editor-widget/util/csvOptions.ts:15
 msgid "Initial"
 msgstr "Исходное значение"
 
@@ -332,6 +345,14 @@ msgstr "Зависимое поле"
 msgid "Dependent dropdowns"
 msgstr "Зависимые списки"
 
+#: nodepkg/editor-widget/util/csvOptions.ts:11
+msgid "Yes"
+msgstr "Да"
+
+#: nodepkg/editor-widget/util/csvOptions.ts:12
+msgid "Group"
+msgstr "Группа"
+
 #: nodepkg/editor-widget/util/useFieldValidationRules.ts:6
 msgid "Mandatory field"
 msgstr "Обязательное поле"
@@ -343,6 +364,18 @@ msgstr "Должен быть уникальным"
 #: nodepkg/editor-widget/util/useFieldValidationRules.ts:8
 msgid "Display name must be unique"
 msgstr "Должно быть уникально"
+
+#: nodepkg/editor-widget/util/useImportFlow.ts:7
+msgid ""
+"All existing options will be deleted after import. Are you sure you want to "
+"proceed?"
+msgstr ""
+"Все существующие опции будут удалены после импорта. Вы уверены, что хотите "
+"продолжить?"
+
+#: nodepkg/editor-widget/util/useImportFlow.ts:8
+msgid "All progress will be lost. Are you sure you want to cancel import?"
+msgstr "Весь прогресс будет потерян. Вы уверены, что хотите отменить импорт?"
 
 #: nodepkg/form-widget/FormWidget.tsx:20
 msgid "Upload form"

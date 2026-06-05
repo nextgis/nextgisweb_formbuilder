@@ -1,19 +1,29 @@
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
-import { Button, Modal } from "@nextgisweb/gui/antd";
+import { Button, ConfigProvider, Modal, Space } from "@nextgisweb/gui/antd";
+import { CsvImporterModal } from "@nextgisweb/gui/csv-importer";
 import { EdiTable } from "@nextgisweb/gui/edi-table";
+import { ExportIcon, ImportIcon } from "@nextgisweb/gui/icon";
 import { gettext } from "@nextgisweb/pyramid/i18n";
 
 import type { OptionsColumn } from "../element";
+import {
+  csvRowsToSimpleOptions,
+  exportSimpleOptionsToCsv,
+  targetColumnsForSimpleOptions,
+} from "../util/csvOptions";
+import { useImportFlow } from "../util/useImportFlow";
 
 import { OptionsEdiTableStore } from "./SimpleTableStores";
 import type { OptionsRow } from "./SimpleTableStores";
 
 import "./OptionsInput.less";
 
-const msgEdit = gettext("Edit");
-const msgOptions = gettext("Options");
+const msgEdit = gettext("Edit"),
+  msgOptions = gettext("Options"),
+  msgExport = gettext("Export"),
+  msgImport = gettext("Import");
 
 interface OptionsInputProps {
   value?: OptionsRow[];
@@ -28,8 +38,9 @@ export const OptionsInput = observer(
     const [store] = useState(() => new OptionsEdiTableStore());
 
     const handleOpen = () => {
+      const columnKeys = columns?.map((col) => col.key) || [];
+      store.setColumns(columnKeys);
       if (value) {
-        store.setColumns(columns?.map((col) => col.key) || []);
         store.setRows(value);
       }
       setIsModalOpen(true);
@@ -50,31 +61,88 @@ export const OptionsInput = observer(
       setIsModalOpen(false);
     };
 
+    const handleExport = useCallback(() => {
+      if (columns) {
+        exportSimpleOptionsToCsv(store.rows, columns);
+      }
+    }, [store.rows, columns]);
+
+    const handleImportData = useCallback(
+      (rows: Record<string, string>[]) => {
+        const columnKeys = columns?.map((col) => col.key) || [];
+        store.setColumns(columnKeys);
+        const parsed = csvRowsToSimpleOptions(rows, columnKeys);
+        store.setRows(parsed.map((r) => ({ ...r, initial: false })));
+        if (columnKeys.includes("initial")) {
+          const initialIdx = parsed.findIndex((r) => r.initial);
+          if (initialIdx >= 0) {
+            store.rows[initialIdx]?.setInitial(true);
+          }
+        }
+      },
+      [store, columns]
+    );
+
+    const importFlow = useImportFlow(store.rows.length, handleImportData);
+
+    const importerTargetColumns = columns
+      ? targetColumnsForSimpleOptions(columns)
+      : [];
+
     return (
       <>
+        {importFlow.contextHolder}
         <Button style={{ width: "100%" }} onClick={handleOpen}>
           {msgEdit}
         </Button>
-        <Modal
-          className="ngw-formbuilder-editor-widget-options-input-modal"
-          width="" // Do not set the default (520px) width
-          centered={true}
-          title={msgOptions}
-          open={isModalOpen}
-          destroyOnHidden={true}
-          footer={false}
-          onOk={handleClose}
-          onCancel={handleClose}
-        >
-          <EdiTable
-            size="small"
-            card={true}
-            parentHeight={true}
-            store={store}
-            columns={columns || []}
-            rowKey="key"
-          />
-        </Modal>
+        <ConfigProvider componentSize={"medium"}>
+          <Modal
+            classNames={{
+              wrapper: "ngw-formbuilder-editor-widget-options-input-modal",
+              title: "ngw-formbuilder-editor-widget-options-input-modal-title",
+            }}
+            width="" // Do not set the default (520px) width
+            centered={true}
+            title={
+              <>
+                {msgOptions}
+                <Space>
+                  <Button
+                    icon={<ImportIcon />}
+                    onClick={importFlow.handleClick}
+                  >
+                    {msgImport}
+                  </Button>
+                  <Button icon={<ExportIcon />} onClick={handleExport}>
+                    {msgExport}
+                  </Button>
+                </Space>
+              </>
+            }
+            open={isModalOpen}
+            destroyOnHidden={true}
+            footer={false}
+            onOk={handleClose}
+            onCancel={handleClose}
+          >
+            <EdiTable
+              size="small"
+              card={true}
+              parentHeight={true}
+              store={store}
+              columns={columns || []}
+              rowKey="key"
+            />
+            <CsvImporterModal
+              key={importFlow.resetCount}
+              open={importFlow.isOpen}
+              targetColumns={importerTargetColumns}
+              onSubmit={importFlow.handleSubmit}
+              close={importFlow.handleClose}
+              onCancel={importFlow.handleModalOnCancel}
+            />
+          </Modal>
+        </ConfigProvider>
       </>
     );
   }

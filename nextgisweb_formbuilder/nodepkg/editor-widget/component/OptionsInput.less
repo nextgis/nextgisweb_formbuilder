@@ -1,4 +1,4 @@
-.ngw-formbuilder-editor-widget-options-input-modal.ant-modal {
+.ngw-formbuilder-editor-widget-options-input-modal > .ant-modal {
   margin: 1em;
   padding: 0;
   width: 50%;
@@ -7,11 +7,22 @@
   height: 80%;
   min-height: 40em;
 
-  .ant-modal-container {
+  .ngw-formbuilder-editor-widget-options-input-modal-title {
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+    gap: var(--ant-padding);
+  }
+
+  > .ant-modal-container {
     display: flex;
     flex-direction: column;
-    padding: 20px 20px;
+    padding: var(--ant-padding);
     height: 100%;
+
+    > .ant-modal-header {
+      margin-block-end: var(--ant-padding);
+    }
 
     > .ant-modal-body {
       flex-grow: 1;
