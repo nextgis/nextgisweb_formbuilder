@@ -40,15 +40,8 @@ export const FormbuilderEditorWidget = observer<FormbuilderEditorWidgetProps>(
       () => storeProp || new FormbuilderEditorStore({ onChange, setDirty })
     );
 
-    const {
-      fields,
-      dragPos,
-      dragging,
-      isMoving,
-      inputsTree,
-      grabbedInput,
-      setDragPos,
-    } = store;
+    const { fields, dragPos, dragging, isMoving, inputsTree, grabbedInput } =
+      store;
 
     useEffect(() => {
       if (parent && typeof parent === "number") {
@@ -80,18 +73,16 @@ export const FormbuilderEditorWidget = observer<FormbuilderEditorWidgetProps>(
     }, [store, value]);
 
     useEffect(() => {
-      if (dragging) {
-        const handleMouseMove = (e: MouseEvent) => {
-          setDragPos({ x: e.clientX, y: e.clientY });
-        };
+      const handleMouseMove = (e: MouseEvent) => {
+        if (!store.dragging) return;
+        store.setDragPos({ x: e.clientX, y: e.clientY });
+      };
 
-        document.addEventListener("mousemove", handleMouseMove);
-
-        return () => {
-          document.removeEventListener("mousemove", handleMouseMove);
-        };
-      }
-    }, [dragging, setDragPos]);
+      document.addEventListener("mousemove", handleMouseMove);
+      return () => {
+        document.removeEventListener("mousemove", handleMouseMove);
+      };
+    }, [store]);
 
     useEffect(() => {
       const handleMouseUp = (event: MouseEvent) => {

@@ -45,8 +45,8 @@ export class FormbuilderEditorStore {
   @observable.ref accessor isMoving: boolean = false;
   @observable.ref accessor listCounter: number = 0;
   @observable.ref accessor selectedInput: UIListItem | null = null;
-  @observable.ref accessor dragPos: DragPos | null = null;
   @observable.ref accessor dragging = false;
+  @observable.ref accessor dragPos: DragPos | null = null;
 
   @observable.ref accessor onChange: ((val: FormbuilderValue) => void) | null =
     null;
@@ -64,13 +64,15 @@ export class FormbuilderEditorStore {
   }
 
   @action.bound
-  setDragPos(dragPos: DragPos | null) {
-    this.dragPos = dragPos;
+  setDragging(value: boolean) {
+    if (this.dragging === value) return;
+    this.dragging = value;
+    this.dragPos = null;
   }
 
   @action.bound
-  setDragging(dragging: boolean) {
-    this.dragging = dragging;
+  setDragPos(value: DragPos) {
+    this.dragPos = value;
   }
 
   @action.bound

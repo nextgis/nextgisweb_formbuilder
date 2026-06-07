@@ -280,7 +280,6 @@ const renderInputElement = (
     if (!grabbed) return;
 
     store.setSelectedInput(input);
-    store.setDragPos(null);
     store.setDragging(true);
     store.setGrabbedIndex(index);
     store.setGrabbedSourceListId(listId);
