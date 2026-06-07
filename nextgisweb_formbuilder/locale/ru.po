@@ -84,32 +84,37 @@ msgid "Data type"
 msgstr "Тип данных"
 
 #: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:29
-#: nodepkg/editor-widget/component/OptionsInput.tsx:23
+#: nodepkg/editor-widget/component/OptionsInput.tsx:24
 msgid "Edit"
 msgstr "Редактировать"
 
 #: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:30
-#: nodepkg/editor-widget/component/OptionsInput.tsx:24
+#: nodepkg/editor-widget/component/OptionsInput.tsx:25
 #: nodepkg/editor-widget/element.tsx:627 nodepkg/editor-widget/element.tsx:696
 #: nodepkg/editor-widget/element.tsx:766 nodepkg/editor-widget/element.tsx:840
 msgid "Options"
 msgstr "Опции"
 
 #: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:31
-#: nodepkg/editor-widget/component/OptionsInput.tsx:25
+#: nodepkg/editor-widget/component/OptionsInput.tsx:26
 msgid "Export"
 msgstr "Экспорт"
 
 #: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:32
-#: nodepkg/editor-widget/component/OptionsInput.tsx:26
+#: nodepkg/editor-widget/component/OptionsInput.tsx:27
 msgid "Import"
 msgstr "Импорт"
 
 #: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:33
+#: nodepkg/editor-widget/component/OptionsInput.tsx:28
+msgid "Done"
+msgstr "Готово"
+
+#: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:34
 msgid "Select or add an option in the table above to see dependent options"
 msgstr "Выберите или добавьте опцию в таблице выше, чтобы увидеть зависимые опции"
 
-#: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:382
+#: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:391
 msgid "Dependent options"
 msgstr "Зависимые опции"
 

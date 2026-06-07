@@ -20,10 +20,12 @@ import type { OptionsRow } from "./SimpleTableStores";
 
 import "./OptionsInput.less";
 
-const msgEdit = gettext("Edit"),
-  msgOptions = gettext("Options"),
-  msgExport = gettext("Export"),
-  msgImport = gettext("Import");
+/* prettier-ignore */ const
+msgEdit = gettext("Edit"),
+msgOptions = gettext("Options"),
+msgExport = gettext("Export"),
+msgImport = gettext("Import"),
+msgDone = gettext("Done");
 
 interface OptionsInputProps {
   value?: OptionsRow[];
@@ -103,6 +105,7 @@ export const OptionsInput = observer(
             }}
             width="" // Do not set the default (520px) width
             centered={true}
+            closeIcon={null}
             title={
               <>
                 {msgOptions}
@@ -117,6 +120,13 @@ export const OptionsInput = observer(
                     {msgExport}
                   </Button>
                 </Space>
+                <Button
+                  className="ngw-formbuilder-editor-widget-options-input-modal-done-button"
+                  type="primary"
+                  onClick={handleClose}
+                >
+                  {msgDone}
+                </Button>
               </>
             }
             open={isModalOpen}

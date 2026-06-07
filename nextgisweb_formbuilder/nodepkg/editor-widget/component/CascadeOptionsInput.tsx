@@ -30,6 +30,7 @@ msgEdit = gettext("Edit"),
 msgOptions = gettext("Options"),
 msgExport = gettext("Export"),
 msgImport = gettext("Import"),
+msgDone = gettext("Done"),
 msgDependentStub = gettext("Select or add an option in the table above to see dependent options");
 
 type ParentRowStringKeys = {
@@ -254,7 +255,7 @@ export const CascadeOptionsInput = observer(
       }
     }, [store, dependentStore]);
 
-    const handleCancel = () => {
+    const handleClose = () => {
       syncDependentToStore();
 
       if (onChange) {
@@ -347,6 +348,7 @@ export const CascadeOptionsInput = observer(
             styles={{ body: { ...themeVariables } }}
             width="" // Do not set the default (520px) width
             centered={true}
+            closeIcon={null}
             title={
               <>
                 {msgOptions}
@@ -361,12 +363,19 @@ export const CascadeOptionsInput = observer(
                     {msgExport}
                   </Button>
                 </Space>
+                <Button
+                  className="ngw-formbuilder-editor-widget-cascade-options-input-modal-done-button"
+                  type="primary"
+                  onClick={handleClose}
+                >
+                  {msgDone}
+                </Button>
               </>
             }
             open={isModalOpen}
             destroyOnHidden={true}
             footer={false}
-            onCancel={handleCancel}
+            onCancel={handleClose}
           >
             <EdiTable
               size="small"
