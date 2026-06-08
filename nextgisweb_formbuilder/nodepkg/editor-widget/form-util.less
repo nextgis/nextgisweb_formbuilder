@@ -1,0 +1,27 @@
+.ngw-formbuilder-editor-widget-form-labels {
+  display: grid;
+  grid-template-columns: max-content auto;
+  gap: var(--ant-margin) 0;
+
+  &.ant-form-small {
+    gap: calc(var(--ant-margin) / 2) 0;
+  }
+
+  > .ant-form-item {
+    display: contents;
+
+    > .ant-row {
+      display: contents;
+
+      > .ant-form-item-label {
+        max-width: unset;
+        overflow: unset;
+      }
+
+      > .ant-form-item-control {
+        grid-column-start: 2;
+        min-width: 100%;
+      }
+    }
+  }
+}

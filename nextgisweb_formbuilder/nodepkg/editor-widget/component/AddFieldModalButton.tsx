@@ -10,14 +10,14 @@ import type {
 } from "../FormbuilderEditorStore";
 import { elementsData } from "../element";
 import { fieldDataTypeOptions } from "../fields";
+import { labelsClassName } from "../form-util";
 import { getNewFieldKeynamePostfix } from "../util/newFieldKeyname";
 import { useFieldValidationRules } from "../util/useFieldValidationRules";
 
 const msgAdd = gettext("Add");
 const msgNewField = gettext("New field");
-
-const msgFieldKeyname = gettext("Keyname");
 const msgFieldDisplayName = gettext("Display name");
+const msgFieldKeyname = gettext("Keyname");
 const msgFieldDataType = gettext("Data type");
 
 type AddFieldModalButtonProps = {
@@ -105,41 +105,37 @@ export const AddFieldModalButton = observer(
           }}
         >
           <Form
-            form={form}
-            size="middle"
+            className={labelsClassName}
             style={{ maxWidth: 600 }}
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
+            size="middle"
             labelAlign="left"
+            form={form}
             name="AddNewFieldModal"
             autoComplete="off"
             requiredMark={false}
           >
             <Form.Item<FormbuilderEditorField>
-              style={{ marginBlock: "16px" }}
-              label={msgFieldKeyname}
-              name="keyname"
-              rules={rulesKeyname}
-            >
-              <Input />
-            </Form.Item>
-
-            <Form.Item<FormbuilderEditorField>
-              style={{ marginBlock: "16px" }}
-              label={msgFieldDisplayName}
               name="display_name"
+              label={msgFieldDisplayName}
               rules={rulesDisplayName}
             >
               <Input />
             </Form.Item>
 
             <Form.Item<FormbuilderEditorField>
-              style={{ marginBlock: "16px" }}
-              label={msgFieldDataType}
               name="datatype"
+              label={msgFieldDataType}
               rules={rulesRequired}
             >
               <Select options={filteredFieldDataTypeOptions} />
+            </Form.Item>
+
+            <Form.Item<FormbuilderEditorField>
+              name="keyname"
+              label={msgFieldKeyname}
+              rules={rulesKeyname}
+            >
+              <Input />
             </Form.Item>
           </Form>
         </Modal>

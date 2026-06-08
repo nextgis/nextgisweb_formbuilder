@@ -2,7 +2,7 @@ import { Select } from "antd";
 import type { SelectProps } from "antd";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
-import type React from "react";
+import type { FC } from "react";
 
 import type { FormbuilderEditorStore } from "../FormbuilderEditorStore";
 
@@ -22,7 +22,7 @@ interface FieldSelectProps {
   onChange?: (value: string) => void;
 }
 
-export const FieldSelectInput: React.FC<FieldSelectProps> = observer(
+export const FieldSelectInput: FC<FieldSelectProps> = observer(
   ({
     prop,
     fieldOptions = [],

@@ -17,6 +17,7 @@ import { gettext } from "@nextgisweb/pyramid/i18n";
 import type { FormbuilderEditorStore } from "../FormbuilderEditorStore";
 import { allFieldProps, elementsData } from "../element";
 import type { SchemaEntry } from "../element";
+import { labelsClassName } from "../form-util";
 import type { UIListItem } from "../type";
 import { isFieldOccupied } from "../util/fieldRelatedOperations";
 
@@ -184,7 +185,7 @@ export const PropertiesPanel = observer(
             />
           );
         case "boolean":
-          return <Checkbox />;
+          return <Checkbox>{prop.formLabel}</Checkbox>;
         case "number":
           return <InputNumber min={min} max={max} />;
         case "select":
@@ -214,12 +215,10 @@ export const PropertiesPanel = observer(
           {store.selectedInput && (
             <>
               <Form
+                className={labelsClassName}
                 size="small"
                 style={{ padding: "8px" }}
-                layout="horizontal"
                 labelAlign="left"
-                labelCol={{ flex: "160px" }}
-                labelWrap={true}
                 autoComplete="off"
                 name="basic"
                 form={form}
@@ -227,9 +226,8 @@ export const PropertiesPanel = observer(
               >
                 {fieldsFromSchema.map((field, i) => (
                   <Form.Item
-                    style={{ marginBottom: "6px" }}
                     key={i}
-                    label={field.formLabel}
+                    label={field.type !== "boolean" ? field.formLabel : null}
                     name={field.keyname}
                     valuePropName={
                       field.type === "boolean" ? "checked" : "value"
@@ -240,12 +238,12 @@ export const PropertiesPanel = observer(
                   </Form.Item>
                 ))}
               </Form>
-              <div>
-                {store.selectedInput?.value?.type === "tabs" &&
-                store.selectedInput ? (
-                  <TabsCustomModifier store={store} />
-                ) : null}
-              </div>
+              {store.selectedInput?.value?.type === "tabs" &&
+                store.selectedInput && (
+                  <div>
+                    <TabsCustomModifier store={store} />
+                  </div>
+                )}
             </>
           )}
         </div>

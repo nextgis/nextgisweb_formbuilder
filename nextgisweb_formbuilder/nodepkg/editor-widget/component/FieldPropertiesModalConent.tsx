@@ -19,6 +19,7 @@ import type {
   FormbuilderEditorStore,
 } from "../FormbuilderEditorStore";
 import { elementsData } from "../element";
+import { labelsClassName } from "../form-util";
 import { isFieldOccupied } from "../util/fieldRelatedOperations";
 import { getNewFieldKeynamePostfix } from "../util/newFieldKeyname";
 import { useFieldValidationRules } from "../util/useFieldValidationRules";
@@ -28,8 +29,6 @@ import { FieldLabel } from "./FieldLabel";
 import LockIcon from "@nextgisweb/icon/material/lock/outline";
 
 const msgAdd = gettext("Add");
-const msgNewField = gettext("New field");
-
 const msgFieldKeyname = gettext("Keyname");
 const msgFieldDisplayName = gettext("Display name");
 const msgFieldDataType = gettext("Data type");
@@ -92,10 +91,8 @@ const CreateFieldPopOverContent = observer(
 
     return (
       <Form
-        size="middle"
-        style={{ maxWidth: 600 }}
-        labelCol={{ span: 10 }}
-        wrapperCol={{ span: 16 }}
+        className={labelsClassName}
+        labelAlign="left"
         name="AddNewFieldPopover"
         autoComplete="off"
         requiredMark={false}
@@ -103,33 +100,30 @@ const CreateFieldPopOverContent = observer(
         onFinish={onFinish}
       >
         <Form.Item<FormbuilderEditorField>
-          style={{ marginBlock: "16px" }}
-          label={msgFieldKeyname}
-          name="keyname"
-          rules={rulesKeyname}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item<FormbuilderEditorField>
-          style={{ marginBlock: "16px" }}
-          label={msgFieldDisplayName}
           name="display_name"
+          label={msgFieldDisplayName}
           rules={rulesDisplayName}
         >
           <Input />
         </Form.Item>
 
         <Form.Item<FormbuilderEditorField>
-          style={{ marginBlock: "16px" }}
-          label={msgFieldDataType}
           name="datatype"
+          label={msgFieldDataType}
           rules={rulesRequired}
         >
           <Select options={acceptableDataTypesOptions} />
         </Form.Item>
 
-        <Form.Item label={null} style={{ marginBlock: 0 }}>
+        <Form.Item<FormbuilderEditorField>
+          name="keyname"
+          label={msgFieldKeyname}
+          rules={rulesKeyname}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item label={null} style={{ textAlign: "end" }}>
           <Button type="primary" htmlType="submit">
             {msgAdd}
           </Button>
@@ -170,7 +164,6 @@ const NewFieldButton = observer(
             closePopover={() => setIsNewFieldPopoverOpen(false)}
           />
         }
-        title={msgNewField}
         trigger="click"
         onOpenChange={setIsNewFieldPopoverOpen}
         destroyOnHidden
@@ -332,20 +325,15 @@ export const FieldPropertiesModalConent = observer(
 
     return (
       <Form
-        form={form}
-        layout="horizontal"
+        className={labelsClassName}
         labelAlign="left"
-        labelCol={{ span: 8 }}
-        labelWrap={true}
+        form={form}
+        clearOnDestroy
         autoComplete="off"
         name="fbwFieldsModal"
         onFieldsChange={onFormChange}
-        clearOnDestroy
       >
-        <Form.Item
-          style={{ marginBlock: `0 ${token.margin}px` }}
-          label={gettext("Element type")}
-        >
+        <Form.Item label={gettext("Element type")}>
           <Input
             value={store.grabbedInput?.value.name}
             suffix={<LockIcon style={{ color: token.colorTextDisabled }} />}
@@ -355,7 +343,6 @@ export const FieldPropertiesModalConent = observer(
         {fieldsFromSchema.map((fieldProp, i) => (
           <Form.Item
             key={i}
-            style={{ marginBlock: `${token.margin}px` }}
             label={fieldProp.formLabel}
             name={fieldProp.keyname}
           >
