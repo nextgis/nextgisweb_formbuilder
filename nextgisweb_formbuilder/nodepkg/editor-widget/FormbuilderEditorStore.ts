@@ -52,15 +52,25 @@ export class FormbuilderEditorStore {
     null;
   @observable.ref accessor setDirty: ((val: boolean) => void) | null;
 
+  @observable.ref accessor editable: boolean = true;
+
   constructor({
     onChange,
     setDirty,
+    editable = true,
   }: {
     onChange?: (val: FormbuilderValue) => void;
     setDirty?: (val: boolean) => void;
+    editable?: boolean;
   } = {}) {
     this.onChange = onChange ?? null;
     this.setDirty = setDirty ?? null;
+    this.editable = editable;
+  }
+
+  @action.bound
+  setEditable(value: boolean) {
+    this.editable = value;
   }
 
   @action.bound

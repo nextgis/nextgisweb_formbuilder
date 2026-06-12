@@ -30,6 +30,7 @@ export const OptionsInputInitialValue = observer<
         style={{ scale: "0.8", marginInlineEnd: 0 }}
         title={msgInitial}
         checked={row.initial}
+        disabled={row.store.readOnly}
         onChange={(evt) => {
           row.setInitial(evt.target.checked);
         }}
@@ -50,6 +51,7 @@ export const OptionsInputValueValue = observer<
       style={{ flexGrow: 1 }}
       value={row.value}
       placeholder={placeholder ? msgTypeToAdd : undefined}
+      readOnly={row.store.readOnly}
       onChange={row.setValue}
       onFocus={() => {
         if (isParentRow(row)) {
@@ -70,6 +72,7 @@ export const OptionsInputValueStringProp = observer<
   <InputValue
     variant="borderless"
     value={row[columnKey]}
+    readOnly={row.store.readOnly}
     onChange={(val) => row.setStringProp(columnKey, val)}
     style={{ flexGrow: 1 }}
     onFocus={() => {

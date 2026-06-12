@@ -46,6 +46,8 @@ export const PropertiesPanel = observer(
     }, [form, store.selectedInput]);
 
     useEffect(() => {
+      if (!store.selectedInput) return;
+
       const selectedInputProps = Object.keys(store.selectedInput?.data);
 
       const fieldPropsToCleanIfFieldDeleted = allFieldProps.filter(
@@ -124,22 +126,25 @@ export const PropertiesPanel = observer(
           <DatePicker
             style={{ width: "100%" }}
             placeholder={gettext("Current date")}
+            disabled={!store.editable}
           />
         ),
         time: (
           <TimePicker
             style={{ width: "100%" }}
             placeholder={gettext("Current time")}
+            disabled={!store.editable}
           />
         ),
         datetime: (
           <DateTimePicker
             style={{ width: "100%" }}
             placeholder={gettext("Current date & time")}
+            disabled={!store.editable}
           />
         ),
       }),
-      []
+      [store.editable]
     );
 
     const updateFieldInSelectedInput = (
@@ -171,10 +176,12 @@ export const PropertiesPanel = observer(
     ) => {
       const { min, max, selectOptions } = prop;
 
+      const disabled = !store.editable;
+
       const datetimeType = input?.data?.datetime || "datetime";
       switch (prop.type) {
         case "string":
-          return <Input />;
+          return <Input disabled={disabled} />;
         case "field":
           return (
             <FieldSelectInput
@@ -185,26 +192,29 @@ export const PropertiesPanel = observer(
             />
           );
         case "boolean":
-          return <Checkbox>{prop.formLabel}</Checkbox>;
+          return <Checkbox disabled={disabled}>{prop.formLabel}</Checkbox>;
         case "number":
-          return <InputNumber min={min} max={max} />;
+          return <InputNumber min={min} max={max} disabled={disabled} />;
         case "select":
-          return <Select options={selectOptions} />;
+          return <Select options={selectOptions} disabled={disabled} />;
         case "datetime":
           return timeSelectMapping[
             datetimeType as FormbuilderDatetimeItem["datetime"]
           ];
         case "options":
-          return <OptionsInput columns={prop.optionsColumns} />;
+          return (
+            <OptionsInput columns={prop.optionsColumns} readonly={disabled} />
+          );
         case "cascade_options":
           return (
             <CascadeOptionsInput
               columns={prop.optionsColumns}
               depColumns={prop.dependentOptionsCoulmns}
+              readonly={disabled}
             />
           );
         default:
-          return <Input />;
+          return <Input disabled={disabled} />;
       }
     };
 

@@ -62,6 +62,7 @@ export const FieldSelectInput: FC<FieldSelectProps> = observer(
         value={value}
         onChange={onChange}
         options={mappedOptions}
+        disabled={!store.editable}
         popupRender={(origin) => (
           <>
             {origin}

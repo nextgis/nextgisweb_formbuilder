@@ -59,7 +59,7 @@ export class FormStore implements EditorStore<
       if (this.file_upload) {
         result.file_upload = this.file_upload;
       }
-    } else if (this.mode === "input") {
+    } else {
       result.value = {
         geometry_type:
           this.editorData?.geometryType ||

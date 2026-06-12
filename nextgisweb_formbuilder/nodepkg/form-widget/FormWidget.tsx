@@ -9,11 +9,11 @@ import { route } from "@nextgisweb/pyramid/api";
 import { gettext } from "@nextgisweb/pyramid/i18n";
 import type { EditorWidget } from "@nextgisweb/resource/type";
 
-import FormbuilderEditorWidget from "../editor-widget/FormbuilderEditorWidget";
+import { FormbuilderEditorWidget } from "../editor-widget/FormbuilderEditorWidget";
 import { isFieldOccupied } from "../editor-widget/util/fieldRelatedOperations";
 import { serializeData } from "../editor-widget/util/serializeData";
 
-import type { FormStore } from "./FormStore";
+import type { FormStore, Mode } from "./FormStore";
 
 import "./FormWidget.less";
 
@@ -41,7 +41,7 @@ export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
 
   const [switchModeCounter, setSwitchModeCounter] = useState(0);
 
-  const handleModeChange = async (mode: "file" | "input") => {
+  const handleModeChange = async (mode: Mode) => {
     const resourceId = store.composite.resourceId;
     const { editorData } = store;
 
@@ -89,6 +89,7 @@ export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
       case "input":
         return (
           <FormbuilderEditorWidget
+            key="input"
             value={store.initEditorData}
             parent={store.composite.parent}
             setDirty={store.setDirty}

@@ -61,6 +61,7 @@ export const TabsCustomModifier = observer(
           size="small"
           form={form}
           name="tabsCustomModifier"
+          disabled={!store.editable}
           onFieldsChange={onFormChange}
           autoComplete="off"
           labelCol={{ flex: "130px" }}

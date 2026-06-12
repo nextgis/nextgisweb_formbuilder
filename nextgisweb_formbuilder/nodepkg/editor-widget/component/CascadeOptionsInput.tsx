@@ -27,6 +27,7 @@ import type { OptionsRow } from "./SimpleTableStores";
 
 /* prettier-ignore */ const
 msgEdit = gettext("Edit"),
+msgView = gettext("View"),
 msgOptions = gettext("Options"),
 msgExport = gettext("Export"),
 msgImport = gettext("Import"),
@@ -93,7 +94,19 @@ class ParentStore implements EdiTableStore<ParentRow> {
   readonly rows = observable.array<ParentRow>();
 
   @observable.ref accessor selectedRowKey: number | undefined = undefined;
-  @observable.ref accessor placeholder = new ParentRow(this, {});
+  @observable.ref accessor placeholder: ParentRow | null = new ParentRow(
+    this,
+    {}
+  );
+  @observable.ref accessor readOnly: boolean = false;
+
+  @action.bound
+  setReadOnly(value: boolean) {
+    this.readOnly = value;
+    if (value) {
+      this.placeholder = null;
+    }
+  }
 
   @action.bound
   setSelectedRowKey(val: number | undefined) {
@@ -102,6 +115,8 @@ class ParentStore implements EdiTableStore<ParentRow> {
 
   @action.bound
   rotatePlaceholder() {
+    if (!this.placeholder) return;
+
     this.rows.push(this.placeholder);
 
     if (this.rows.length === 1) {
@@ -173,13 +188,17 @@ class ParentStore implements EdiTableStore<ParentRow> {
   }
 
   @action.bound
-  moveRow(row: ParentRow, index: number) {
+  reorderRow(row: ParentRow, index: number) {
     index = clamp(index, 0, this.rows.length - 1);
 
     const newRows = [...this.rows];
     remove(newRows, (i) => i === row);
     newRows.splice(index, 0, row);
     this.rows.replace(newRows);
+  }
+
+  get moveRow() {
+    return this.readOnly ? undefined : this.reorderRow;
   }
 }
 
@@ -188,10 +207,17 @@ interface CascadeOptionsInputProps {
   onChange?: (value: Partial<ParentRow>[]) => void;
   columns?: EdiTableColumn<ParentRow>[];
   depColumns?: EdiTableColumn<OptionsRow>[];
+  readonly?: boolean;
 }
 
 export const CascadeOptionsInput = observer(
-  ({ value, onChange, columns, depColumns }: CascadeOptionsInputProps) => {
+  ({
+    value,
+    onChange,
+    columns,
+    depColumns,
+    readonly,
+  }: CascadeOptionsInputProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeRowKey, setActiveRowKey] = useState<number>();
 
@@ -239,6 +265,9 @@ export const CascadeOptionsInput = observer(
         const rows = value;
         store.setRows(rows);
       }
+
+      store.setReadOnly(!!readonly);
+      dependentStore.setReadOnly(!!readonly);
 
       store.setSelectedRowKey(undefined);
       setIsModalOpen(true);
@@ -335,7 +364,7 @@ export const CascadeOptionsInput = observer(
       <>
         {importFlow.contextHolder}
         <Button style={{ width: "100%" }} onClick={showModal}>
-          {msgEdit}
+          {readonly ? msgView : msgEdit}
         </Button>
         <ConfigProvider componentSize="middle">
           <Modal
@@ -348,28 +377,32 @@ export const CascadeOptionsInput = observer(
             styles={{ body: { ...themeVariables } }}
             width="" // Do not set the default (520px) width
             centered={true}
-            closeIcon={null}
+            closeIcon={readonly ? undefined : null}
             title={
               <>
                 {msgOptions}
                 <Space>
-                  <Button
-                    icon={<ImportIcon />}
-                    onClick={importFlow.handleClick}
-                  >
-                    {msgImport}
-                  </Button>
+                  {!readonly && (
+                    <Button
+                      icon={<ImportIcon />}
+                      onClick={importFlow.handleClick}
+                    >
+                      {msgImport}
+                    </Button>
+                  )}
                   <Button icon={<ExportIcon />} onClick={handleExport}>
                     {msgExport}
                   </Button>
                 </Space>
-                <Button
-                  className="ngw-formbuilder-editor-widget-cascade-options-input-modal-done-button"
-                  type="primary"
-                  onClick={handleClose}
-                >
-                  {msgDone}
-                </Button>
+                {!readonly && (
+                  <Button
+                    className="ngw-formbuilder-editor-widget-cascade-options-input-modal-done-button"
+                    type="primary"
+                    onClick={handleClose}
+                  >
+                    {msgDone}
+                  </Button>
+                )}
               </>
             }
             open={isModalOpen}
@@ -386,11 +419,12 @@ export const CascadeOptionsInput = observer(
               columns={columns || []}
               rowKey="key"
               rowClassName={getRowClassName}
+              rowActions={readonly ? [] : undefined}
             />
 
             <h3>{gettext("Dependent options")}</h3>
             {store.selectedRowKey &&
-            store.placeholder.key !== store.selectedRowKey ? (
+            store.placeholder?.key !== store.selectedRowKey ? (
               <EdiTable
                 size="small"
                 card={true}
@@ -399,6 +433,7 @@ export const CascadeOptionsInput = observer(
                 store={dependentStore}
                 columns={depColumns || []}
                 rowKey="key"
+                rowActions={readonly ? [] : undefined}
               />
             ) : (
               <div className="dependent-stub" style={{ flex: "1 0" }}>

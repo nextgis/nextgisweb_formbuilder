@@ -161,10 +161,13 @@ export const TabsFormComponent = observer(
                 active: tab.active,
               })}
               title={tab.title}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setActive(i);
               }}
               onMouseUp={() => {
+                if (!store.editable) return;
+
                 const droppedInput = onGrabDrop();
 
                 // check if dropping parent into child
@@ -261,42 +264,45 @@ export const TabsFormComponent = observer(
               }}
             >
               <span>{tab.title}</span>
-              {(tabsInputFromStore?.value.tabs?.length ?? 0) > 1 && (
-                <Button
-                  size="small"
-                  type="text"
-                  icon={<RemoveIcon />}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!tabsInputFromStore) return;
-                    const updatedTabsInput = deleteTab(tabsInputFromStore, i);
+              {store.editable &&
+                (tabsInputFromStore?.value.tabs?.length ?? 0) > 1 && (
+                  <Button
+                    size="small"
+                    type="text"
+                    icon={<RemoveIcon />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!tabsInputFromStore) return;
+                      const updatedTabsInput = deleteTab(tabsInputFromStore, i);
 
-                    store.setNewElementData(
-                      value.id as number,
-                      updatedTabsInput.data
-                    );
-                    store.setNewElementValue(
-                      value.id as number,
-                      updatedTabsInput.value
-                    );
+                      store.setNewElementData(
+                        value.id as number,
+                        updatedTabsInput.data
+                      );
+                      store.setNewElementValue(
+                        value.id as number,
+                        updatedTabsInput.value
+                      );
 
-                    if (store.setDirty) store.setDirty(true);
+                      if (store.setDirty) store.setDirty(true);
 
-                    store.setSelectedInput(updatedTabsInput);
-                  }}
-                />
-              )}
+                      store.setSelectedInput(updatedTabsInput);
+                    }}
+                  />
+                )}
             </div>
           ))}
-          <Button
-            size="small"
-            type="text"
-            icon={<AddIcon />}
-            onClick={(e) => {
-              e.stopPropagation();
-              addTab();
-            }}
-          />
+          {store.editable && (
+            <Button
+              size="small"
+              type="text"
+              icon={<AddIcon />}
+              onClick={(e) => {
+                e.stopPropagation();
+                addTab();
+              }}
+            />
+          )}
         </div>
         <div className="container">
           <Mockup

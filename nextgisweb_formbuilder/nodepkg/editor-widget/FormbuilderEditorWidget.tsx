@@ -30,15 +30,29 @@ export interface FormbuilderEditorWidgetProps {
   value?: any;
   store?: FormbuilderEditorStore;
   parent?: number | null | undefined;
+  editable?: boolean;
   onChange?: (val: FormbuilderValue) => void;
   setDirty?: (val: boolean) => void;
 }
 
 export const FormbuilderEditorWidget = observer<FormbuilderEditorWidgetProps>(
-  ({ value, store: storeProp, parent, onChange, setDirty }) => {
+  ({
+    value,
+    store: storeProp,
+    parent,
+    editable = true,
+    onChange,
+    setDirty,
+  }) => {
     const [store] = useState(
-      () => storeProp || new FormbuilderEditorStore({ onChange, setDirty })
+      () =>
+        storeProp ||
+        new FormbuilderEditorStore({ onChange, setDirty, editable })
     );
+
+    useEffect(() => {
+      store.setEditable(editable);
+    }, [editable, store]);
 
     const { fields, dragPos, dragging, isMoving, inputsTree, grabbedInput } =
       store;
@@ -133,10 +147,11 @@ export const FormbuilderEditorWidget = observer<FormbuilderEditorWidgetProps>(
       <div
         className={classNames("ngw-formbuilder-editor-widget", {
           dragging,
+          preview: !store.editable,
         })}
         style={themeVariables}
       >
-        <ElementsPanel store={store} />
+        {store.editable && <ElementsPanel store={store} />}
 
         <div className="mockup-container">
           <div

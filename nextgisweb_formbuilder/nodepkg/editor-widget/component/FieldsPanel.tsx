@@ -145,7 +145,7 @@ export const FieldsPanel = observer(
       >
         <div className="panel-header">
           {msgFieldsPanelHeader}
-          <AddFieldModalButton store={store} />
+          {store.editable && <AddFieldModalButton store={store} />}
         </div>
         <div className="panel-body">
           {store.fields.map((field, i) => {
@@ -161,6 +161,8 @@ export const FieldsPanel = observer(
               !field.existing &&
               !isFieldOccupied(field.keyname, store.inputsTree);
 
+            const readOnlyField = field.existing || !store.editable;
+
             return (
               <div key={field.keyname + i} className="field-row">
                 <div className="status">{getStatusIcon(field)}</div>
@@ -169,7 +171,7 @@ export const FieldsPanel = observer(
                   variant="borderless"
                   size="small"
                   value={field.display_name}
-                  readOnly={field.existing}
+                  readOnly={readOnlyField}
                   onChange={(value) => {
                     handleFieldChange(field.keyname, {
                       display_name: value,
@@ -180,36 +182,39 @@ export const FieldsPanel = observer(
                   className="datatype"
                   variant="borderless"
                   options={datatypeSelectOptions}
-                  suffixIcon={field.existing ? <></> : undefined}
-                  open={field.existing ? false : undefined}
-                  style={field.existing ? { cursor: "default" } : undefined}
+                  suffixIcon={readOnlyField ? <></> : undefined}
+                  open={readOnlyField ? false : undefined}
+                  style={readOnlyField ? { cursor: "default" } : undefined}
                   defaultValue={defaultValue as FeatureLayerFieldDatatype}
                   value={field.datatype}
                   onChange={(value: FeatureLayerFieldDatatype) => {
-                    if (field.existing) return;
+                    if (readOnlyField) return;
                     handleFieldChange(field.keyname, {
                       datatype: value,
                     });
                   }}
                 />
 
-                <div className="action">
-                  <Button
-                    size="small"
-                    type="text"
-                    icon={
-                      deletable ? <RemoveIcon /> : <ExistingFieldLockIcon />
-                    }
-                    disabled={!deletable}
-                    style={deletable ? undefined : { cursor: "default" }}
-                    onClick={() => deleteField(field)}
-                  />
-                </div>
+                {store.editable && (
+                  <div className="action">
+                    <Button
+                      size="small"
+                      type="text"
+                      icon={
+                        deletable ? <RemoveIcon /> : <ExistingFieldLockIcon />
+                      }
+                      disabled={!deletable}
+                      style={deletable ? undefined : { cursor: "default" }}
+                      onClick={() => deleteField(field)}
+                    />
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
-        {store.fields.find((field) => !field.existing) &&
+        {store.editable &&
+          store.fields.find((field) => !field.existing) &&
           store.canUpdateFields && (
             <div className="update-fields">
               <CheckboxValue

@@ -62,10 +62,24 @@ export class OptionsEdiTableStore implements EdiTableStore<OptionsRow> {
   readonly rows = observable.array<OptionsRow>();
 
   @observable.ref accessor columns: string[] = [];
-  @observable.ref accessor placeholder = new OptionsRow(this, {});
+  @observable.ref accessor placeholder: OptionsRow | null = new OptionsRow(
+    this,
+    {}
+  );
+  @observable.ref accessor readOnly: boolean = false;
+
+  @action.bound
+  setReadOnly(value: boolean) {
+    this.readOnly = value;
+    if (value) {
+      this.placeholder = null;
+    }
+  }
 
   @action.bound
   rotatePlaceholder() {
+    if (!this.placeholder) return;
+
     this.rows.push(this.placeholder);
 
     if (this.rows.length === 1) {
@@ -110,12 +124,16 @@ export class OptionsEdiTableStore implements EdiTableStore<OptionsRow> {
   }
 
   @action.bound
-  moveRow(row: OptionsRow, index: number) {
+  reorderRow(row: OptionsRow, index: number) {
     index = clamp(index, 0, this.rows.length - 1);
 
     const newRows = [...this.rows];
     remove(newRows, (i) => i === row);
     newRows.splice(index, 0, row);
     this.rows.replace(newRows);
+  }
+
+  get moveRow() {
+    return this.readOnly ? undefined : this.reorderRow;
   }
 }

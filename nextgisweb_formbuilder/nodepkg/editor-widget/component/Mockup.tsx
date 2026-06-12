@@ -240,25 +240,40 @@ export const getInputElement = ({
       key={index}
       className={classNames(
         "ngw-formbuilder-editor-widget-mockup-element-wrapper",
-        { selected: store.selectedInput?.id === input.id }
+        {
+          selected: store.selectedInput?.id === input.id,
+          readonly: !store.editable,
+        }
       )}
+      onClick={
+        store.editable
+          ? undefined
+          : (e) => {
+              e.stopPropagation();
+              store.setSelectedInput(input);
+            }
+      }
     >
-      <HolderOutlined
-        className="holder"
-        onMouseDown={handleMouseDown}
-        onMouseUp={onMouseUp}
-      />
+      {store.editable && (
+        <HolderOutlined
+          className="holder"
+          onMouseDown={handleMouseDown}
+          onMouseUp={onMouseUp}
+        />
+      )}
       <InputComponent
         store={store}
         onGrabDrop={() => store.grabbedInput}
         input={input}
       />
-      <Button
-        size="small"
-        type="text"
-        icon={<RemoveIcon />}
-        onClick={handleDelete}
-      />
+      {store.editable && (
+        <Button
+          size="small"
+          type="text"
+          icon={<RemoveIcon />}
+          onClick={handleDelete}
+        />
+      )}
     </div>
   );
 };
@@ -357,19 +372,21 @@ export const Mockup = observer(
 
     const { list: inputs, listId } = inputsWithId;
 
-    const renderList = [
-      ...inputs.flatMap((input, i) => [
-        renderDropPlace(
-          store,
-          i,
-          listId,
-          setIsModalOpen,
-          setDropIndex,
-          parentId
-        ),
-        renderInputElement(store, input, i, listId),
-      ]),
-    ];
+    const renderList = store.editable
+      ? [
+          ...inputs.flatMap((input, i) => [
+            renderDropPlace(
+              store,
+              i,
+              listId,
+              setIsModalOpen,
+              setDropIndex,
+              parentId
+            ),
+            renderInputElement(store, input, i, listId),
+          ]),
+        ]
+      : inputs.map((input, i) => renderInputElement(store, input, i, listId));
 
     const filterPendingFieldsOnUsage = (
       pendinNewFields: FormbuilderEditorField[]
@@ -393,6 +410,10 @@ export const Mockup = observer(
 
       return filteredPendingFields;
     };
+
+    if (!store.editable) {
+      return <>{renderList}</>;
+    }
 
     return (
       <>

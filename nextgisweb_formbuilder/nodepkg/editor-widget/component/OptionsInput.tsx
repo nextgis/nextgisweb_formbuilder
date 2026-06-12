@@ -22,6 +22,7 @@ import "./OptionsInput.less";
 
 /* prettier-ignore */ const
 msgEdit = gettext("Edit"),
+msgView = gettext("View"),
 msgOptions = gettext("Options"),
 msgExport = gettext("Export"),
 msgImport = gettext("Import"),
@@ -31,10 +32,11 @@ interface OptionsInputProps {
   value?: OptionsRow[];
   onChange?: (value: Partial<OptionsRow>[]) => void;
   columns?: OptionsColumn[];
+  readonly?: boolean;
 }
 
 export const OptionsInput = observer(
-  ({ value, onChange, columns }: OptionsInputProps) => {
+  ({ value, onChange, columns, readonly }: OptionsInputProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [store] = useState(() => new OptionsEdiTableStore());
@@ -45,6 +47,7 @@ export const OptionsInput = observer(
       if (value) {
         store.setRows(value);
       }
+      store.setReadOnly(!!readonly);
       setIsModalOpen(true);
     };
 
@@ -95,7 +98,7 @@ export const OptionsInput = observer(
       <>
         {importFlow.contextHolder}
         <Button style={{ width: "100%" }} onClick={handleOpen}>
-          {msgEdit}
+          {readonly ? msgView : msgEdit}
         </Button>
         <ConfigProvider componentSize={"medium"}>
           <Modal
@@ -105,28 +108,32 @@ export const OptionsInput = observer(
             }}
             width="" // Do not set the default (520px) width
             centered={true}
-            closeIcon={null}
+            closeIcon={readonly ? undefined : null}
             title={
               <>
                 {msgOptions}
                 <Space>
-                  <Button
-                    icon={<ImportIcon />}
-                    onClick={importFlow.handleClick}
-                  >
-                    {msgImport}
-                  </Button>
+                  {!readonly && (
+                    <Button
+                      icon={<ImportIcon />}
+                      onClick={importFlow.handleClick}
+                    >
+                      {msgImport}
+                    </Button>
+                  )}
                   <Button icon={<ExportIcon />} onClick={handleExport}>
                     {msgExport}
                   </Button>
                 </Space>
-                <Button
-                  className="ngw-formbuilder-editor-widget-options-input-modal-done-button"
-                  type="primary"
-                  onClick={handleClose}
-                >
-                  {msgDone}
-                </Button>
+                {!readonly && (
+                  <Button
+                    className="ngw-formbuilder-editor-widget-options-input-modal-done-button"
+                    type="primary"
+                    onClick={handleClose}
+                  >
+                    {msgDone}
+                  </Button>
+                )}
               </>
             }
             open={isModalOpen}
@@ -142,6 +149,7 @@ export const OptionsInput = observer(
               store={store}
               columns={columns || []}
               rowKey="key"
+              rowActions={readonly ? [] : undefined}
             />
             <CsvImporterModal
               key={importFlow.resetCount}

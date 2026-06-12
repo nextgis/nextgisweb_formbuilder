@@ -131,6 +131,22 @@
     max-width: 350px;
   }
 
+  &.preview {
+    > .mockup-container {
+      border-inline-start-width: 0;
+    }
+
+    .mockup-body > .ngw-formbuilder-editor-widget-mockup-element-wrapper {
+      &:first-child {
+        margin-block-start: 3px;
+      }
+
+      &:last-child {
+        margin-block-end: 3px;
+      }
+    }
+  }
+
   > .grabbed-input {
     position: fixed;
     transform: translate(-12px, -16px);
@@ -201,6 +217,11 @@
 
   &.selected {
     background-color: var(--theme-color-primary-bg);
+  }
+
+  &.readonly {
+    cursor: pointer !important;
+    margin-block: 2px;
   }
 
   > .holder {
