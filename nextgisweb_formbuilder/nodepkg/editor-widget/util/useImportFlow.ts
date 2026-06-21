@@ -18,15 +18,19 @@ export function useImportFlow(
   const importDone = useRef(false);
   const importStarted = useRef(false);
 
-  const handleClick = useCallback(async () => {
+  const confirmReplace = useCallback(async () => {
     if (rowsCount && !importStarted.current) {
-      const confirmed = await modal.confirm({ content: msgConfirmNewImport });
-      if (!confirmed) return;
+      return await modal.confirm({ content: msgConfirmNewImport });
     }
+    return true;
+  }, [modal, rowsCount]);
+
+  const handleClick = useCallback(async () => {
+    if (!(await confirmReplace())) return;
     importDone.current = false;
     importStarted.current = true;
     setIsOpen(true);
-  }, [modal, rowsCount]);
+  }, [confirmReplace]);
 
   const handleModalOnCancel = useCallback(() => {
     setIsOpen(false);
@@ -58,6 +62,7 @@ export function useImportFlow(
     contextHolder,
     isOpen,
     resetCount,
+    confirmReplace,
     handleClick,
     handleModalOnCancel,
     handleSubmit,

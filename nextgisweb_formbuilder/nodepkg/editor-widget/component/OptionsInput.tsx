@@ -1,10 +1,8 @@
 import { observer } from "mobx-react-lite";
 import { useCallback, useState } from "react";
 
-import { Button, ConfigProvider, Modal, Space } from "@nextgisweb/gui/antd";
-import { CsvImporterModal } from "@nextgisweb/gui/csv-importer";
+import { Button } from "@nextgisweb/gui/antd";
 import { EdiTable } from "@nextgisweb/gui/edi-table";
-import { ExportIcon, ImportIcon } from "@nextgisweb/gui/icon";
 import { gettext } from "@nextgisweb/pyramid/i18n";
 
 import type { OptionsColumn } from "../element";
@@ -13,20 +11,14 @@ import {
   exportSimpleOptionsToCsv,
   targetColumnsForSimpleOptions,
 } from "../util/csvOptions";
-import { useImportFlow } from "../util/useImportFlow";
 
+import { OptionsModal } from "./OptionsModal";
 import { OptionsEdiTableStore } from "./SimpleTableStores";
 import type { OptionsRow } from "./SimpleTableStores";
 
-import "./OptionsInput.less";
-
 /* prettier-ignore */ const
 msgEdit = gettext("Edit"),
-msgView = gettext("View"),
-msgOptions = gettext("Options"),
-msgExport = gettext("Export"),
-msgImport = gettext("Import"),
-msgDone = gettext("Done");
+msgView = gettext("View");
 
 interface OptionsInputProps {
   value?: OptionsRow[];
@@ -88,79 +80,34 @@ export const OptionsInput = observer(
       [store, columns]
     );
 
-    const importFlow = useImportFlow(store.rows.length, handleImportData);
-
     const importerTargetColumns = columns
       ? targetColumnsForSimpleOptions(columns)
       : [];
 
     return (
       <>
-        {importFlow.contextHolder}
         <Button style={{ width: "100%" }} onClick={handleOpen}>
           {readonly ? msgView : msgEdit}
         </Button>
-        <ConfigProvider componentSize={"medium"}>
-          <Modal
-            classNames={{
-              wrapper: "ngw-formbuilder-editor-widget-options-input-modal",
-              title: "ngw-formbuilder-editor-widget-options-input-modal-title",
-            }}
-            width="" // Do not set the default (520px) width
-            centered={true}
-            closeIcon={readonly ? undefined : null}
-            title={
-              <>
-                {msgOptions}
-                <Space>
-                  {!readonly && (
-                    <Button
-                      icon={<ImportIcon />}
-                      onClick={importFlow.handleClick}
-                    >
-                      {msgImport}
-                    </Button>
-                  )}
-                  <Button icon={<ExportIcon />} onClick={handleExport}>
-                    {msgExport}
-                  </Button>
-                </Space>
-                {!readonly && (
-                  <Button
-                    className="ngw-formbuilder-editor-widget-options-input-modal-done-button"
-                    type="primary"
-                    onClick={handleClose}
-                  >
-                    {msgDone}
-                  </Button>
-                )}
-              </>
-            }
-            open={isModalOpen}
-            destroyOnHidden={true}
-            footer={false}
-            onOk={handleClose}
-            onCancel={handleClose}
-          >
-            <EdiTable
-              size="small"
-              card={true}
-              parentHeight={true}
-              store={store}
-              columns={columns || []}
-              rowKey="key"
-              rowActions={readonly ? [] : undefined}
-            />
-            <CsvImporterModal
-              key={importFlow.resetCount}
-              open={importFlow.isOpen}
-              targetColumns={importerTargetColumns}
-              onSubmit={importFlow.handleSubmit}
-              close={importFlow.handleClose}
-              onCancel={importFlow.handleModalOnCancel}
-            />
-          </Modal>
-        </ConfigProvider>
+        <OptionsModal
+          open={isModalOpen}
+          readonly={readonly}
+          rowsCount={store.rows.length}
+          importerTargetColumns={importerTargetColumns}
+          onImportData={handleImportData}
+          onExport={handleExport}
+          onClose={handleClose}
+        >
+          <EdiTable
+            size="small"
+            card={true}
+            parentHeight={true}
+            store={store}
+            columns={columns || []}
+            rowKey="key"
+            rowActions={readonly ? [] : undefined}
+          />
+        </OptionsModal>
       </>
     );
   }

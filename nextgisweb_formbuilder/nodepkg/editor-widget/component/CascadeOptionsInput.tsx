@@ -1,5 +1,3 @@
-import "./CascadeOptionsInput.less";
-
 import classNames from "classnames";
 import { clamp, remove } from "lodash-es";
 import { action, observable } from "mobx";
@@ -7,12 +5,9 @@ import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 
 import type { OptionSingle } from "@nextgisweb/formbuilder/type/api";
-import { Button, ConfigProvider, Modal, Space } from "@nextgisweb/gui/antd";
-import { CsvImporterModal } from "@nextgisweb/gui/csv-importer";
+import { Button } from "@nextgisweb/gui/antd";
 import { EdiTable } from "@nextgisweb/gui/edi-table";
 import type { EdiTableColumn, EdiTableStore } from "@nextgisweb/gui/edi-table";
-import { useThemeVariables } from "@nextgisweb/gui/hook";
-import { ExportIcon, ImportIcon } from "@nextgisweb/gui/icon";
 import { gettext } from "@nextgisweb/pyramid/i18n";
 
 import {
@@ -20,18 +15,14 @@ import {
   exportCascadeOptionsToCsv,
   targetColumnsForCascadeOptions,
 } from "../util/csvOptions";
-import { useImportFlow } from "../util/useImportFlow";
 
+import { OptionsModal } from "./OptionsModal";
 import { OptionsEdiTableStore } from "./SimpleTableStores";
 import type { OptionsRow } from "./SimpleTableStores";
 
 /* prettier-ignore */ const
 msgEdit = gettext("Edit"),
 msgView = gettext("View"),
-msgOptions = gettext("Options"),
-msgExport = gettext("Export"),
-msgImport = gettext("Import"),
-msgDone = gettext("Done"),
 msgDependentStub = gettext("Select or add an option in the table above to see dependent options");
 
 type ParentRowStringKeys = {
@@ -341,8 +332,6 @@ export const CascadeOptionsInput = observer(
       [store, dependentStore]
     );
 
-    const importFlow = useImportFlow(store.rows.length, handleImportData);
-
     const importerTargetColumns = targetColumnsForCascadeOptions();
 
     const { selectedRowKey } = store;
@@ -354,102 +343,51 @@ export const CascadeOptionsInput = observer(
       [selectedRowKey]
     );
 
-    const themeVariables = useThemeVariables({
-      "border-radius": "borderRadius",
-      "color-border-secondary": "colorBorderSecondary",
-      "color-text-quaternary": "colorTextQuaternary",
-    });
-
     return (
       <>
-        {importFlow.contextHolder}
         <Button style={{ width: "100%" }} onClick={showModal}>
           {readonly ? msgView : msgEdit}
         </Button>
-        <ConfigProvider componentSize="middle">
-          <Modal
-            classNames={{
-              wrapper:
-                "ngw-formbuilder-editor-widget-cascade-options-input-modal",
-              title:
-                "ngw-formbuilder-editor-widget-cascade-options-input-modal-title",
-            }}
-            styles={{ body: { ...themeVariables } }}
-            width="" // Do not set the default (520px) width
-            centered={true}
-            closeIcon={readonly ? undefined : null}
-            title={
-              <>
-                {msgOptions}
-                <Space>
-                  {!readonly && (
-                    <Button
-                      icon={<ImportIcon />}
-                      onClick={importFlow.handleClick}
-                    >
-                      {msgImport}
-                    </Button>
-                  )}
-                  <Button icon={<ExportIcon />} onClick={handleExport}>
-                    {msgExport}
-                  </Button>
-                </Space>
-                {!readonly && (
-                  <Button
-                    className="ngw-formbuilder-editor-widget-cascade-options-input-modal-done-button"
-                    type="primary"
-                    onClick={handleClose}
-                  >
-                    {msgDone}
-                  </Button>
-                )}
-              </>
-            }
-            open={isModalOpen}
-            destroyOnHidden={true}
-            footer={false}
-            onCancel={handleClose}
-          >
+        <OptionsModal
+          open={isModalOpen}
+          readonly={readonly}
+          rowsCount={store.rows.length}
+          importerTargetColumns={importerTargetColumns}
+          onImportData={handleImportData}
+          onExport={handleExport}
+          onClose={handleClose}
+        >
+          <EdiTable
+            size="small"
+            styles={{ root: { flex: "1 0" } }}
+            card={true}
+            parentHeight={true}
+            store={store}
+            columns={columns || []}
+            rowKey="key"
+            rowClassName={getRowClassName}
+            rowActions={readonly ? [] : undefined}
+          />
+
+          <h3>{gettext("Dependent options")}</h3>
+          {store.selectedRowKey &&
+          store.placeholder?.key !== store.selectedRowKey ? (
             <EdiTable
               size="small"
-              styles={{ root: { flex: "1 0" } }}
               card={true}
+              styles={{ root: { flex: "1 0" } }}
               parentHeight={true}
-              store={store}
-              columns={columns || []}
+              store={dependentStore}
+              columns={depColumns || []}
               rowKey="key"
-              rowClassName={getRowClassName}
               rowActions={readonly ? [] : undefined}
             />
-
-            <h3>{gettext("Dependent options")}</h3>
-            {store.selectedRowKey &&
-            store.placeholder?.key !== store.selectedRowKey ? (
-              <EdiTable
-                size="small"
-                card={true}
-                styles={{ root: { flex: "1 0" } }}
-                parentHeight={true}
-                store={dependentStore}
-                columns={depColumns || []}
-                rowKey="key"
-                rowActions={readonly ? [] : undefined}
-              />
-            ) : (
-              <div className="dependent-stub" style={{ flex: "1 0" }}>
-                {msgDependentStub}
-              </div>
-            )}
-            <CsvImporterModal
-              key={importFlow.resetCount}
-              open={importFlow.isOpen}
-              targetColumns={importerTargetColumns}
-              onSubmit={importFlow.handleSubmit}
-              close={importFlow.handleClose}
-              onCancel={importFlow.handleModalOnCancel}
-            />
-          </Modal>
-        </ConfigProvider>
+          ) : (
+            <div className="dependent-stub" style={{ flex: "1 0" }}>
+              {msgDependentStub}
+            </div>
+          )}
+        </OptionsModal>
       </>
     );
   }
