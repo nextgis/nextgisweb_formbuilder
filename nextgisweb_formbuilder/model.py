@@ -18,6 +18,7 @@ from nextgisweb.lib.saext import Msgspec
 from nextgisweb.core.exception import InsufficientPermissions, ValidationError
 from nextgisweb.feature_layer import (
     FIELD_TYPE,
+    GEOM_TYPE,
     FeatureLayerFieldDatatype,
     FeatureLayerGeometryType,
     IFeatureLayer,
@@ -205,7 +206,7 @@ class FormbuilderForm(Resource):
 
     @classmethod
     def check_parent(cls, parent):
-        return IFeatureLayer.providedBy(parent)
+        return IFeatureLayer.providedBy(parent) and parent.geometry_type != GEOM_TYPE.NONE
 
     @property
     def feature_layer(self):
