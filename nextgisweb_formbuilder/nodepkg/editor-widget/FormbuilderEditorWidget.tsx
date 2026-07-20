@@ -3,7 +3,6 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 
 import { useThemeVariables } from "@nextgisweb/gui/hook";
-import { assert } from "@nextgisweb/jsrealm/error";
 import { route } from "@nextgisweb/pyramid/api/route";
 import { gettext } from "@nextgisweb/pyramid/i18n";
 
@@ -64,11 +63,7 @@ export const FormbuilderEditorWidget = observer<FormbuilderEditorWidgetProps>(
             route("resource.item", resourceId).get({ cache: true }),
             route("resource.permission", resourceId).get({ cache: true }),
           ]);
-
-          const featureLayer = parentData.feature_layer;
-          assert(featureLayer, "Parent resource must be a feature layer");
-
-          store.setFeatureLayer(featureLayer, parentPermission);
+          store.setFeatureLayer(parentData, parentPermission);
         };
         getParentInfo(parent);
       }

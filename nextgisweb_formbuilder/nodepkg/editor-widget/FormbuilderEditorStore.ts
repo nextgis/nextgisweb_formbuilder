@@ -1,12 +1,13 @@
 import { cloneDeep } from "lodash-es";
 import { action, observable } from "mobx";
 
-import type {
-  FeatureLayerGeometryType,
-  FeatureLayerRead,
-} from "@nextgisweb/feature-layer/type/api";
+import type { FeatureLayerGeometryType } from "@nextgisweb/feature-layer/type/api";
 import type { FormbuilderField } from "@nextgisweb/formbuilder/type/api";
-import type { EffectivePermissions } from "@nextgisweb/resource/type/api";
+import { assert } from "@nextgisweb/jsrealm/error";
+import type {
+  CompositeRead,
+  EffectivePermissions,
+} from "@nextgisweb/resource/type/api";
 
 import type {
   DragPos,
@@ -128,10 +129,10 @@ export class FormbuilderEditorStore {
   }
 
   @action.bound
-  setFeatureLayer(
-    featureLayer: FeatureLayerRead,
-    permissions: EffectivePermissions
-  ) {
+  setFeatureLayer(composite: CompositeRead, permissions: EffectivePermissions) {
+    const { resource, feature_layer: featureLayer } = composite;
+    const hasIFE = resource.interfaces.includes("IFieldEditableFeatureLayer");
+    assert(featureLayer, "Parent resource must be a feature layer");
     const existing: FormbuilderEditorField[] = featureLayer.fields.map(
       ({ keyname, display_name, datatype }) => ({
         keyname,
@@ -146,7 +147,7 @@ export class FormbuilderEditorStore {
     });
 
     this.geometryType = featureLayer.geometry_type;
-    this.canUpdateFields = permissions.resource.update;
+    this.canUpdateFields = hasIFE && permissions.resource.update;
     this.updateFeatureLayerFields = this.canUpdateFields && absent.length === 0;
     this.setFields([...existing, ...absent]); // Will fire onChange event
   }
