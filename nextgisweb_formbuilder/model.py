@@ -10,6 +10,7 @@ from msgspec import UNSET, Struct, UnsetType
 from msgspec import DecodeError as MsgspecDecodeErrror
 from msgspec import ValidationError as MsgspecValidationError
 from msgspec.json import decode as msgspec_json_decode
+from sqlalchemy.orm import Mapped, mapped_column
 
 from nextgisweb.env import gettext, gettextf, ngettextf
 from nextgisweb.lib.json import dumpb, loadb
@@ -196,12 +197,12 @@ class FormbuilderForm(Resource):
 
     __scope__ = DataScope
 
-    value = sa.Column(Msgspec(FormbuilderFormValue), nullable=True)
-    ngfp_fileobj_id = sa.Column(sa.ForeignKey(FileObj.id), nullable=True)
+    value: Mapped[FormbuilderFormValue | None] = mapped_column(Msgspec(FormbuilderFormValue))
+    ngfp_fileobj_id: Mapped[int | None] = mapped_column(sa.ForeignKey(FileObj.id))
 
     __table_args__ = (sa.CheckConstraint("(value IS NULL) != (ngfp_fileobj_id IS NULL)"),)
 
-    ngfp_fileobj = orm.relationship(FileObj, cascade="all")
+    ngfp_fileobj: Mapped[FileObj | None] = orm.relationship(cascade="all")
 
     @classmethod
     def check_parent(cls, parent):
