@@ -532,7 +532,7 @@ export const elementsData: ElementData[] = [
         type: "number",
         formLabel: gettext("Max number"),
         min: 1,
-        max: 20,
+        max: 50,
       },
       comment: {
         type: "string",
