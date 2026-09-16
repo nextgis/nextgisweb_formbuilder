@@ -26,7 +26,7 @@ from nextgisweb.feature_layer import (
 )
 from nextgisweb.file_storage import FileObj
 from nextgisweb.file_upload import FileUploadRef
-from nextgisweb.resource import DataScope, Resource, ResourceScope, SAttribute, Serializer
+from nextgisweb.resource import DataScope, Resource, ResourceScope, SAttribute, SColumn, Serializer
 from nextgisweb.resource.category import FieldDataCollectionCategory
 
 from .element import (
@@ -199,6 +199,7 @@ class FormbuilderForm(Resource):
 
     value: Mapped[FormbuilderFormValue | None] = mapped_column(Msgspec(FormbuilderFormValue))
     ngfp_fileobj_id: Mapped[int | None] = mapped_column(sa.ForeignKey(FileObj.id))
+    web_enabled: Mapped[bool] = mapped_column(sa.Boolean, default=False)
 
     __table_args__ = (sa.CheckConstraint("(value IS NULL) != (ngfp_fileobj_id IS NULL)"),)
 
@@ -278,6 +279,7 @@ class UpdateFieldsAttr(SAttribute):
 
 
 class FormbuilderFormSerializer(Serializer, resource=FormbuilderForm):
+    web_enabled = SColumn(read=ResourceScope.read, write=ResourceScope.update)
     value = ValueAttr(read=ResourceScope.read, write=ResourceScope.update)
     file_upload = FileUploadAttr(write=ResourceScope.update)
     update_feature_layer_fields = UpdateFieldsAttr(write=ResourceScope.update)

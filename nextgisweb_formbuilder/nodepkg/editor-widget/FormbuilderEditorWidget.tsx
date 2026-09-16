@@ -15,6 +15,7 @@ import { ElementsPanel } from "./component/ElementsPanel";
 import { FieldsPanel } from "./component/FieldsPanel";
 import { Mockup, getInputElement } from "./component/Mockup";
 import { PropertiesPanel } from "./component/PropertiesPanel";
+import type { FormbuilderEditorValue } from "./editorValue";
 import { isNonFieldElement } from "./element";
 import { getNewFieldKeynamePostfix } from "./util/newFieldKeyname";
 import { convertToUIData } from "./util/serializeData";
@@ -26,7 +27,7 @@ import MoreVertIcon from "@nextgisweb/icon/material/more_vert";
 import "./FormbuilderEditorWidget.less";
 
 export interface FormbuilderEditorWidgetProps {
-  value?: any;
+  value?: FormbuilderEditorValue;
   store?: FormbuilderEditorStore;
   parent?: number | null | undefined;
   editable?: boolean;
@@ -71,10 +72,15 @@ export const FormbuilderEditorWidget = observer<FormbuilderEditorWidgetProps>(
 
     useEffect(() => {
       if (value) {
-        store.setFields(value?.value?.fields || []);
+        store.setFields(
+          (value.value?.fields ?? []).map((field) => ({
+            ...field,
+            existing: field.existing ?? false,
+          }))
+        );
 
         const tree = convertToUIData(
-          value?.value?.items || [],
+          value.value?.items ?? [],
           store.getNewListIndex
         );
         store.setInputsTree(tree);

@@ -43,6 +43,9 @@ import type { InputProps } from "@nextgisweb/gui/antd";
 import { assert } from "@nextgisweb/jsrealm/error";
 import { gettext, gettextf } from "@nextgisweb/pyramid/i18n";
 
+import { MAXIMUM_NUMBER_OF_SAMPLES } from "../constant";
+import type { FormElementType } from "../runtime/type";
+
 import type { FormbuilderEditorStore } from "./FormbuilderEditorStore";
 import type { OptionsRow } from "./component/SimpleTableStores";
 import { TabsFormComponent } from "./component/TabsFormComponent";
@@ -67,8 +70,8 @@ const systemItemTypes: [FormbuilderSystemItem["system"], string][] = [
 ];
 
 export type FormElementData = {
-  value: { name: string; type: string };
-  data: any;
+  value: { name: string; type: FormElementType };
+  data: Record<string, unknown>;
 };
 
 type StubProps = Pick<InputProps, "style" | "placeholder" | "suffix">;
@@ -124,16 +127,16 @@ type InferDefaultValue<T extends SchemaEntry> = T["type"] extends "boolean"
   : T["type"] extends "select"
     ? string
     : T["type"] extends "options"
-      ? any[]
+      ? unknown[]
       : T["type"] extends string
-        ? string | number | boolean | any[] | undefined
+        ? string | number | boolean | unknown[] | undefined
         : unknown;
 
 // Infer storeData from a schema
 export type InferStoreData<S extends Schema> = {
   value: {
     name: string;
-    type: string;
+    type: FormElementType;
   };
   data: {
     [K in keyof S]: InferDefaultValue<S[K]>;
@@ -141,7 +144,7 @@ export type InferStoreData<S extends Schema> = {
 };
 
 export type ElementData<S extends Schema = Schema> = {
-  elementId: string;
+  elementId: FormElementType;
   icon: ReactElement;
   schema: S;
   storeData: InferStoreData<S>;
@@ -497,6 +500,7 @@ export const elementsData: ElementData[] = [
         type: "number",
         formLabel: gettext("Number of samples"),
         min: 2,
+        max: MAXIMUM_NUMBER_OF_SAMPLES,
       },
     },
     storeData: {
@@ -936,7 +940,7 @@ export const isNonFieldElement = (input: GrabbedInputComposite | null) => {
     return true;
   }
 
-  return nonFieldTypes.includes(input?.value.type);
+  return nonFieldTypes.some((type) => type === input.value.type);
 };
 
 export const getNewTabsElement = (store: FormbuilderEditorStore) => {

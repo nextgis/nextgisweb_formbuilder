@@ -16,6 +16,7 @@ import type {
 } from "@nextgisweb/resource/type";
 
 import type { FormbuilderEditorField } from "../editor-widget/FormbuilderEditorStore";
+import type { FormbuilderEditorValue } from "../editor-widget/editorValue";
 
 export type Mode = "file" | "input";
 
@@ -41,16 +42,17 @@ export class FormStore implements EditorStore<
   @observable.ref accessor dirty: boolean = false;
 
   @observable.ref accessor editorData: EditorData | undefined = undefined;
-  @observable.ref accessor initEditorData: EditorData | undefined = undefined;
+  @observable.ref accessor initEditorData: FormbuilderEditorValue | undefined =
+    undefined;
 
   constructor({ composite }: EditorStoreOptions) {
     this.composite = composite;
   }
 
   @action
-  load(val: any) {
-    this.initEditorData = val;
-    this.mode = val.value ? "input" : "file";
+  load(val: FormbuilderEditorValue | null) {
+    this.initEditorData = val ?? undefined;
+    this.mode = val?.value ? "input" : "file";
   }
 
   dump() {

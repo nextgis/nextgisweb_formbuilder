@@ -4,19 +4,19 @@ msgstr ""
 "Недопустимое начальное значение: '{i}'. Ожидалось значение, соответствующее "
 "шаблону для '{t}'."
 
-#: model.py:56
+#: model.py:57
 msgid "Duplicate keyname '{}' found in fields."
 msgstr "Обнаружено дублирование ключа '{}' в полях."
 
-#: model.py:61
+#: model.py:62
 msgid "Duplicate display name '{}' found in fields."
 msgstr "Обнаружено дублирование наименования '{}' в полях."
 
-#: model.py:76
+#: model.py:77
 msgid "Unknown field '{}'."
 msgstr "Неизвестное поле '{}'."
 
-#: model.py:81
+#: model.py:82
 msgid ""
 "The '{dn}' field (keyname '{kn}') is bound to two or more form elements. Each"
 " field can only be bound to a single element."
@@ -24,20 +24,20 @@ msgstr ""
 "Поле '{dn}' (ключ '{kn}') связано с двумя или более элементами формы. Каждое "
 "поле может быть связано только с одним элементом."
 
-#: model.py:92
+#: model.py:93
 msgid ""
 "The {dt} data type of the '{dn}' field (keyname '{kn}') is not compatible "
 "with the element."
 msgstr "Тип данных {dt} поля '{dn}' (ключ '{kn}') не совместим с элементом."
 
-#: model.py:96
+#: model.py:97
 msgid "The element requires a field of type {}."
 msgid_plural "The element requires a field of one of these types: {}."
 msgstr[0] "Элемент требует поле типа {}."
 msgstr[1] "Элемент требует поле одного из следующих типов: {}."
 msgstr[2] "Элемент требует поле одного из следующих типов: {}."
 
-#: model.py:113
+#: model.py:114
 msgid ""
 "The '{dn}' field (keyname '{kn}') is not bound to any element and must be "
 "removed from the form."
@@ -45,16 +45,16 @@ msgstr ""
 "Поле '{dn}' (ключ '{kn}') не связано ни с одним элементом и должно быть "
 "удалено из формы."
 
-#: model.py:194 nodepkg/editor-widget/FormbuilderEditorWidget.tsx:257
+#: model.py:195 nodepkg/editor-widget/FormbuilderEditorWidget.tsx:258
 #: nodepkg/form-widget/FormWidget.tsx:132
 msgid "Form"
 msgstr "Форма"
 
-#: model.py:220
+#: model.py:222
 msgid "Invalid NGFP file."
 msgstr "Некорректный файл NGFP"
 
-#: model.py:221
+#: model.py:223
 msgid "NGFP file size exceeds {} bytes."
 msgstr "Размер файла NGFP превышает {} байт."
 
@@ -92,32 +92,6 @@ msgstr "Редактировать"
 msgid "View"
 msgstr "Просмотр"
 
-#: nodepkg/editor-widget/component/OptionsModal.tsx:25
-#: nodepkg/editor-widget/element.tsx:627 nodepkg/editor-widget/element.tsx:696
-#: nodepkg/editor-widget/element.tsx:766 nodepkg/editor-widget/element.tsx:840
-msgid "Options"
-msgstr "Опции"
-
-#: nodepkg/editor-widget/component/OptionsModal.tsx:26
-msgid "Export"
-msgstr "Экспорт"
-
-#: nodepkg/editor-widget/component/OptionsModal.tsx:27
-msgid "Import"
-msgstr "Импорт"
-
-#: nodepkg/editor-widget/component/OptionsModal.tsx:30
-msgid "Done"
-msgstr "Готово"
-
-#: nodepkg/editor-widget/component/OptionsModal.tsx:28
-msgid "From file"
-msgstr "Из файла"
-
-#: nodepkg/editor-widget/component/OptionsModal.tsx:29
-msgid "From lookup table"
-msgstr "Из справочника"
-
 #: nodepkg/editor-widget/component/CascadeOptionsInput.tsx:26
 msgid "Select or add an option in the table above to see dependent options"
 msgstr "Выберите или добавьте опцию в таблице выше, чтобы увидеть зависимые опции"
@@ -146,28 +120,54 @@ msgstr "Добавить недостающие поля в слой"
 msgid "Data binding"
 msgstr "Привязка данных"
 
+#: nodepkg/editor-widget/component/OptionsModal.tsx:25
+#: nodepkg/editor-widget/element.tsx:631 nodepkg/editor-widget/element.tsx:700
+#: nodepkg/editor-widget/element.tsx:770 nodepkg/editor-widget/element.tsx:844
+msgid "Options"
+msgstr "Опции"
+
+#: nodepkg/editor-widget/component/OptionsModal.tsx:26
+msgid "Export"
+msgstr "Экспорт"
+
+#: nodepkg/editor-widget/component/OptionsModal.tsx:27
+msgid "Import"
+msgstr "Импорт"
+
+#: nodepkg/editor-widget/component/OptionsModal.tsx:28
+msgid "From file"
+msgstr "Из файла"
+
+#: nodepkg/editor-widget/component/OptionsModal.tsx:29
+msgid "From lookup table"
+msgstr "Из справочника"
+
+#: nodepkg/editor-widget/component/OptionsModal.tsx:30
+msgid "Done"
+msgstr "Готово"
+
 #: nodepkg/editor-widget/component/PropertiesPanel.tsx:29
 msgid "Properties"
 msgstr "Свойства"
 
 #: nodepkg/editor-widget/component/PropertiesPanel.tsx:128
-#: nodepkg/editor-widget/element.tsx:59
+#: nodepkg/editor-widget/element.tsx:62
 msgid "Current date"
 msgstr "Текущая дата"
 
 #: nodepkg/editor-widget/component/PropertiesPanel.tsx:135
-#: nodepkg/editor-widget/element.tsx:60
+#: nodepkg/editor-widget/element.tsx:63
 msgid "Current time"
 msgstr "Текущее время"
 
 #: nodepkg/editor-widget/component/PropertiesPanel.tsx:142
-#: nodepkg/editor-widget/element.tsx:61
+#: nodepkg/editor-widget/element.tsx:64
 msgid "Current date & time"
 msgstr "Текущая дата и время"
 
 #: nodepkg/editor-widget/component/TabsCustomModifier.tsx:73
 #: nodepkg/editor-widget/component/TabsFormComponent.tsx:93
-#: nodepkg/editor-widget/element.tsx:950 nodepkg/editor-widget/element.tsx:958
+#: nodepkg/editor-widget/element.tsx:954 nodepkg/editor-widget/element.tsx:962
 msgid "Tab {}"
 msgstr "Вкладка {}"
 
@@ -176,185 +176,185 @@ msgid "Type here to add an option..."
 msgstr "Введите здесь, чтобы добавить опцию..."
 
 #: nodepkg/editor-widget/component/valueInputs.tsx:11
-#: nodepkg/editor-widget/element.tsx:276 nodepkg/editor-widget/element.tsx:318
-#: nodepkg/editor-widget/element.tsx:370
+#: nodepkg/editor-widget/element.tsx:279 nodepkg/editor-widget/element.tsx:321
+#: nodepkg/editor-widget/element.tsx:373
 msgid "Initial value"
 msgstr "Исходное значение"
 
-#: nodepkg/editor-widget/element.tsx:65
+#: nodepkg/editor-widget/element.tsx:68
 msgid "NextGIS ID username"
 msgstr "Имя пользователя NextGIS ID"
 
-#: nodepkg/editor-widget/element.tsx:66
+#: nodepkg/editor-widget/element.tsx:69
 msgid "NextGIS Web username"
 msgstr "Имя пользователя NextGIS Web"
 
-#: nodepkg/editor-widget/element.tsx:202 nodepkg/editor-widget/element.tsx:207
-#: nodepkg/editor-widget/element.tsx:309 nodepkg/editor-widget/element.tsx:637
-#: nodepkg/editor-widget/element.tsx:776 nodepkg/editor-widget/element.tsx:850
-#: nodepkg/editor-widget/element.tsx:872
+#: nodepkg/editor-widget/element.tsx:205 nodepkg/editor-widget/element.tsx:210
+#: nodepkg/editor-widget/element.tsx:312 nodepkg/editor-widget/element.tsx:641
+#: nodepkg/editor-widget/element.tsx:780 nodepkg/editor-widget/element.tsx:854
+#: nodepkg/editor-widget/element.tsx:876
 #: nodepkg/editor-widget/util/csvOptions.ts:14
 msgid "Label"
 msgstr "Надпись"
 
-#: nodepkg/editor-widget/element.tsx:211 nodepkg/editor-widget/element.tsx:331
+#: nodepkg/editor-widget/element.tsx:214 nodepkg/editor-widget/element.tsx:334
 msgid "Text"
 msgstr "Текст"
 
-#: nodepkg/editor-widget/element.tsx:228
+#: nodepkg/editor-widget/element.tsx:231
 msgid "Spacer"
 msgstr "Пробел"
 
-#: nodepkg/editor-widget/element.tsx:243 nodepkg/editor-widget/element.tsx:946
+#: nodepkg/editor-widget/element.tsx:246 nodepkg/editor-widget/element.tsx:950
 msgid "Tabs"
 msgstr "Вкладки"
 
-#: nodepkg/editor-widget/element.tsx:266 nodepkg/editor-widget/element.tsx:313
-#: nodepkg/editor-widget/element.tsx:356 nodepkg/editor-widget/element.tsx:466
-#: nodepkg/editor-widget/element.tsx:493 nodepkg/editor-widget/element.tsx:571
-#: nodepkg/editor-widget/element.tsx:610 nodepkg/editor-widget/element.tsx:679
-#: nodepkg/editor-widget/element.tsx:756
+#: nodepkg/editor-widget/element.tsx:269 nodepkg/editor-widget/element.tsx:316
+#: nodepkg/editor-widget/element.tsx:359 nodepkg/editor-widget/element.tsx:469
+#: nodepkg/editor-widget/element.tsx:496 nodepkg/editor-widget/element.tsx:575
+#: nodepkg/editor-widget/element.tsx:614 nodepkg/editor-widget/element.tsx:683
+#: nodepkg/editor-widget/element.tsx:760
 msgid "Field"
 msgstr "Поле"
 
-#: nodepkg/editor-widget/element.tsx:271
+#: nodepkg/editor-widget/element.tsx:274
 msgid "Max. lines"
 msgstr "Макс. число строк"
 
-#: nodepkg/editor-widget/element.tsx:280 nodepkg/editor-widget/element.tsx:322
-#: nodepkg/editor-widget/element.tsx:374 nodepkg/editor-widget/element.tsx:615
-#: nodepkg/editor-widget/element.tsx:684 nodepkg/editor-widget/element.tsx:761
-#: nodepkg/editor-widget/element.tsx:835
+#: nodepkg/editor-widget/element.tsx:283 nodepkg/editor-widget/element.tsx:325
+#: nodepkg/editor-widget/element.tsx:377 nodepkg/editor-widget/element.tsx:619
+#: nodepkg/editor-widget/element.tsx:688 nodepkg/editor-widget/element.tsx:765
+#: nodepkg/editor-widget/element.tsx:839
 msgid "Remember last value"
 msgstr "Запоминать значение"
 
-#: nodepkg/editor-widget/element.tsx:286
+#: nodepkg/editor-widget/element.tsx:289
 msgid "Text box"
 msgstr "Текстовое поле"
 
-#: nodepkg/editor-widget/element.tsx:327
+#: nodepkg/editor-widget/element.tsx:330
 msgid "Check box"
 msgstr "Флажок"
 
-#: nodepkg/editor-widget/element.tsx:361 nodepkg/editor-widget/element.tsx:576
+#: nodepkg/editor-widget/element.tsx:364 nodepkg/editor-widget/element.tsx:580
 msgid "Type"
 msgstr "Тип"
 
-#: nodepkg/editor-widget/element.tsx:363
+#: nodepkg/editor-widget/element.tsx:366
 msgid "Date"
 msgstr "Дата"
 
-#: nodepkg/editor-widget/element.tsx:364
+#: nodepkg/editor-widget/element.tsx:367
 msgid "Time"
 msgstr "Время"
 
-#: nodepkg/editor-widget/element.tsx:365 nodepkg/editor-widget/element.tsx:379
+#: nodepkg/editor-widget/element.tsx:368 nodepkg/editor-widget/element.tsx:382
 msgid "Date & time"
 msgstr "Дата и время"
 
-#: nodepkg/editor-widget/element.tsx:419
+#: nodepkg/editor-widget/element.tsx:422
 msgid "Longitude field"
 msgstr "Поле долготы"
 
-#: nodepkg/editor-widget/element.tsx:424
+#: nodepkg/editor-widget/element.tsx:427
 msgid "Lattitude field"
 msgstr "Поле широты"
 
-#: nodepkg/editor-widget/element.tsx:429
+#: nodepkg/editor-widget/element.tsx:432
 msgid "Hide"
 msgstr "Скрыть"
 
-#: nodepkg/editor-widget/element.tsx:434
+#: nodepkg/editor-widget/element.tsx:437
 msgid "Coordinates"
 msgstr "Координаты"
 
-#: nodepkg/editor-widget/element.tsx:472
+#: nodepkg/editor-widget/element.tsx:475 nodepkg/runtime/element.tsx:219
 msgid "Distance meter"
 msgstr "Дистанция"
 
-#: nodepkg/editor-widget/element.tsx:482
+#: nodepkg/editor-widget/element.tsx:485
 msgid "m"
 msgstr "м"
 
-#: nodepkg/editor-widget/element.tsx:498
+#: nodepkg/editor-widget/element.tsx:501
 msgid "Number of samples"
 msgstr "Количество измерений"
 
-#: nodepkg/editor-widget/element.tsx:504
+#: nodepkg/editor-widget/element.tsx:508 nodepkg/runtime/AverageInput.tsx:77
 msgid "Average calculator"
 msgstr "Счётчик среднего"
 
-#: nodepkg/editor-widget/element.tsx:520
+#: nodepkg/editor-widget/element.tsx:524 nodepkg/runtime/AverageInput.tsx:79
 msgid "Count"
 msgstr "Посчитать"
 
-#: nodepkg/editor-widget/element.tsx:533
+#: nodepkg/editor-widget/element.tsx:537
 msgid "Max number"
 msgstr "Макс. число фото"
 
-#: nodepkg/editor-widget/element.tsx:539
+#: nodepkg/editor-widget/element.tsx:543
 msgid "Comment"
 msgstr "Комментарий"
 
-#: nodepkg/editor-widget/element.tsx:544
+#: nodepkg/editor-widget/element.tsx:548
 msgid "Photo"
 msgstr "Фото"
 
-#: nodepkg/editor-widget/element.tsx:585
+#: nodepkg/editor-widget/element.tsx:589
 msgid "System field"
 msgstr "Системное поле"
 
-#: nodepkg/editor-widget/element.tsx:619
+#: nodepkg/editor-widget/element.tsx:623
 msgid "Enable search"
 msgstr "Разрешить поиск"
 
-#: nodepkg/editor-widget/element.tsx:623
+#: nodepkg/editor-widget/element.tsx:627
 msgid "Allow free input"
 msgstr "Свои значения"
 
-#: nodepkg/editor-widget/element.tsx:631 nodepkg/editor-widget/element.tsx:700
-#: nodepkg/editor-widget/element.tsx:770 nodepkg/editor-widget/element.tsx:844
-#: nodepkg/editor-widget/element.tsx:866
+#: nodepkg/editor-widget/element.tsx:635 nodepkg/editor-widget/element.tsx:704
+#: nodepkg/editor-widget/element.tsx:774 nodepkg/editor-widget/element.tsx:848
+#: nodepkg/editor-widget/element.tsx:870
 #: nodepkg/editor-widget/util/csvOptions.ts:13
 msgid "Value"
 msgstr "Значение"
 
-#: nodepkg/editor-widget/element.tsx:645 nodepkg/editor-widget/element.tsx:722
-#: nodepkg/editor-widget/element.tsx:784 nodepkg/editor-widget/element.tsx:858
-#: nodepkg/editor-widget/element.tsx:880
+#: nodepkg/editor-widget/element.tsx:649 nodepkg/editor-widget/element.tsx:726
+#: nodepkg/editor-widget/element.tsx:788 nodepkg/editor-widget/element.tsx:862
+#: nodepkg/editor-widget/element.tsx:884
 #: nodepkg/editor-widget/util/csvOptions.ts:15
 msgid "Initial"
 msgstr "Исходное значение"
 
-#: nodepkg/editor-widget/element.tsx:654 nodepkg/editor-widget/element.tsx:668
+#: nodepkg/editor-widget/element.tsx:658 nodepkg/editor-widget/element.tsx:672
 msgid "Dropdown"
 msgstr "Выпадающий список"
 
-#: nodepkg/editor-widget/element.tsx:688 nodepkg/editor-widget/element.tsx:706
+#: nodepkg/editor-widget/element.tsx:692 nodepkg/editor-widget/element.tsx:710
 msgid "First label"
 msgstr "Первая надпись"
 
-#: nodepkg/editor-widget/element.tsx:692 nodepkg/editor-widget/element.tsx:714
+#: nodepkg/editor-widget/element.tsx:696 nodepkg/editor-widget/element.tsx:718
 msgid "Second label"
 msgstr "Вторая надпись"
 
-#: nodepkg/editor-widget/element.tsx:731 nodepkg/editor-widget/element.tsx:745
+#: nodepkg/editor-widget/element.tsx:735 nodepkg/editor-widget/element.tsx:749
 msgid "Dual dropdown"
 msgstr "Сдвоенный список"
 
-#: nodepkg/editor-widget/element.tsx:793 nodepkg/editor-widget/element.tsx:813
+#: nodepkg/editor-widget/element.tsx:797 nodepkg/editor-widget/element.tsx:817
 msgid "Radio group"
 msgstr "Радиогруппа"
 
-#: nodepkg/editor-widget/element.tsx:825
+#: nodepkg/editor-widget/element.tsx:829
 msgid "Primary field"
 msgstr "Главное поле"
 
-#: nodepkg/editor-widget/element.tsx:830
+#: nodepkg/editor-widget/element.tsx:834
 msgid "Secondary field"
 msgstr "Зависимое поле"
 
-#: nodepkg/editor-widget/element.tsx:889 nodepkg/editor-widget/element.tsx:902
+#: nodepkg/editor-widget/element.tsx:893 nodepkg/editor-widget/element.tsx:906
 msgid "Dependent dropdowns"
 msgstr "Зависимые списки"
 
@@ -366,15 +366,15 @@ msgstr "Да"
 msgid "Group"
 msgstr "Группа"
 
-#: nodepkg/editor-widget/util/useFieldValidationRules.ts:6
+#: nodepkg/editor-widget/util/useFieldValidationRules.ts:8
 msgid "Mandatory field"
 msgstr "Обязательное поле"
 
-#: nodepkg/editor-widget/util/useFieldValidationRules.ts:7
+#: nodepkg/editor-widget/util/useFieldValidationRules.ts:9
 msgid "Key must be unique"
 msgstr "Должен быть уникальным"
 
-#: nodepkg/editor-widget/util/useFieldValidationRules.ts:8
+#: nodepkg/editor-widget/util/useFieldValidationRules.ts:10
 msgid "Display name must be unique"
 msgstr "Должно быть уникально"
 
@@ -413,3 +413,31 @@ msgstr "Скачать NGFP"
 #: nodepkg/resource-section/FormbuilderResourceSection.tsx:7
 msgid "Form preview"
 msgstr "Предпросмотр формы"
+
+#: nodepkg/runtime/AverageInput.tsx:67
+msgid "Average"
+msgstr "Среднее значение"
+
+#: nodepkg/runtime/AverageInput.tsx:86
+msgid "Value {}"
+msgstr "Значение {}"
+
+#: nodepkg/runtime/CoordinatesFields.tsx:109
+msgid "Longitude"
+msgstr "Долгота"
+
+#: nodepkg/runtime/CoordinatesFields.tsx:109
+msgid "Latitude"
+msgstr "Широта"
+
+#: nodepkg/runtime/util.ts:5
+msgid "This field is required"
+msgstr "Это поле обязательно для заполнения"
+
+#: nodepkg/settings-widget/SettingsWidget.tsx:15
+msgid "Use form in web feature editors"
+msgstr "Использовать форму при редактировании объектов в веб-интерфейсе"
+
+#: nodepkg/settings-widget/SettingsWidget.tsx:23
+msgid "Settings"
+msgstr "Настройки"

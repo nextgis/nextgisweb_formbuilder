@@ -53,7 +53,7 @@ export const FormWidget: EditorWidget<FormStore> = observer(({ store }) => {
 
         store.load({ value: resourceData });
         setSwitchModeCounter(switchModeCounter + 1);
-      } catch (error: any) {
+      } catch (error: unknown) {
         errorModal(error);
         return; // Abort switching mode
       }
