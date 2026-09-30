@@ -1,10 +1,8 @@
-from nextgisweb.env import Component, require
+from nextgisweb.env import Component
 
 
 class FormBuilderComponent(Component):
-    @require("resource")
-    def setup_pyramid(self, config):
-        from . import api, view
+    def setup_pyramid(self, config) -> None:  # noqa: ANN001
+        from . import api, view  # noqa: F401
 
         api.setup_pyramid(self, config)
-        view.setup_pyramid(self, config)

@@ -2,14 +2,13 @@
 line-length = 99
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "TID251"]
-ignore = ["E501"]
+select = ["E", "F", "W", "I", "C", "ANN", "RUF022"]
+ignore = ["ANN002", "ANN003"]
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
+"**/test/**.py" = ["ANN"]
 
 [tool.ruff.lint.isort]
-extra-standard-library = ["packaging", "pkg_resources", "setuptools"]
 section-order = [
     "future",
     "standard-library",
@@ -23,6 +22,3 @@ section-order = [
 [tool.ruff.lint.isort.sections]
 "nextgisweb-env-lib" = ["nextgisweb.env", "nextgisweb.lib"]
 "nextgisweb-comp" = ["nextgisweb"]
-
-[tool.ruff.lint.flake8-tidy-imports.banned-api]
-"typing_extensions.Annotated".msg = "Import Annotated from typing directly"

@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import math
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any
 from zipfile import ZIP_DEFLATED, BadZipFile, ZipFile
 
 import sqlalchemy as sa
@@ -21,13 +23,14 @@ from nextgisweb.feature_layer import (
     FIELD_TYPE,
     FeatureLayerFieldDatatype,
     FeatureLayerGeometryType,
-    IFeatureLayer,
+    FeatureLayerMixin,
     IFieldEditableFeatureLayer,
 )
 from nextgisweb.file_storage import FileObj
 from nextgisweb.file_upload import FileUploadRef
 from nextgisweb.resource import DataScope, Resource, ResourceScope, SAttribute, SColumn, Serializer
 from nextgisweb.resource.category import FieldDataCollectionCategory
+from nextgisweb.spatial_ref_sys import SRS, SRSMixin
 
 from .element import (
     FieldKeyname,
@@ -44,10 +47,10 @@ class FormbuilderField(Struct):
 
 class FormbuilderFormValue(Struct, kw_only=True):
     geometry_type: FeatureLayerGeometryType
-    fields: List[FormbuilderField]
-    items: List[FormbuilderFormItemUnion]
+    fields: list[FormbuilderField]
+    items: list[FormbuilderFormItemUnion]
 
-    def validate(self):
+    def validate(self) -> None:
         fields_mapping: dict[str, FormbuilderField] = {}
         seen_kn: set[str] = set()
         seen_dn: set[str] = set()
@@ -116,14 +119,14 @@ class FormbuilderFormValue(Struct, kw_only=True):
                 ).format(kn=kn, dn=dn)
             )
 
-    def field_by_keyname(self, keyname):
+    def field_by_keyname(self, keyname: str) -> FormbuilderField:
         for f in self.fields:
             if f.keyname == keyname:
                 return f
         raise KeyError
 
     @classmethod
-    def from_legacy(cls, filename) -> "FormbuilderFormValue":
+    def from_legacy(cls, filename: Path | str) -> FormbuilderFormValue:
         with ZipFile(filename, "r") as z:
             meta = loadb(z.read("meta.json"))
             form = loadb(z.read("form.json"))
@@ -139,17 +142,17 @@ class FormbuilderFormValue(Struct, kw_only=True):
     def to_legacy(self, name: str) -> bytes:
         buf = BytesIO()
         with ZipFile(buf, "w", ZIP_DEFLATED) as zf:
-            meta = dict(
-                version="2.2",
-                name=name,
-                geometry_type=self.geometry_type,
-                fields=self.fields,
-                translations=[],
-                srs=dict(id=4326),
-                ngw_connection=None,
-                lists=None,
-                key_list=None,
-            )
+            meta = {
+                "version": "2.2",
+                "name": name,
+                "geometry_type": self.geometry_type,
+                "fields": self.fields,
+                "translations": [],
+                "srs": {"id": 4326},
+                "ngw_connection": None,
+                "lists": None,
+                "key_list": None,
+            }
             zf.writestr("meta.json", dumpb(meta, pretty=True))
 
             legacy_items = [i.to_legacy() for i in self.items]
@@ -160,7 +163,7 @@ class FormbuilderFormValue(Struct, kw_only=True):
 
         return buf.getvalue()
 
-    def legacy_items_extra(self, legacy_items: List[Dict[str, Any]]):
+    def legacy_items_extra(self, legacy_items: list[dict[str, Any]]) -> None:
         for li in legacy_items:
             if li["type"] == "tabs":
                 for p in li["pages"]:
@@ -181,9 +184,9 @@ class FormbuilderFormValue(Struct, kw_only=True):
 
 
 NGFP_MAX_SIZE = 10 * 1 << 20
-NGFP_FILE_SCHEMA: Dict[str, Any] = {
-    "meta.json": Dict,
-    "form.json": List[Dict],
+NGFP_FILE_SCHEMA: dict[str, Any] = {
+    "meta.json": dict,
+    "form.json": list[dict],
     "data.geojson": None,
 }
 
@@ -206,19 +209,19 @@ class FormbuilderForm(Resource):
     ngfp_fileobj: Mapped[FileObj | None] = orm.relationship(cascade="all")
 
     @classmethod
-    def check_parent(cls, parent):
-        return IFeatureLayer.providedBy(parent)
+    def check_parent(cls, parent: Resource) -> bool:
+        return isinstance(parent, FeatureLayerMixin)
 
     @property
-    def feature_layer(self):
-        return self.parent
+    def feature_layer(self) -> FeatureLayerMixin:
+        return self.ensure_parent(FeatureLayerMixin)
 
     @property
-    def srs(self):
-        return self.parent.srs
+    def srs(self) -> SRS:
+        return self.ensure_parent(SRSMixin).srs
 
 
-def validate_ngfp_file(file: Path):
+def validate_ngfp_file(file: Path) -> None:
     msg_generic = gettext("Invalid NGFP file.")
     msg_size = gettextf("NGFP file size exceeds {} bytes.")
 
@@ -243,17 +246,17 @@ def validate_ngfp_file(file: Path):
 
 
 class ValueAttr(SAttribute):
-    def get(self, srlzr: Serializer) -> Union[FormbuilderFormValue, None]:
+    def get(self, srlzr: Serializer) -> FormbuilderFormValue | None:
         return super().get(srlzr)
 
-    def set(self, srlzr: Serializer, value: FormbuilderFormValue, *, create: bool):
+    def set(self, srlzr: Serializer, value: FormbuilderFormValue, *, create: bool) -> None:
         value.validate()
         srlzr.obj.value = value
         srlzr.obj.ngfp_fileobj = None
 
 
 class FileUploadAttr(SAttribute):
-    def set(self, srlzr: Serializer, value: FileUploadRef, *, create: bool):
+    def set(self, srlzr: Serializer, value: FileUploadRef, *, create: bool) -> None:
         file = value()
         validate_ngfp_file(file.data_path)
         srlzr.obj.ngfp_fileobj = file.to_fileobj()
@@ -261,7 +264,7 @@ class FileUploadAttr(SAttribute):
 
 
 class UpdateFieldsAttr(SAttribute):
-    def set(self, srlzr: Serializer, value: Union[bool, UnsetType], *, create: bool):
+    def set(self, srlzr: Serializer, value: bool | UnsetType, *, create: bool) -> None:
         if value is True:
             parent = srlzr.obj.parent
             if not IFieldEditableFeatureLayer.providedBy(parent):
@@ -284,7 +287,7 @@ class FormbuilderFormSerializer(Serializer, resource=FormbuilderForm):
     file_upload = FileUploadAttr(write=ResourceScope.update)
     update_feature_layer_fields = UpdateFieldsAttr(write=ResourceScope.update)
 
-    def deserialize(self):
+    def deserialize(self) -> None:
         if self.data.value is not UNSET and self.data.file_upload is not UNSET:
             raise ValidationError("'value' and 'file_upload' attributes should not pass together.")
         super().deserialize()

@@ -1,7 +1,7 @@
 from msgspec import Struct
-from pyramid.response import FileResponse, Response
 from sqlalchemy.exc import NoResultFound
 
+from nextgisweb.pyramid.tomb import Configurator, FileResponse, Request, Response
 from nextgisweb.resource import (
     DataScope,
     ResourceNotFound,
@@ -10,19 +10,22 @@ from nextgisweb.resource import (
     resource_factory,
 )
 
+from .component import FormBuilderComponent
 from .model import FormbuilderForm, FormbuilderFormValue
 
 
-def formbuilder_form_ngfp(resource, request):
+def formbuilder_form_ngfp(resource: FormbuilderForm, request: Request) -> Response:
     request.resource_permission(ResourceScope.read)
 
-    if ngfp := resource.value:
+    if (ngfp := resource.value) is not None:
         data = ngfp.to_legacy(resource.display_name)
         response = Response(data)
+    elif (ngfp_fileobj := resource.ngfp_fileobj) is not None:
+        response = FileResponse(ngfp_fileobj.filename(), request=request)
     else:
-        response = FileResponse(resource.ngfp_fileobj.filename(), request=request)
+        raise NotImplementedError
 
-    response.content_disposition = "attachment; filename=%d.ngfp" % resource.id
+    response.content_disposition = f"attachment; filename={resource.id}.ngfp"
     return response
 
 
@@ -30,7 +33,7 @@ class NGFPConvertBody(Struct, kw_only=True):
     resource: ResourceRef
 
 
-def formbuilder_form_convert(request, *, body: NGFPConvertBody) -> FormbuilderFormValue:
+def formbuilder_form_convert(request: Request, *, body: NGFPConvertBody) -> FormbuilderFormValue:
     try:
         res = FormbuilderForm.filter_by(id=body.resource.id).one()
     except NoResultFound:
@@ -45,7 +48,7 @@ def formbuilder_form_convert(request, *, body: NGFPConvertBody) -> FormbuilderFo
     return FormbuilderFormValue.from_legacy(fn)
 
 
-def setup_pyramid(comp, config):
+def setup_pyramid(comp: FormBuilderComponent, config: Configurator) -> None:
     config.add_route(
         "formbuilder.formbuilder_form_ngfp",
         "/api/resource/{id:uint}/ngfp",
@@ -55,4 +58,5 @@ def setup_pyramid(comp, config):
     config.add_route(
         "formbuilder.formbuilder_form_convert",
         "/api/component/formbuilder/ngfp_convert",
-    ).post(formbuilder_form_convert)
+        post=formbuilder_form_convert,
+    )

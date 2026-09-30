@@ -1,31 +1,21 @@
+from __future__ import annotations
+
 import re
+from collections.abc import Callable
 from datetime import datetime
-from typing import (
-    TYPE_CHECKING,
-    Annotated,
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    List,
-    Literal,
-    Tuple,
-    Type,
-    Union,
-    cast,
-    get_origin,
-)
+from inspect import get_annotations
+from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal, Self, cast, get_origin
 
 from msgspec import UNSET, Meta, Struct, UnsetType
 
 from nextgisweb.env import gettextf
-from nextgisweb.lib.apitype import disannotate
+from nextgisweb.lib.apitype import disannotate, make_union
 
 from nextgisweb.core.exception import ValidationError
 from nextgisweb.feature_layer import FIELD_TYPE, FeatureLayerFieldDatatype
 from nextgisweb.jsrealm import TSExport
 
-DatatypeTuple = Tuple[FeatureLayerFieldDatatype, ...]
+DatatypeTuple = tuple[FeatureLayerFieldDatatype, ...]
 BindFieldCallback = Callable[[str, DatatypeTuple], None]
 
 
@@ -45,17 +35,18 @@ Remember = Annotated[bool, LegacySpec(attr="last")]
 
 
 class FormbuilderItem(Struct, kw_only=True):
-    registry: ClassVar[list[Type["FormbuilderItem"]]] = list()
-    field_specs: ClassVar[Tuple[Tuple[str, FieldSpec], ...]]
-    legacy_specs: ClassVar[Tuple[Tuple[str, LegacySpec], ...]]
+    registry: ClassVar[list[type[FormbuilderItem]]] = []
+
+    field_specs: ClassVar[tuple[tuple[str, FieldSpec], ...]]
+    legacy_specs: ClassVar[tuple[tuple[str, LegacySpec, Any | None], ...]]
     legacy_type: ClassVar[str]
 
-    def __init_subclass__(cls, **kw):
-        super().__init_subclass__(**kw)
+    def __init_subclass__(cls, **kwargs) -> None:
+        super().__init_subclass__(**kwargs)
         cls.registry.append(cls)
         field_specs = set()
         legacy_specs = set()
-        for attr, tdef in cls.__annotations__.items():
+        for attr, tdef in get_annotations(cls, eval_str=True).items():
             tbase, extras = disannotate(tdef)
             for extra in extras:
                 if isinstance(extra, FieldSpec):
@@ -68,8 +59,8 @@ class FormbuilderItem(Struct, kw_only=True):
         cls.legacy_specs = tuple(legacy_specs)
 
     @classmethod
-    def attrs_from_legacy(cls, li) -> Dict[str, Any]:
-        attrs = dict()
+    def attrs_from_legacy(cls, li: dict[str, Any]) -> dict[str, Any]:
+        attrs = {}
         for attr, spec, collection_cls in cls.legacy_specs:
             obj = li["attributes"][spec.attr]
             if collection_cls is not None:
@@ -83,7 +74,7 @@ class FormbuilderItem(Struct, kw_only=True):
         return attrs
 
     @classmethod
-    def from_legacy(cls, li):
+    def from_legacy(cls, li: dict[str, Any]) -> FormbuilderItem:
         match li["type"]:
             case "counter" | "signature":
                 return FormbuilderLabelItem(label="UNSUPPORTED")
@@ -108,9 +99,9 @@ class FormbuilderItem(Struct, kw_only=True):
             keyname = getattr(self, attr)
             bind_field(keyname, spec.datatypes)
 
-    def to_legacy(self) -> Dict[str, Any]:
-        data: Dict[str, Any] = dict(type=self.legacy_type)
-        attributes = data["attributes"] = dict()
+    def to_legacy(self) -> dict[str, Any]:
+        data: dict[str, Any] = {"type": self.legacy_type}
+        attributes = data["attributes"] = {}
         for attr, spec, collection_cls in self.legacy_specs:
             value = getattr(self, attr)
             if value is UNSET:
@@ -134,10 +125,10 @@ class FormbuilderLabelItem(FormbuilderItem, tag="label"):
 class FormbuilderTab(Struct):
     title: str
     active: bool
-    items: List["FormbuilderFormItemUnion"]
+    items: list[FormbuilderFormItemUnion]
 
     @classmethod
-    def from_legacy(cls, li):
+    def from_legacy(cls, li: dict[str, Any]) -> Self:
         items = [FormbuilderItem.from_legacy(i) for i in li["elements"]]
         return cls(
             title=li["caption"],
@@ -149,8 +140,8 @@ class FormbuilderTab(Struct):
         for item in self.items:
             item.validate(bind_field=bind_field)
 
-    def to_legacy(self) -> Dict[str, Any]:
-        result: Dict[str, Any] = dict(caption=self.title)
+    def to_legacy(self) -> dict[str, Any]:
+        result: dict[str, Any] = {"caption": self.title}
         if self.active:
             result["default"] = True
         result["elements"] = [i.to_legacy() for i in self.items]
@@ -160,10 +151,10 @@ class FormbuilderTab(Struct):
 class FormbuilderTabsItem(FormbuilderItem, tag="tabs"):
     legacy_type = "tabs"
 
-    tabs: List[FormbuilderTab]
+    tabs: list[FormbuilderTab]
 
     @classmethod
-    def attrs_from_legacy(cls, li):
+    def attrs_from_legacy(cls, li: dict[str, Any]) -> dict[str, Any]:
         attrs = super().attrs_from_legacy(li)
         attrs["tabs"] = [FormbuilderTab.from_legacy(i) for i in li["pages"]]
         return attrs
@@ -173,7 +164,7 @@ class FormbuilderTabsItem(FormbuilderItem, tag="tabs"):
         for tab in self.tabs:
             tab.validate(bind_field=bind_field)
 
-    def to_legacy(self) -> Dict[str, Any]:
+    def to_legacy(self) -> dict[str, Any]:
         result = super().to_legacy()
         result["pages"] = [i.to_legacy() for i in self.tabs]
         return result
@@ -199,10 +190,10 @@ class FormbuilderTextboxItem(FormbuilderItem, tag="textbox", kw_only=True):
         LegacySpec(attr="field"),
     ]
     remember: Remember
-    initial: Annotated[Union[str, UnsetType], LegacySpec(attr="text", default="")] = UNSET
+    initial: Annotated[str | UnsetType, LegacySpec(attr="text", default="")] = UNSET
     max_lines: Annotated[int, Meta(ge=1, lt=256), LegacySpec(attr="max_string_count")]
 
-    def to_legacy(self) -> Dict[str, Any]:
+    def to_legacy(self) -> dict[str, Any]:
         result = super().to_legacy()
         result["attributes"].update({"ngid_login": False, "ngw_login": False})
         return result
@@ -224,10 +215,7 @@ class FormbuilderCheckboxItem(FormbuilderItem, tag="checkbox", kw_only=True):
         LegacySpec(attr="field"),
     ]
     remember: Remember
-    initial: Annotated[
-        Union[bool, UnsetType],
-        LegacySpec(attr="init_value", default=False),
-    ] = UNSET
+    initial: Annotated[bool | UnsetType, LegacySpec(attr="init_value", default=False)] = UNSET
     label: Annotated[str, LegacySpec(attr="text")]
 
 
@@ -242,18 +230,18 @@ class FormbuilderSystemItem(FormbuilderItem, tag="system", kw_only=True):
     system: Literal["ngid_username", "ngw_username"]
 
     @classmethod
-    def attrs_from_legacy(cls, la) -> Dict[str, Any]:
-        attrs = super().attrs_from_legacy(la)
-        if la["attributes"]["ngid_login"]:
+    def attrs_from_legacy(cls, li: dict[str, Any]) -> dict[str, Any]:
+        attrs = super().attrs_from_legacy(li)
+        if li["attributes"]["ngid_login"]:
             system = "ngid_username"
-        elif la["attributes"]["ngw_login"]:
+        elif li["attributes"]["ngw_login"]:
             system = "ngw_username"
         else:
             raise NotImplementedError
         attrs["system"] = system
         return attrs
 
-    def to_legacy(self) -> Dict[str, Any]:
+    def to_legacy(self) -> dict[str, Any]:
         result = super().to_legacy()
         result["attributes"].update(
             {
@@ -307,7 +295,7 @@ class FormbuilderDatetimeItem(FormbuilderItem, tag="datetime", kw_only=True):
     legacy_datetime_format = r"%Y-%m-%d %H:%M:%S"
 
     @classmethod
-    def attrs_from_legacy(cls, li):
+    def attrs_from_legacy(cls, li: dict[str, Any]) -> dict[str, Any]:
         attrs = super().attrs_from_legacy(li)
 
         ldtype = li["attributes"]["date_type"]
@@ -340,7 +328,7 @@ class FormbuilderDatetimeItem(FormbuilderItem, tag="datetime", kw_only=True):
                     ).format(i=self.initial, t=self.datetime)
                 )
 
-    def to_legacy(self) -> Dict[str, Any]:
+    def to_legacy(self) -> dict[str, Any]:
         result = super().to_legacy()
 
         date_type = self.legacy_datetime_map[self.datetime]
@@ -359,21 +347,21 @@ class FormbuilderDatetimeItem(FormbuilderItem, tag="datetime", kw_only=True):
 class OptionSingle(Struct, kw_only=True):
     value: str
     label: str
-    initial: Union[bool, UnsetType] = UNSET
+    initial: bool | UnsetType = UNSET
 
     @classmethod
-    def from_legacy(cls, li):
+    def from_legacy(cls, li: dict[str, Any]) -> Self:
         return cls(
             value=li["name"],
             label=li["alias"],
             initial=li.get("default", UNSET),
         )
 
-    def to_legacy(self) -> Dict[str, Any]:
-        result: Dict[str, Any] = dict(
-            name=self.value,
-            alias=self.label,
-        )
+    def to_legacy(self) -> dict[str, Any]:
+        result: dict[str, Any] = {
+            "name": self.value,
+            "alias": self.label,
+        }
         if self.initial is not UNSET:
             result["default"] = self.initial
         return result
@@ -388,7 +376,7 @@ class FormbuilderRadioItem(FormbuilderItem, tag="radio", kw_only=True):
         LegacySpec(attr="field"),
     ]
     remember: Remember
-    options: Annotated[List[OptionSingle], LegacySpec(attr="values")]
+    options: Annotated[list[OptionSingle], LegacySpec(attr="values")]
 
 
 class FormbuilderDropdownItem(FormbuilderItem, tag="dropdown", kw_only=True):
@@ -400,7 +388,7 @@ class FormbuilderDropdownItem(FormbuilderItem, tag="dropdown", kw_only=True):
         LegacySpec(attr="field"),
     ]
     remember: Remember
-    options: Annotated[List[OptionSingle], LegacySpec(attr="values")]
+    options: Annotated[list[OptionSingle], LegacySpec(attr="values")]
     search: Annotated[bool, LegacySpec(attr="input_search")]
     free_input: Annotated[bool, LegacySpec(attr="allow_adding_values")]
 
@@ -409,10 +397,10 @@ class OptionDual(Struct, kw_only=True):
     value: str
     first: str
     second: str
-    initial: Union[bool, UnsetType] = UNSET
+    initial: bool | UnsetType = UNSET
 
     @classmethod
-    def from_legacy(cls, li):
+    def from_legacy(cls, li: dict[str, Any]) -> Self:
         return cls(
             value=li["name"],
             first=li["alias"],
@@ -420,12 +408,12 @@ class OptionDual(Struct, kw_only=True):
             initial=li.get("default", UNSET),
         )
 
-    def to_legacy(self) -> Dict[str, Any]:
-        result: Dict[str, Any] = dict(
-            name=self.value,
-            alias=self.first,
-            alias2=self.second,
-        )
+    def to_legacy(self) -> dict[str, Any]:
+        result: dict[str, Any] = {
+            "name": self.value,
+            "alias": self.first,
+            "alias2": self.second,
+        }
         if self.initial is not UNSET:
             result["default"] = self.initial
         return result
@@ -440,16 +428,16 @@ class FormbuilderDropdownDualItem(FormbuilderItem, tag="dropdown_dual", kw_only=
         LegacySpec(attr="field"),
     ]
     remember: Remember
-    options: Annotated[List[OptionDual], LegacySpec(attr="values")]
+    options: Annotated[list[OptionDual], LegacySpec(attr="values")]
     label_first: Annotated[str, LegacySpec(attr="label1")]
     label_second: Annotated[str, LegacySpec(attr="label2")]
 
 
 class CascadeOption(OptionSingle, kw_only=True):
-    items: Annotated[List[OptionSingle], LegacySpec(attr="values")]
+    items: Annotated[list[OptionSingle], LegacySpec(attr="values")]
 
     @classmethod
-    def from_legacy(cls, li):
+    def from_legacy(cls, li: dict[str, Any]) -> Self:
         items = [OptionSingle.from_legacy(i) for i in li["values"]]
         return cls(
             value=li["name"],
@@ -458,7 +446,7 @@ class CascadeOption(OptionSingle, kw_only=True):
             items=items,
         )
 
-    def to_legacy(self) -> Dict[str, Any]:
+    def to_legacy(self) -> dict[str, Any]:
         result = super().to_legacy()
         result["values"] = [o.to_legacy() for o in self.items]
         return result
@@ -478,7 +466,7 @@ class FormbuilderCascadeItem(FormbuilderItem, tag="cascade", kw_only=True):
         LegacySpec(attr="field_level2"),
     ]
     remember: Remember
-    options: Annotated[List[CascadeOption], LegacySpec(attr="values")]
+    options: Annotated[list[CascadeOption], LegacySpec(attr="values")]
 
 
 class FormbuilderCoordinatesItem(FormbuilderItem, tag="coordinates", kw_only=True):
@@ -496,7 +484,7 @@ class FormbuilderCoordinatesItem(FormbuilderItem, tag="coordinates", kw_only=Tru
     ]
     hidden: Annotated[bool, LegacySpec(attr="hidden")]
 
-    def to_legacy(self) -> Dict[str, Any]:
+    def to_legacy(self) -> dict[str, Any]:
         result = super().to_legacy()
         result["attributes"].update({"crs": 0, "format": 0})
         return result
@@ -544,10 +532,11 @@ class FormbuilderPhotoItem(FormbuilderItem, tag="photo", kw_only=True):
     comment: Annotated[str, LegacySpec(attr="comment")]
 
 
-if TYPE_CHECKING:
-    FormbuilderFormItemUnion = FormbuilderItem
-else:
-    FormbuilderFormItemUnion = Annotated[
-        Union[tuple(FormbuilderItem.registry)],
+FormbuilderFormItemUnion = (
+    FormbuilderItem
+    if TYPE_CHECKING
+    else Annotated[
+        make_union(FormbuilderItem.registry),
         TSExport("FormbuilderFormItem"),
     ]
+)

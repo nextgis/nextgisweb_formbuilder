@@ -217,6 +217,6 @@ def test_fields_update(vector_layer):
 
     fields = get_fields(rapi, vector_layer)
     assert len(fields) == len(form_fields)
-    for f1, f2 in zip(fields, form_fields):
+    for f1, f2 in zip(fields, form_fields, strict=True):
         for k in ("keyname", "datatype", "display_name"):
             assert f1[k] == f2[k]

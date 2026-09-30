@@ -18,9 +18,5 @@ class FormbuilderSettingsWidget(Widget):
 
 
 @resource_sections("@nextgisweb/formbuilder/resource-section")
-def resource_section(obj, **kwargs):
+def resource_section(obj: FormbuilderForm, **kwargs) -> bool:
     return isinstance(obj, FormbuilderForm) and obj.value is not None
-
-
-def setup_pyramid(comp, config):
-    pass
