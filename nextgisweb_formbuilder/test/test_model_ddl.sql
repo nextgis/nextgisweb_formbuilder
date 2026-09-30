@@ -4,6 +4,7 @@ CREATE TABLE formbuilder_form (
     id integer NOT NULL,
     value jsonb,
     ngfp_fileobj_id integer,
+    web_enabled boolean NOT NULL,
     PRIMARY KEY (id),
     CHECK ((
         value IS NULL
