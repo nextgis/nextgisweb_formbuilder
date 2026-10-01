@@ -1,4 +1,4 @@
-import { action, computed, observable } from "mobx";
+import { action, actionBound, computed, observableRef } from "mobx";
 
 import type { FeatureLayerGeometryType } from "@nextgisweb/feature-layer/type/api";
 import type { FileMeta } from "@nextgisweb/file-upload/file-uploader";
@@ -35,14 +35,14 @@ export class FormStore implements EditorStore<
   readonly identity = "formbuilder_form";
   readonly composite: CompositeStore;
 
-  @observable.ref accessor mode: Mode = "input";
-  @observable.ref accessor file_upload: FileMeta | undefined = undefined;
-  @observable.ref accessor uploading: boolean = false;
+  @observableRef accessor mode: Mode = "input";
+  @observableRef accessor file_upload: FileMeta | undefined = undefined;
+  @observableRef accessor uploading: boolean = false;
 
-  @observable.ref accessor dirty: boolean = false;
+  @observableRef accessor dirty: boolean = false;
 
-  @observable.ref accessor editorData: EditorData | undefined = undefined;
-  @observable.ref accessor initEditorData: FormbuilderEditorValue | undefined =
+  @observableRef accessor editorData: EditorData | undefined = undefined;
+  @observableRef accessor initEditorData: FormbuilderEditorValue | undefined =
     undefined;
 
   constructor({ composite }: EditorStoreOptions) {
@@ -76,12 +76,12 @@ export class FormStore implements EditorStore<
     return result;
   }
 
-  @action.bound
+  @actionBound
   setMode(mode: Mode) {
     this.mode = mode;
   }
 
-  @action.bound
+  @actionBound
   setDirty(val: boolean) {
     this.dirty = val;
   }

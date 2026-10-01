@@ -1,5 +1,5 @@
 import { cloneDeep } from "lodash-es";
-import { action, observable } from "mobx";
+import { actionBound, observableRef, observableShallow } from "mobx";
 
 import type { FeatureLayerGeometryType } from "@nextgisweb/feature-layer/type/api";
 import type { FormbuilderField } from "@nextgisweb/formbuilder/type/api";
@@ -30,30 +30,29 @@ export interface FormbuilderValue {
 }
 
 export class FormbuilderEditorStore {
-  @observable.shallow accessor inputsTree: FormBuilderUIData = {
+  @observableShallow accessor inputsTree: FormBuilderUIData = {
     listId: 0,
     list: [],
   };
-  @observable.ref accessor geometryType: FeatureLayerGeometryType = "POINT";
-  @observable.shallow accessor fields: FormbuilderEditorField[] = [];
-  @observable.ref accessor canUpdateFields: boolean = false;
-  @observable.ref accessor updateFeatureLayerFields: boolean = false;
+  @observableRef accessor geometryType: FeatureLayerGeometryType = "POINT";
+  @observableShallow accessor fields: FormbuilderEditorField[] = [];
+  @observableRef accessor canUpdateFields: boolean = false;
+  @observableRef accessor updateFeatureLayerFields: boolean = false;
 
-  @observable.shallow accessor grabbedInput: GrabbedInputComposite | null =
+  @observableShallow accessor grabbedInput: GrabbedInputComposite | null = null;
+  @observableRef accessor grabbedIndex: number | null = null;
+  @observableRef accessor grabbedSourceListId: number | null = null;
+  @observableRef accessor isMoving: boolean = false;
+  @observableRef accessor listCounter: number = 0;
+  @observableRef accessor selectedInput: UIListItem | null = null;
+  @observableRef accessor dragging = false;
+  @observableRef accessor dragPos: DragPos | null = null;
+
+  @observableRef accessor onChange: ((val: FormbuilderValue) => void) | null =
     null;
-  @observable.ref accessor grabbedIndex: number | null = null;
-  @observable.ref accessor grabbedSourceListId: number | null = null;
-  @observable.ref accessor isMoving: boolean = false;
-  @observable.ref accessor listCounter: number = 0;
-  @observable.ref accessor selectedInput: UIListItem | null = null;
-  @observable.ref accessor dragging = false;
-  @observable.ref accessor dragPos: DragPos | null = null;
+  @observableRef accessor setDirty: ((val: boolean) => void) | null;
 
-  @observable.ref accessor onChange: ((val: FormbuilderValue) => void) | null =
-    null;
-  @observable.ref accessor setDirty: ((val: boolean) => void) | null;
-
-  @observable.ref accessor editable: boolean = true;
+  @observableRef accessor editable: boolean = true;
 
   constructor({
     onChange,
@@ -69,24 +68,24 @@ export class FormbuilderEditorStore {
     this.editable = editable;
   }
 
-  @action.bound
+  @actionBound
   setEditable(value: boolean) {
     this.editable = value;
   }
 
-  @action.bound
+  @actionBound
   setDragging(value: boolean) {
     if (this.dragging === value) return;
     this.dragging = value;
     this.dragPos = null;
   }
 
-  @action.bound
+  @actionBound
   setDragPos(value: DragPos) {
     this.dragPos = value;
   }
 
-  @action.bound
+  @actionBound
   setInputsTree(inputs: FormBuilderUIData) {
     this.inputsTree = inputs;
     this.onChange?.({
@@ -97,38 +96,38 @@ export class FormbuilderEditorStore {
     });
   }
 
-  @action.bound
+  @actionBound
   setIsMoving(value: boolean) {
     this.isMoving = value;
   }
 
-  @action.bound
+  @actionBound
   setSelectedInput(value: UIListItem | null) {
     this.selectedInput = value;
   }
 
-  @action.bound
+  @actionBound
   setGrabbedInput(composite: GrabbedInputComposite | null) {
     this.grabbedInput = composite;
   }
 
-  @action.bound
+  @actionBound
   setGrabbedIndex(i: number | null) {
     this.grabbedIndex = i;
   }
 
-  @action.bound
+  @actionBound
   setGrabbedSourceListId(id: number | null) {
     this.grabbedSourceListId = id;
   }
 
-  @action.bound
+  @actionBound
   getNewListIndex() {
     this.listCounter += 1;
     return this.listCounter;
   }
 
-  @action.bound
+  @actionBound
   setFeatureLayer(composite: CompositeRead, permissions: EffectivePermissions) {
     const { resource, feature_layer: featureLayer } = composite;
     const hasIFE = resource.interfaces.includes("IFieldEditableFeatureLayer");
@@ -152,19 +151,19 @@ export class FormbuilderEditorStore {
     this.setFields([...existing, ...absent]); // Will fire onChange event
   }
 
-  @action.bound
+  @actionBound
   setFields(fields: FormbuilderEditorField[]) {
     this.fields = fields;
     this.fireOnChange();
   }
 
-  @action.bound
+  @actionBound
   setUpdateFeatureLayerFields(value: boolean) {
     this.updateFeatureLayerFields = value;
     this.fireOnChange();
   }
 
-  @action.bound
+  @actionBound
   updateField(keyname: string, newData: Partial<FormbuilderEditorField>) {
     this.fields = this.fields.map((field) => {
       if (field.keyname === keyname) {
@@ -289,7 +288,7 @@ export class FormbuilderEditorStore {
     return false;
   }
 
-  @action.bound
+  @actionBound
   setListById(id: number, newList: UIListItem[]) {
     function setListByIdInner(
       data: FormBuilderUIData | UIListItem | UITab,
@@ -340,7 +339,7 @@ export class FormbuilderEditorStore {
     this.fireOnChange();
   }
 
-  @action.bound
+  @actionBound
   setNewElementData(id: number, newData: any) {
     this.inputsTree = updateElementById(this.inputsTree, id, (element) => {
       element.data = newData;
@@ -348,7 +347,7 @@ export class FormbuilderEditorStore {
     this.fireOnChange();
   }
 
-  @action.bound
+  @actionBound
   setNewElementValue(id: number, newValue: any) {
     this.inputsTree = updateElementById(this.inputsTree, id, (element) => {
       element.value = newValue;

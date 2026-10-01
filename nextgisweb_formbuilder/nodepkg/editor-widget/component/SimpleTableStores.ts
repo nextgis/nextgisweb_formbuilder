@@ -1,5 +1,5 @@
 import { clamp, remove } from "lodash-es";
-import { action, observable } from "mobx";
+import { actionBound, observable, observableRef } from "mobx";
 
 import type { EdiTableStore } from "@nextgisweb/gui/edi-table";
 
@@ -16,23 +16,23 @@ export class OptionsRow {
   readonly key = ++OptionsRow.keySeq;
   readonly store: OptionsEdiTableStore;
 
-  @observable.ref accessor initial: boolean = false;
-  @observable.ref accessor value: string = "";
-  @observable.ref accessor label: string | undefined = undefined;
-  @observable.ref accessor first: string | undefined = undefined;
-  @observable.ref accessor second: string | undefined = undefined;
+  @observableRef accessor initial: boolean = false;
+  @observableRef accessor value: string = "";
+  @observableRef accessor label: string | undefined = undefined;
+  @observableRef accessor first: string | undefined = undefined;
+  @observableRef accessor second: string | undefined = undefined;
 
   constructor(store: OptionsEdiTableStore, data: Partial<OptionsRow> = {}) {
     this.store = store;
     Object.assign(this, data);
   }
 
-  @action.bound
+  @actionBound
   setStringProp(prop: OptionsRowStringKeys, value: string) {
     (this[prop] as string) = value;
   }
 
-  @action.bound
+  @actionBound
   setValue(value: string) {
     for (const col of this.store.columns) {
       if (col === "label" || col === "first" || col === "second") {
@@ -47,7 +47,7 @@ export class OptionsRow {
     }
   }
 
-  @action.bound
+  @actionBound
   setInitial(value: boolean) {
     this.initial = value;
     for (const row of this.store.rows) {
@@ -61,14 +61,14 @@ export class OptionsRow {
 export class OptionsEdiTableStore implements EdiTableStore<OptionsRow> {
   readonly rows = observable.array<OptionsRow>();
 
-  @observable.ref accessor columns: string[] = [];
-  @observable.ref accessor placeholder: OptionsRow | null = new OptionsRow(
+  @observableRef accessor columns: string[] = [];
+  @observableRef accessor placeholder: OptionsRow | null = new OptionsRow(
     this,
     {}
   );
-  @observable.ref accessor readOnly: boolean = false;
+  @observableRef accessor readOnly: boolean = false;
 
-  @action.bound
+  @actionBound
   setReadOnly(value: boolean) {
     this.readOnly = value;
     if (value) {
@@ -76,7 +76,7 @@ export class OptionsEdiTableStore implements EdiTableStore<OptionsRow> {
     }
   }
 
-  @action.bound
+  @actionBound
   rotatePlaceholder() {
     if (!this.placeholder) return;
 
@@ -89,22 +89,22 @@ export class OptionsEdiTableStore implements EdiTableStore<OptionsRow> {
     this.placeholder = new OptionsRow(this, {});
   }
 
-  @action.bound
+  @actionBound
   addRow(data: Partial<OptionsRow>) {
     this.rows.push(new OptionsRow(this, data));
   }
 
-  @action.bound
+  @actionBound
   setColumns(columns: string[]) {
     this.columns = columns;
   }
 
-  @action.bound
+  @actionBound
   setRows(data: Partial<OptionsRow>[]) {
     this.rows.replace(data.map((r) => new OptionsRow(this, r)));
   }
 
-  @action.bound
+  @actionBound
   cloneRow(row: OptionsRow) {
     this.rows.splice(
       this.rows.indexOf(row) + 1,
@@ -118,12 +118,12 @@ export class OptionsEdiTableStore implements EdiTableStore<OptionsRow> {
     );
   }
 
-  @action.bound
+  @actionBound
   deleteRow(row: OptionsRow) {
     this.rows.remove(row);
   }
 
-  @action.bound
+  @actionBound
   reorderRow(row: OptionsRow, index: number) {
     index = clamp(index, 0, this.rows.length - 1);
 

@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { clamp, remove } from "lodash-es";
-import { action, observable } from "mobx";
+import { actionBound, observable, observableRef } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 
@@ -44,22 +44,22 @@ export class ParentRow {
   readonly key = ++ParentRow.keySeq;
   readonly store: ParentStore;
 
-  @observable.ref accessor initial: boolean = false;
-  @observable.ref accessor value: string = "";
-  @observable.ref accessor label: string = "";
-  @observable.ref accessor items = observable.array<OptionSingle>([]);
+  @observableRef accessor initial: boolean = false;
+  @observableRef accessor value: string = "";
+  @observableRef accessor label: string = "";
+  @observableRef accessor items = observable.array<OptionSingle>([]);
 
   constructor(store: ParentStore, data: Partial<ParentRow> = {}) {
     this.store = store;
     Object.assign(this, data);
   }
 
-  @action.bound
+  @actionBound
   setStringProp(prop: ParentRowStringKeys, value: string) {
     (this[prop] as string) = value;
   }
 
-  @action.bound
+  @actionBound
   setValue(value: string) {
     if (this.label === this.value) {
       this.label = value;
@@ -70,7 +70,7 @@ export class ParentRow {
     }
   }
 
-  @action.bound
+  @actionBound
   setInitial(value: boolean) {
     this.initial = value;
     for (const row of this.store.rows) {
@@ -84,14 +84,14 @@ export class ParentRow {
 class ParentStore implements EdiTableStore<ParentRow> {
   readonly rows = observable.array<ParentRow>();
 
-  @observable.ref accessor selectedRowKey: number | undefined = undefined;
-  @observable.ref accessor placeholder: ParentRow | null = new ParentRow(
+  @observableRef accessor selectedRowKey: number | undefined = undefined;
+  @observableRef accessor placeholder: ParentRow | null = new ParentRow(
     this,
     {}
   );
-  @observable.ref accessor readOnly: boolean = false;
+  @observableRef accessor readOnly: boolean = false;
 
-  @action.bound
+  @actionBound
   setReadOnly(value: boolean) {
     this.readOnly = value;
     if (value) {
@@ -99,12 +99,12 @@ class ParentStore implements EdiTableStore<ParentRow> {
     }
   }
 
-  @action.bound
+  @actionBound
   setSelectedRowKey(val: number | undefined) {
     this.selectedRowKey = val;
   }
 
-  @action.bound
+  @actionBound
   rotatePlaceholder() {
     if (!this.placeholder) return;
 
@@ -117,19 +117,19 @@ class ParentStore implements EdiTableStore<ParentRow> {
     this.placeholder = new ParentRow(this, {});
   }
 
-  @action.bound
+  @actionBound
   addRow(data: Partial<ParentRow>) {
     this.rows.push(new ParentRow(this, data));
   }
 
-  @action.bound
+  @actionBound
   setRows(data: Partial<ParentRow>[]) {
     data.forEach((r: Partial<ParentRow>) => {
       this.rows.push(new ParentRow(this, r));
     });
   }
 
-  @action.bound
+  @actionBound
   setRowItemsByValue(targetValue: string, newItems: OptionSingle[]) {
     const updatedRows = this.rows.map((row) => {
       if (row.value === targetValue) {
@@ -143,7 +143,7 @@ class ParentStore implements EdiTableStore<ParentRow> {
     this.rows.replace(updatedRows);
   }
 
-  @action.bound
+  @actionBound
   setRowItemsByKey(targetKey: number, newItems: OptionSingle[]) {
     const updatedRows = this.rows.map((row) => {
       if (row.key === targetKey) {
@@ -157,14 +157,14 @@ class ParentStore implements EdiTableStore<ParentRow> {
     this.rows.replace(updatedRows);
   }
 
-  @action.bound
+  @actionBound
   cloneRow(row: ParentRow) {
     const { value, label } = row;
     const idx = this.rows.indexOf(row) + 1;
     this.rows.splice(idx, 0, new ParentRow(this, { value, label }));
   }
 
-  @action.bound
+  @actionBound
   deleteRow(row: ParentRow) {
     this.rows.remove(row);
 
@@ -173,12 +173,12 @@ class ParentStore implements EdiTableStore<ParentRow> {
     }
   }
 
-  @action.bound
+  @actionBound
   clear() {
     this.rows.clear();
   }
 
-  @action.bound
+  @actionBound
   reorderRow(row: ParentRow, index: number) {
     index = clamp(index, 0, this.rows.length - 1);
 
